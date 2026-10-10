@@ -514,7 +514,10 @@ function Album({
           </group>
         ))}
       {texture && (
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-0.75, 0.12, 0]}>
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[-0.75, registration ? 0.14 : 0.12, 0]}
+        >
           <planeGeometry args={[1.4, 1.5]} />
           <meshStandardMaterial map={texture} />
         </mesh>
