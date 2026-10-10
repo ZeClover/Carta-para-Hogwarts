@@ -61,9 +61,9 @@ export function PlayerTools({
       )
         return;
       replace(parsed.data);
+      onRestore?.(parsed.data.story.experienceStep);
       if (await saveNow()) {
         setMessage("História restaurada.");
-        onRestore?.(parsed.data.story.experienceStep);
       } else
         setMessage(
           "História recuperada em memória; salve ou baixe uma cópia antes de sair.",

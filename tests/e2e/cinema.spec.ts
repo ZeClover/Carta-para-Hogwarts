@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 test("fullscreen, confirma, retoma, edita e preserva todas as perguntas", async ({
@@ -33,6 +34,8 @@ test("fullscreen, confirma, retoma, edita e preserva todas as perguntas", async 
     .getByRole("button", { name: "Confirmar capítulo e continuar" })
     .click();
   await expect(page.locator("#family")).toBeVisible();
+  await page.locator("#family").selectOption("black");
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.getByRole("button", { name: "Continuar", exact: true }).click();
   await expect(page.locator("#II01-title")).toBeVisible();
   await page
@@ -61,10 +64,14 @@ test("fullscreen, confirma, retoma, edita e preserva todas as perguntas", async 
       .getAttribute("aria-label");
     await page.locator(".cinema-actions .button").last().click();
     await expect
-      .poll(async () =>
-        page.url().endsWith("/revisao")
-          ? "review"
-          : page.locator(".cinema-writing").getAttribute("aria-label"),
+      .poll(() =>
+        page.evaluate(() =>
+          location.pathname === "/revisao"
+            ? "review"
+            : (document
+                .querySelector(".cinema-writing")
+                ?.getAttribute("aria-label") ?? "navigation"),
+        ),
       )
       .not.toBe(current);
   }
@@ -75,6 +82,7 @@ test("fullscreen, confirma, retoma, edita e preserva todas as perguntas", async 
     "Página VII-review",
   );
   await page.getByRole("button", { name: "Capítulos e opções" }).click();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Baixar backup completo" }).click();
   expect((await download).suggestedFilename()).toContain("backup");
@@ -139,5 +147,40 @@ test("texto oculto fica guardado e não aparece na tinta ou nas páginas", async
   await page.locator("#II02-status").selectOption("answered");
   await expect(page.locator("#II02")).toHaveValue(
     "Texto fictício reservado ao rascunho",
+  );
+});
+test("restaurar o mesmo personagem cancela uma transição pendente", async ({
+  page,
+}) => {
+  await page.goto("/experiencia");
+  await page.locator("#I01").fill("Personagem fictício preservado");
+  await page.getByRole("button", { name: "Capítulos e opções" }).click();
+  const downloading = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Baixar backup completo" }).click();
+  const file = await downloading;
+  const buffer = await readFile((await file.path())!);
+  await page
+    .getByRole("button", { name: "Voltar à cena", exact: true })
+    .click();
+  await page.clock.install({ time: new Date() });
+  await page.clock.pauseAt(new Date(Date.now() + 1000));
+  await page.getByRole("button", { name: "Continuar", exact: true }).click();
+  await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "glow");
+  await page.getByRole("button", { name: "Capítulos e opções" }).click();
+  page.once("dialog", (d) => d.accept());
+  await page.getByLabel("Restaurar história").setInputFiles({
+    name: "backup.json",
+    mimeType: "application/json",
+    buffer,
+  });
+  await expect(page.locator(".cinema-menu")).not.toBeVisible();
+  await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "idle");
+  await page.clock.runFor(3000);
+  await expect(page.locator("#I01")).toHaveValue(
+    "Personagem fictício preservado",
+  );
+  await page.reload();
+  await expect(page.locator("#I01")).toHaveValue(
+    "Personagem fictício preservado",
   );
 });

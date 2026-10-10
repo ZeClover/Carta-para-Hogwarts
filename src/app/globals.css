@@ -2094,3 +2094,15 @@ body:has(.cinema) > footer {
 .cinema .hook-card dt {
   color: #dbc9a7;
 }
+.cinema .eyebrow {
+  color: #e5d0a7;
+}
+.cinema .family-card {
+  background: transparent;
+  border: 0;
+  border-top: 1px solid #94794b;
+  padding: 14px 0;
+}
+.cinema .save-status {
+  color: #dfd4b8;
+}

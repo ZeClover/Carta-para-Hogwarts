@@ -74,6 +74,8 @@ function Experience({ initial }: { initial?: string }) {
     dialog = useRef<HTMLDialogElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const busy = useRef(false);
+  const operation = useRef(0);
+  const skipRequested = useRef(false);
   const pending = useRef<(() => void) | null>(null);
   useEffect(() => {
     // A chapter link selects the entry point once; reload must use the saved cursor.
@@ -95,6 +97,7 @@ function Experience({ initial }: { initial?: string }) {
     viewport?.addEventListener("resize", update);
     viewport?.addEventListener("scroll", update);
     return () => {
+      operation.current += 1;
       window.removeEventListener("resize", update);
       viewport?.removeEventListener("resize", update);
       viewport?.removeEventListener("scroll", update);
@@ -139,6 +142,7 @@ function Experience({ initial }: { initial?: string }) {
     }));
   }
   function saveRelation(r: Relation) {
+    setError("");
     const existing = story.relationships.find(
       (v) =>
         v.id !== r.id &&
@@ -155,6 +159,7 @@ function Experience({ initial }: { initial?: string }) {
     return r.id;
   }
   function saveObject(o: StoryObject) {
+    setError("");
     const existing = story.objects.find(
       (v) =>
         v.id !== o.id &&
@@ -177,12 +182,48 @@ function Experience({ initial }: { initial?: string }) {
     busy.current = false;
   }
   function skipAnimations() {
+    skipRequested.current = true;
     setSkip(true);
-    finishAnimation();
+    if (pending.current) finishAnimation();
+  }
+  function editingOpen() {
+    const editor = heading.current?.querySelector(
+      ".entity-editor, .hook-editor",
+    );
+    if (!editor) return false;
+    setError("Salve ou cancele a edição em aberto antes de continuar ou sair.");
+    setMenu(false);
+    editor.querySelector<HTMLElement>(".button:not(.secondary)")?.focus();
+    return true;
+  }
+  function cancelTransition() {
+    operation.current += 1;
+    if (timer.current) clearTimeout(timer.current);
+    pending.current = null;
+    busy.current = false;
+    setPhase("idle");
+    return operation.current;
+  }
+  async function leave(path: string) {
+    if (editingOpen()) return;
+    const token = cancelTransition();
+    setPhase("saving");
+    busy.current = true;
+    const saved = await saveNow();
+    if (token !== operation.current) return;
+    if (saved) router.push(path);
+    else {
+      setPhase("idle");
+      busy.current = false;
+      setError("Preserve um backup antes de sair.");
+      setMenu(true);
+    }
   }
   async function move(target: number, animate = false) {
-    if (busy.current) return;
+    if (busy.current || editingOpen()) return;
+    const token = ++operation.current;
     busy.current = true;
+    setPhase("saving");
     setError("");
     if (animate) {
       const invalid = admission
@@ -203,6 +244,7 @@ function Experience({ initial }: { initial?: string }) {
           invalid || "Escolha uma resposta para III01. “Incerto” é válido.",
         );
         busy.current = false;
+        setPhase("idle");
         document.getElementById(step.id)?.focus();
         return;
       }
@@ -224,7 +266,9 @@ function Experience({ initial }: { initial?: string }) {
             : p.story.chaptersReviewed,
       },
     }));
-    if (!(await saveNow())) {
+    const saved = await saveNow();
+    if (token !== operation.current) return;
+    if (!saved) {
       change((p) => ({
         ...p,
         story: {
@@ -237,6 +281,7 @@ function Experience({ initial }: { initial?: string }) {
         "Não foi possível salvar. Tente novamente ou preserve um backup no menu.",
       );
       busy.current = false;
+      setPhase("idle");
       return;
     }
     const finish = () => {
@@ -246,10 +291,11 @@ function Experience({ initial }: { initial?: string }) {
     };
     if (
       !animate ||
-      skip ||
+      skipRequested.current ||
       matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
       finish();
+      setPhase("idle");
       busy.current = false;
       return;
     }
@@ -309,16 +355,7 @@ function Experience({ initial }: { initial?: string }) {
         <button className="text-button" onClick={() => setMenu(true)}>
           Capítulos e opções
         </button>
-        <button
-          className="text-button"
-          onClick={async () => {
-            if (await saveNow()) router.push("/");
-            else {
-              setError("Preserve um backup antes de sair.");
-              setMenu(true);
-            }
-          }}
-        >
+        <button className="text-button" onClick={() => void leave("/")}>
           Sair e continuar depois
         </button>
       </header>
@@ -587,6 +624,7 @@ function Experience({ initial }: { initial?: string }) {
       <dialog
         ref={dialog}
         className="cinema-menu"
+        aria-label="Seu registro mágico"
         onCancel={() => setMenu(false)}
         onClose={() => setMenu(false)}
       >
@@ -610,24 +648,19 @@ function Experience({ initial }: { initial?: string }) {
           ))}
           <button
             className="text-button"
-            onClick={async () => {
-              if (await saveNow()) router.push("/revisao");
-            }}
+            onClick={() => void leave("/revisao")}
           >
             Revisar minha história
           </button>
-          <button
-            className="text-button"
-            onClick={async () => {
-              if (await saveNow()) router.push("/mestre");
-            }}
-          >
+          <button className="text-button" onClick={() => void leave("/mestre")}>
             Arquivo do Mestre
           </button>
         </nav>
         <PlayerStatus />
         <PlayerTools
           onRestore={(stepId) => {
+            cancelTransition();
+            setInk("");
             setIndex(
               Math.max(
                 0,
