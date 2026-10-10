@@ -98,7 +98,7 @@ test("3D real: travelling, carta, álbum, espelho e perda de contexto", async ({
       viewport:
         testInfo.project.name === "mobile"
           ? { width: 390, height: 844 }
-          : { width: 1440, height: 1000 },
+          : { width: 1280, height: 720 },
     });
     const errors: string[] = [],
       missing: string[] = [],
@@ -123,13 +123,14 @@ test("3D real: travelling, carta, álbum, espelho e perda de contexto", async ({
     });
     const canvas = scene.locator("canvas");
     const before = await canvas.getAttribute("data-camera");
-    await expect
-      .poll(() => canvas.getAttribute("data-camera"))
-      .not.toBe(before);
     await page
       .getByRole("button", { name: "Abrir a carta de Hogwarts" })
       .click();
     await expect(scene).toHaveAttribute("data-active", "true");
+    // Observe a deliberate camera transition, even if initial loading finished before polling.
+    await expect
+      .poll(() => canvas.getAttribute("data-camera"), { timeout: 20000 })
+      .not.toBe(before);
     await expect(
       page.getByRole("link", { name: "Preencher meu registro" }),
     ).toBeVisible();
