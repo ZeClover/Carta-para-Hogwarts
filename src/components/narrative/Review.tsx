@@ -23,6 +23,7 @@ function statusText(value: unknown, status: string) {
       ? value.join(", ")
       : String(value ?? "");
 }
+import { SceneStage } from "../scenes/SceneStage";
 export function Review() {
   const { player, change, saveNow } = usePlayer();
   const [sheet, setSheet] = useState(0);
@@ -127,6 +128,7 @@ export function Review() {
       <section className="paper admission">
         <p className="eyebrow">Seu passado está escrito. Seu futuro, não.</p>
         <h1>Revisão da sua história</h1>
+        <SceneStage kind="final" label={player.draft.admission.fullName} />
         <PlayerStatus />
         <p>
           Confira fatos, crenças e permissões. Nenhum limite ou resposta exige

@@ -1,0 +1,177 @@
+[
+  {
+    "id": "ClassicConsole_01",
+    "title": "Classic Console 01",
+    "authors": ["Kirill Sannikov"],
+    "license": "CC0-1.0",
+    "sourceUrl": "https://polyhaven.com/a/ClassicConsole_01",
+    "licenseUrl": "https://polyhaven.com/license",
+    "apiFilesUrl": "https://api.polyhaven.com/files/ClassicConsole_01",
+    "sourceBytes": 740693,
+    "files": [
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/ClassicConsole_01/ClassicConsole_01_1k.gltf",
+        "md5": "654dc8fdce43f534ffd3e6bdb5b988c3",
+        "bytes": 2729
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/ClassicConsole_01/ClassicConsole_01_nor_gl_1k.jpg",
+        "md5": "7c8db7cbf3f4626b2db3f9621c0a5856",
+        "bytes": 212243
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/ClassicConsole_01/ClassicConsole_01_arm_1k.jpg",
+        "md5": "6484a53aed790a1f96a880cb24ce3575",
+        "bytes": 157280
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/ClassicConsole_01/ClassicConsole_01.bin",
+        "md5": "e42b6689e5036e1f2aa0008461094297",
+        "bytes": 221588
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/ClassicConsole_01/ClassicConsole_01_diff_1k.jpg",
+        "md5": "48662180e8a827a6124a259c14a94495",
+        "bytes": 146853
+      }
+    ],
+    "path": "/assets/ClassicConsole_01.glb",
+    "bytes": 657004,
+    "sha256": "82952e0d60e372603df0fcc7f785c5f4dcad85efa9b5d2c2b881846e573dd729"
+  },
+  {
+    "id": "ornate_mirror_01",
+    "title": "Ornate Mirror 01",
+    "authors": ["James Ray Cock"],
+    "license": "CC0-1.0",
+    "sourceUrl": "https://polyhaven.com/a/ornate_mirror_01",
+    "licenseUrl": "https://polyhaven.com/license",
+    "apiFilesUrl": "https://api.polyhaven.com/files/ornate_mirror_01",
+    "sourceBytes": 677241,
+    "files": [
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/ornate_mirror_01/ornate_mirror_01_1k.gltf",
+        "md5": "834501c79f6045083367606fd8f30c9f",
+        "bytes": 2697
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/ornate_mirror_01/ornate_mirror_01_arm_1k.jpg",
+        "md5": "0e7d993bec7cc5913bf73f51821b09ad",
+        "bytes": 126947
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/ornate_mirror_01/ornate_mirror_01.bin",
+        "md5": "0be4cf0dda17d51c4a279ce4912b1b3f",
+        "bytes": 372772
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/ornate_mirror_01/ornate_mirror_01_diff_1k.jpg",
+        "md5": "d2103c8f1e72c86d7911a06da6161cd1",
+        "bytes": 115752
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/ornate_mirror_01/ornate_mirror_01_nor_gl_1k.jpg",
+        "md5": "bea34985dd1cc0d3dd20478df6b1e7b3",
+        "bytes": 59073
+      }
+    ],
+    "path": "/assets/ornate_mirror_01.glb",
+    "bytes": 623724,
+    "sha256": "50682a1b5afaa72f362ad93adefc09bcb05e7a52cbf8bd49d47cef50eefc7a63"
+  },
+  {
+    "id": "fancy_picture_frame_01",
+    "title": "Fancy Picture Frame 01",
+    "authors": ["Rob Tuytel", "Rico Cilliers"],
+    "license": "CC0-1.0",
+    "sourceUrl": "https://polyhaven.com/a/fancy_picture_frame_01",
+    "licenseUrl": "https://polyhaven.com/license",
+    "apiFilesUrl": "https://api.polyhaven.com/files/fancy_picture_frame_01",
+    "sourceBytes": 741506,
+    "files": [
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/fancy_picture_frame_01/fancy_picture_frame_01_1k.gltf",
+        "md5": "40491160e255225326cb1c1146dd5d48",
+        "bytes": 5059
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/fancy_picture_frame_01/fancy_picture_frame_01_nor_gl_1k.jpg",
+        "md5": "23f759eb934c191140da30761f832442",
+        "bytes": 216212
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/fancy_picture_frame_01/fancy_picture_frame_01_canvas_diff_1k.jpg",
+        "md5": "11a8824c54066ce7f46be6cc2223ff75",
+        "bytes": 100534
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/fancy_picture_frame_01/fancy_picture_frame_01.bin",
+        "md5": "aeaeb6fcb58e4fa3cdd8a084d7757072",
+        "bytes": 25948
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/fancy_picture_frame_01/fancy_picture_frame_01_canvas_rough_1k.jpg",
+        "md5": "106564b4147a2aa199214641e21b2da6",
+        "bytes": 71299
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/fancy_picture_frame_01/fancy_picture_frame_01_canvas_nor_gl_1k.jpg",
+        "md5": "ec41bf924450fca040afb0d299ea1294",
+        "bytes": 52182
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/fancy_picture_frame_01/fancy_picture_frame_01_rough_1k.jpg",
+        "md5": "66d1fe3bb6963788e049a814b3eb93c0",
+        "bytes": 119837
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/fancy_picture_frame_01/fancy_picture_frame_01_diff_1k.jpg",
+        "md5": "8506baa4f1cf9ea2a07e060fb3303ff5",
+        "bytes": 150435
+      }
+    ],
+    "path": "/assets/fancy_picture_frame_01.glb",
+    "bytes": 635472,
+    "sha256": "db3e8d728e9ef31d22c8b2360c55d09a34e40b5bf0d8a038c0597f597830b380"
+  },
+  {
+    "id": "ArmChair_01",
+    "title": "Arm Chair 01",
+    "authors": ["Kirill Sannikov"],
+    "license": "CC0-1.0",
+    "sourceUrl": "https://polyhaven.com/a/ArmChair_01",
+    "licenseUrl": "https://polyhaven.com/license",
+    "apiFilesUrl": "https://api.polyhaven.com/files/ArmChair_01",
+    "sourceBytes": 769144,
+    "files": [
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/ArmChair_01/ArmChair_01_1k.gltf",
+        "md5": "39d1e4b0ffdde688c98335c9621e3aae",
+        "bytes": 2643
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/ArmChair_01/Armchair_01_diff_1k.jpg",
+        "md5": "9166f2c24f2114a5fa5513950ed9b9ae",
+        "bytes": 184246
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/ArmChair_01/ArmChair_01.bin",
+        "md5": "fbd842795fdec75d94f1335c28acfc0e",
+        "bytes": 154012
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/ArmChair_01/Armchair_01_nor_gl_1k.jpg",
+        "md5": "8541821edd6dcb319b7f9841d849fbbe",
+        "bytes": 289916
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/ArmChair_01/Armchair_01_arm_1k.jpg",
+        "md5": "2ea528244dd6fc0deb2af1a555c0a312",
+        "bytes": 138327
+      }
+    ],
+    "path": "/assets/ArmChair_01.glb",
+    "bytes": 667144,
+    "sha256": "998b7d2dfabbb86cde05f49f4796cd68b68181e67bbb221b759ec16681bbd8c9"
+  }
+]

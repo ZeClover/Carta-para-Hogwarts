@@ -13,6 +13,7 @@ import { createStory } from "@/lib/story";
 import { usePlayer } from "./narrative/PlayerProvider";
 import { PlayerStatus, PlayerTools } from "./narrative/PlayerTools";
 import { ChapterNav } from "./narrative/ChapterNav";
+import { SceneStage } from "./scenes/SceneStage";
 export function Admission() {
   const router = useRouter();
   const { player, change, replace, saveNow } = usePlayer();
@@ -106,6 +107,7 @@ export function Admission() {
         <h1 ref={heading} tabIndex={-1}>
           {sheetNames[draft.sheet]}
         </h1>
+        <SceneStage kind="I" page={draft.sheet} />
         <PlayerStatus />
         {notice && (
           <p className="warning" role="alert">

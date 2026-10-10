@@ -26,7 +26,7 @@ Neste ambiente, o Chromium já está instalado. Em outra máquina, use `npx play
 ## Funcionalidades
 
 - Carta com lacre, abertura por teclado, movimento reduzido e foco no próximo passo.
-- 61 perguntas principais, seleção de família, extensões contextuais e cenas distintas em CSS 2.5D.
+- 61 perguntas principais, seleção de família, extensões contextuais e cenas 3D procedurais com alternativa interativa 2.5D.
 - Perguntas opcionais, estados explícitos de resposta, relações e objetos reutilizáveis.
 - Fatos, crenças, lacunas, restrições e autorização por oportunidade; nenhuma hipótese automática vira cânone.
 - Autosave, recuperação, backups completos e compatibilidade com backups de registro da fase 1.
@@ -41,7 +41,7 @@ O JSON final contém as respostas e limites que você escolheu compartilhar com 
 
 `/mestre` não tem autenticação. Quem usar o mesmo perfil do navegador poderá acessar as importações; um visitante em outro dispositivo verá o arquivo vazio. Uma futura versão com dados em servidor exigirá autenticação e autorização reais.
 
-Emblema e ilustrações são desenhos temporários originais feitos em CSS, sem assets oficiais, fontes externas ou scraping. Animações respeitam `prefers-reduced-motion` e podem ser puladas. Som e WebGL não são necessários para usar o aplicativo.
+Emblema e objetos interativos são arte original em Three.js e SVG. O escritório inclui quatro modelos CC0 do Poly Haven, otimizados e servidos localmente, com fontes no manifesto; sem assets oficiais ou scraping. Veja [cenários e fontes](docs/CENARIOS.md). Animações respeitam `prefers-reduced-motion` e podem ser puladas. Som e WebGL não são necessários para usar o aplicativo.
 
 A especificação integral contém referências reservadas e fica fora do checkout. Nunca copie essa fonte, fichas reais, backups privados ou valores de credenciais para `src`, `public`, fixtures, logs ou variáveis `NEXT_PUBLIC_`.
 

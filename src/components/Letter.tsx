@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { SceneStage } from "./scenes/SceneStage";
 export function Letter() {
   const [open, setOpen] = useState(false);
   const [reduced, setReduced] = useState(false);
@@ -13,35 +14,18 @@ export function Letter() {
       className={`letter-scene ${open ? "is-open" : ""} ${reduced ? "no-motion" : ""}`}
       aria-label="Sua carta de admissão"
     >
-      <button
-        className="motion-button"
-        aria-pressed={reduced}
-        onClick={() => {
-          setReduced(!reduced);
+      <SceneStage
+        kind="letter"
+        open={open}
+        onOpen={() => setOpen(true)}
+        onSkip={() => {
+          setReduced(true);
           setOpen(true);
         }}
-      >
-        Pular animação / reduzir movimento
-      </button>
-      {!open ? (
-        <button
-          className="envelope"
-          onClick={() => setOpen(true)}
-          aria-label="Abrir a carta de Hogwarts"
-        >
-          <span className="envelope-address">
-            Ao futuro estudante
-            <br />
-            <small>Onde sua história começa</small>
-          </span>
-          <span className="seal" aria-hidden="true">
-            H
-          </span>
-          <span className="envelope-hint">Rompa o lacre para abrir</span>
-        </button>
-      ) : (
+      />
+      {open && (
         <article className="invitation">
-          <div className="crest" aria-label="Emblema temporário, arte original">
+          <div className="crest" aria-label="Emblema original do projeto">
             H<span>✦</span>
           </div>
           <p className="eyebrow">Escola de Magia e Bruxaria</p>
