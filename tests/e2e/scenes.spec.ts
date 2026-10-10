@@ -23,7 +23,10 @@ test("cenário sem WebGL mantém carta, álbum, formulário e salvamento", async
     "data-active",
     "true",
   );
-  await page.getByRole("link", { name: "Preencher meu registro" }).click();
+  await expect(
+    page.getByRole("link", { name: "Preencher meu registro" }),
+  ).toHaveAttribute("href", "/experiencia");
+  await page.goto("/criar/I");
   await page.getByLabel("Nome completo").fill("Livia da Cena Leve");
   await expect(page.getByRole("status")).toHaveText("Salvo neste navegador.");
   await page.reload();

@@ -4,7 +4,10 @@ test("abre a carta, salva três folhas e recupera o registro após reload", asyn
 }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Abrir a carta de Hogwarts" }).click();
-  await page.getByRole("link", { name: "Preencher meu registro" }).click();
+  await expect(
+    page.getByRole("link", { name: "Preencher meu registro" }),
+  ).toHaveAttribute("href", "/experiencia");
+  await page.goto("/criar/I");
   await page.getByLabel("Nome completo").fill("Eleanor Whitmore");
   await page.getByLabel("Data de nascimento").fill("1879-03-15");
   await page.getByRole("button", { name: "Próxima folha" }).click();
@@ -44,7 +47,10 @@ test("validação, data excepcional e animação reduzida", async ({ page }) => 
   await page
     .getByRole("button", { name: "Pular animação / reduzir movimento" })
     .click();
-  await page.getByRole("link", { name: "Preencher meu registro" }).click();
+  await expect(
+    page.getByRole("link", { name: "Preencher meu registro" }),
+  ).toHaveAttribute("href", "/experiencia");
+  await page.goto("/criar/I");
   await page.getByRole("button", { name: "Folha 3: Seu retrato" }).click();
   await page
     .getByRole("button", { name: "Concluir Registro de Admissão" })
@@ -68,13 +74,11 @@ test("restaura um backup legado e rejeita arquivo inválido sem apagar respostas
   await page.getByLabel("Nome completo").fill("Registro preservado");
   await expect(page.getByRole("status")).toHaveText("Salvo neste navegador.");
   await page.getByText("Backup do registro da primeira versão").click();
-  await page
-    .getByLabel("Restaurar backup", { exact: true })
-    .setInputFiles({
-      name: "invalid.json",
-      mimeType: "application/json",
-      buffer: Buffer.from('{"version":9}'),
-    });
+  await page.getByLabel("Restaurar backup", { exact: true }).setInputFiles({
+    name: "invalid.json",
+    mimeType: "application/json",
+    buffer: Buffer.from('{"version":9}'),
+  });
   await expect(page.getByText(/não é um backup válido/)).toBeVisible();
   await expect(page.getByLabel("Nome completo")).toHaveValue(
     "Registro preservado",
@@ -98,13 +102,11 @@ test("restaura um backup legado e rejeita arquivo inválido sem apagar respostas
     },
   };
   page.on("dialog", (dialog) => dialog.accept());
-  await page
-    .getByLabel("Restaurar backup", { exact: true })
-    .setInputFiles({
-      name: "backup.json",
-      mimeType: "application/json",
-      buffer: Buffer.from(JSON.stringify(backup)),
-    });
+  await page.getByLabel("Restaurar backup", { exact: true }).setInputFiles({
+    name: "backup.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(backup)),
+  });
   await expect(page.getByText("Cópia restaurada.")).toBeVisible();
   await page.reload();
   await expect(page.getByLabel("Nome completo")).toHaveValue(

@@ -22,7 +22,7 @@ export default function RootLayout({
             <small>1890</small>
           </Link>
           <nav className="header-nav" aria-label="Navegação principal">
-            <Link href="/criar/I">Meu personagem</Link>
+            <Link href="/experiencia">Meu personagem</Link>
             <Link href="/mestre">Arquivo do Mestre</Link>
           </nav>
         </header>

@@ -42,7 +42,7 @@ export function Letter() {
             <br />
             <small>Setembro de 1890</small>
           </p>
-          <Link ref={startLink} className="button" href="/criar/I">
+          <Link ref={startLink} className="button" href="/experiencia">
             Preencher meu registro <span aria-hidden="true">→</span>
           </Link>
           <p className="fine-print">

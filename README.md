@@ -11,14 +11,14 @@ npm ci
 npm run dev
 ```
 
-Rotas: `/` (carta), `/criar/I` a `/criar/VII` (capítulos), `/revisao` (revisão/exportação), `/mestre` (arquivo local do Mestre).
+Rotas: `/` (carta), `/experiencia` (criação cinematográfica fullscreen), `/criar/I` a `/criar/VII` (editores compatíveis), `/revisao` (revisão/exportação), `/mestre` (arquivo local do Mestre).
 
 ```sh
 npm run lint
 npm test
 npm run build
 npm run typecheck
-CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e
+CHROMIUM_PATH=/usr/bin/chromium npm run test:e2e -- --workers=1
 ```
 
 Neste ambiente, o Chromium já está instalado. Em outra máquina, use `npx playwright install chromium` e `npm run test:e2e`. Para servir a build: `npm run start`. Os testes de navegador iniciam e encerram seu próprio servidor na porta 3000; pare primeiro somente servidores que você iniciou nessa porta. Os testes não dependem de serviços externos.
@@ -26,6 +26,7 @@ Neste ambiente, o Chromium já está instalado. Em outra máquina, use `npx play
 ## Funcionalidades
 
 - Carta com lacre, abertura por teclado, movimento reduzido e foco no próximo passo.
+- Experiência fullscreen com perguntas flutuantes, campos HTML acessíveis, escrita no livro, páginas e câmera; retomada da pergunta salva e navegação entre capítulos. Veja [experiência cinematográfica](docs/EXPERIENCIA.md).
 - 61 perguntas principais, seleção de família, extensões contextuais e cenas 3D procedurais com alternativa interativa 2.5D.
 - Perguntas opcionais, estados explícitos de resposta, relações e objetos reutilizáveis.
 - Fatos, crenças, lacunas, restrições e autorização por oportunidade; nenhuma hipótese automática vira cânone.

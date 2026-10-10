@@ -155,7 +155,7 @@ export function Review() {
             </p>
             <div className="review-chapter">
               <h3>I · Registro de Admissão</h3>
-              <Link href="/criar/I">Editar Capítulo I</Link>
+              <Link href="/experiencia?capitulo=I">Editar Capítulo I</Link>
               <dl className="review-list">
                 {questions.map((q) => (
                   <div key={q.id}>
@@ -170,7 +170,9 @@ export function Review() {
                 <h3>
                   {id} · {chapters[id].title}
                 </h3>
-                <Link href={`/criar/${id}`}>Editar Capítulo {id}</Link>
+                <Link href={`/experiencia?capitulo=${id}`}>
+                  Editar Capítulo {id}
+                </Link>
                 {id === "II" && (
                   <p>
                     Família: {story.family.displayName || "Não definida"}

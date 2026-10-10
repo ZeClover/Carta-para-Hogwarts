@@ -34,7 +34,11 @@ export const SceneStage = memo(function SceneStage({
   label,
   page = 0,
   onSkip,
+  immersive = false,
+  writtenText,
 }: {
+  immersive?: boolean;
+  writtenText?: string;
   kind: SceneKind;
   open?: boolean;
   onOpen?: () => void;
@@ -99,8 +103,9 @@ export const SceneStage = memo(function SceneStage({
     if (kind === "letter") onOpen?.();
     else setActive((a) => !a);
   }, [kind, onOpen]);
-  const value =
-    kind === "letter"
+  const value = immersive
+    ? !!(page % 2)
+    : kind === "letter"
       ? !!open
       : kind === "I"
         ? active !== !!(page % 2)
@@ -109,7 +114,7 @@ export const SceneStage = memo(function SceneStage({
   const reduced = still || systemReduced;
   return (
     <section
-      className={`study-scene study-${kind} ${reduced ? "reduce-scene" : ""}`}
+      className={`study-scene study-${kind} ${immersive ? "study-immersive" : ""} ${reduced ? "reduce-scene" : ""}`}
       aria-label={`Cena: ${config.title}`}
       data-scene={kind}
       data-renderer={render3d && ready ? "3d" : "2.5d"}
@@ -117,7 +122,13 @@ export const SceneStage = memo(function SceneStage({
       data-active={value ? "true" : "false"}
     >
       <div className="study-viewport" ref={container}>
-        <SceneFallback kind={kind} active={value} still={reduced} />
+        <SceneFallback
+          kind={kind}
+          active={value}
+          still={reduced}
+          immersive={immersive}
+          writtenText={writtenText}
+        />
         {render3d && (
           <div
             className={`study-webgl ${ready ? "ready" : ""}`}
@@ -132,6 +143,8 @@ export const SceneStage = memo(function SceneStage({
                 onFailure={failure}
                 onReady={loaded}
                 label={label}
+                immersive={immersive}
+                writtenText={writtenText}
               />
             </SceneBoundary>
           </div>
@@ -144,7 +157,7 @@ export const SceneStage = memo(function SceneStage({
       <div className="study-controls">
         <p className="study-caption">{config.caption}</p>
         <div className="study-buttons">
-          {(kind !== "letter" || !open) && (
+          {!immersive && (kind !== "letter" || !open) && (
             <button
               type="button"
               className="button scene-action"

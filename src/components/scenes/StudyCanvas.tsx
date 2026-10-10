@@ -7,6 +7,8 @@ import type { SceneKind } from "./config";
 import { LibraryModel } from "./LibraryModel";
 
 type Props = {
+  immersive?: boolean;
+  writtenText?: string;
   kind: SceneKind;
   active: boolean;
   still: boolean;
@@ -383,6 +385,7 @@ function Album({
   onAction,
   final = false,
   registration = false,
+  writtenText,
   label,
 }: {
   active: boolean;
@@ -390,12 +393,41 @@ function Album({
   onAction: () => void;
   final?: boolean;
   registration?: boolean;
+  writtenText?: string;
   label?: string;
 }) {
   const page = useRef<THREE.Group>(null);
+  const previousPage = useRef(active);
   const invalidate = useThree((s) => s.invalidate);
   useEffect(() => {
     if (!page.current) return;
+    if (registration) {
+      const changed = previousPage.current !== active;
+      previousPage.current = active;
+      page.current.rotation.z = 0.015;
+      if (!changed || still) {
+        invalidate();
+        return;
+      }
+      const sheet = page.current;
+      const turn = gsap.fromTo(
+        sheet.rotation,
+        { z: 0.015 },
+        {
+          z: Math.PI,
+          duration: 1.2,
+          ease: "power2.inOut",
+          onUpdate: invalidate,
+          onComplete: () => {
+            sheet.rotation.z = 0.015;
+            invalidate();
+          },
+        },
+      );
+      return () => {
+        turn.kill();
+      };
+    }
     const tween = gsap.to(page.current.rotation, {
       z: active ? (final ? -Math.PI : Math.PI * 0.87) : 0.015,
       duration: still ? 0 : 1.2,
@@ -404,9 +436,9 @@ function Album({
     return () => {
       tween.kill();
     };
-  }, [active, still, final, invalidate]);
+  }, [active, still, final, registration, invalidate]);
   const texture = useMemo(() => {
-    if (!final) return null;
+    if (!final && !writtenText) return null;
     const canvas = document.createElement("canvas");
     canvas.width = 512;
     canvas.height = 256;
@@ -417,9 +449,12 @@ function Album({
     c.fillStyle = "#4d3427";
     c.font = "30px Georgia";
     c.textAlign = "center";
-    c.fillText("Seu livro pessoal", 256, 80);
+    c.fillText(final ? "Seu livro pessoal" : "Registro de memórias", 256, 55);
     c.font = "24px Georgia";
-    const text = (label || "Uma história por escrever").slice(0, 80);
+    const text = (writtenText || label || "Uma história por escrever").slice(
+      0,
+      180,
+    );
     const words = text.split(" ");
     let line = "",
       y = 130;
@@ -435,7 +470,7 @@ function Album({
     const t = new THREE.CanvasTexture(canvas);
     t.colorSpace = THREE.SRGBColorSpace;
     return t;
-  }, [final, label]);
+  }, [final, label, writtenText]);
   useEffect(() => () => texture?.dispose(), [texture]);
   return (
     <group
@@ -702,8 +737,15 @@ function Drawer({ active, still }: { active: boolean; still: boolean }) {
     </group>
   );
 }
-function CameraAndLife({ kind, active, still, onFailure, onReady }: Props) {
-  const { camera, gl, invalidate, get } = useThree();
+function CameraAndLife({
+  kind,
+  active,
+  still,
+  onFailure,
+  onReady,
+  immersive,
+}: Props) {
+  const { camera, gl, invalidate, get, size } = useThree();
   const previousKind = useRef<SceneKind | null>(null);
   useEffect(() => {
     const canvas = gl.domElement;
@@ -732,13 +774,19 @@ function CameraAndLife({ kind, active, still, onFailure, onReady }: Props) {
           : kind === "letter" && !active
             ? [2.1, 3.3, 4.2]
             : [3.9, 4.6, 6.1];
+    if (immersive) {
+      const portrait = size.width < size.height;
+      end[0] = portrait ? 0.8 : 2.4;
+      end[1] = portrait ? 4.8 : 4.3;
+      end[2] = (portrait ? 8.8 : 6.7) + (active ? 0.22 : 0);
+    }
     const entering = previousKind.current !== kind;
     previousKind.current = kind;
     if (still) camera.position.set(...end);
     else if (entering) camera.position.set(...start);
     const target = new THREE.Vector3(
       kind === "II" && entering && !still ? 1.8 : 0,
-      kind === "V" ? 1 : 0.55,
+      immersive ? 1.5 : kind === "V" ? 1 : 0.55,
       0,
     );
     camera.lookAt(target);
@@ -778,7 +826,17 @@ function CameraAndLife({ kind, active, still, onFailure, onReady }: Props) {
       tween.kill();
       lookTween.kill();
     };
-  }, [kind, active, still, camera, gl, invalidate]);
+  }, [
+    kind,
+    active,
+    still,
+    camera,
+    gl,
+    invalidate,
+    immersive,
+    size.width,
+    size.height,
+  ]);
   useEffect(() => {
     // Generate once per renderer, not for each camera/object interaction.
     // Generate a small warm environment in memory: mirror reflects the study palette.
@@ -872,48 +930,57 @@ function Study(props: Props & { label?: string }) {
         }}
       >
         {kind === "letter" || kind === "IV" ? (
-          <Envelope
-            open={active}
-            still={still}
-            onAction={onAction}
-            arriving={kind === "IV"}
-          />
+          <group position={props.immersive ? [-2.5, 0.1, -1] : [0, 0, 0]}>
+            <Envelope
+              open={active}
+              still={still}
+              onAction={onAction}
+              arriving={kind === "IV"}
+            />
+          </group>
         ) : null}
-        {kind === "I" || kind === "II" || kind === "final" ? (
+        {props.immersive ||
+        kind === "I" ||
+        kind === "II" ||
+        kind === "final" ? (
           <Album
             active={active}
             still={still}
             onAction={onAction}
             final={kind === "final"}
             label={props.label}
+            registration={props.immersive}
+            writtenText={props.writtenText}
           />
         ) : null}
-        {kind === "III" ? <Frame at={[0, 1, 0.1]} magic={active} /> : null}
-        {kind === "V" ? (
-          <group>
-            <LibraryModel
-              id="ornate_mirror_01"
-              at={[0, 0.25, -0.4]}
-              size={[1.9, 2.9, 0.12]}
-              fallback={<Mirror active={active} />}
-            />
-            {active && (
-              <pointLight
-                position={[0, 1.7, 0.6]}
-                intensity={5}
-                color="#b3ede2"
-                distance={5}
+        <group position={props.immersive ? [-2.8, 0, -1] : [0, 0, 0]}>
+          {kind === "III" ? <Frame at={[0, 1, 0.1]} magic={active} /> : null}
+          {kind === "V" ? (
+            <group>
+              <LibraryModel
+                id="ornate_mirror_01"
+                at={[0, 0.25, -0.4]}
+                size={[1.9, 2.9, 0.12]}
+                fallback={<Mirror active={active} />}
               />
-            )}
-          </group>
-        ) : null}
-        {kind === "VI" ? (
-          <>
-            <StarMap />
-            <Hourglass active={active} still={still} />
-          </>
-        ) : null}
-        {kind === "VII" ? <Drawer active={active} still={still} /> : null}
+              {active && (
+                <pointLight
+                  position={[0, 1.7, 0.6]}
+                  intensity={5}
+                  color="#b3ede2"
+                  distance={5}
+                />
+              )}
+            </group>
+          ) : null}
+          {kind === "VI" ? (
+            <>
+              <StarMap />
+              <Hourglass active={active} still={still} />
+            </>
+          ) : null}
+          {kind === "VII" ? <Drawer active={active} still={still} /> : null}
+        </group>
       </group>
       <CameraAndLife {...props} />
     </>

@@ -6,18 +6,23 @@ export function SceneFallback({
   kind,
   active,
   still,
+  immersive = false,
+  writtenText,
 }: {
+  immersive?: boolean;
+  writtenText?: string;
   kind: SceneKind;
   active: boolean;
   still: boolean;
 }) {
   const id = useId().replaceAll(":", "");
   const paint = (name: string) => `url(#${id}-${name})`;
-  const book = kind === "II" || kind === "I" || kind === "final";
+  const book = immersive || kind === "II" || kind === "I" || kind === "final";
   return (
     <svg
       className={`study-illustration ${still ? "still" : ""} ${active ? "active" : ""}`}
       viewBox="0 0 1000 560"
+      preserveAspectRatio={immersive ? "xMidYMid slice" : "xMidYMid meet"}
       aria-hidden="true"
       focusable="false"
     >
@@ -186,6 +191,17 @@ export function SceneFallback({
                   strokeWidth="2"
                 />
               ))}
+              {immersive && writtenText && (
+                <text
+                  x="-20"
+                  y="13"
+                  transform="rotate(-5)"
+                  fill="#4d3427"
+                  fontSize="8"
+                >
+                  {writtenText.slice(0, 32)}
+                </text>
+              )}
               {kind === "II" && (
                 <>
                   <path d="m-9 7 76-8 12 25-79 8Z" fill="#5a6960" />

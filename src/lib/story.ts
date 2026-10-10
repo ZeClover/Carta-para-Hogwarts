@@ -104,6 +104,7 @@ export const storySchema = z.object({
   objects: z.array(objectSchema).max(200),
   narrativeHooks: z.array(hookSchema).max(200),
   preferences: preferencesSchema,
+  experienceStep: z.string().max(100).optional(),
   chaptersReviewed: z.array(z.enum(chapterIds)).max(7),
 });
 export type Story = z.infer<typeof storySchema>;

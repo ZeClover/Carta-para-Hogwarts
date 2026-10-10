@@ -15,4 +15,4 @@ Com acesso e autenticação configurados, use a CLI oficial para verificar a con
 
 ## Arte e dados
 
-O emblema H e as cenas em CSS são placeholders originais. Substitua por artes fornecidas/autorizadas quando disponíveis. Nunca envie backups de jogadores, conteúdo privado do Mestre ou a especificação integral para a pasta do projeto que será publicada.
+O emblema H e a ilustração leve são originais. O cenário 3D usa os modelos CC0 locais documentados em `docs/CENARIOS.md`; preserve os créditos e o manifesto de assets. Nunca envie backups de jogadores, conteúdo privado do Mestre ou a especificação integral para a pasta do projeto que será publicada.

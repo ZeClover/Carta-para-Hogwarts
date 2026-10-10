@@ -37,7 +37,9 @@ export function PlayerStatus() {
     </>
   );
 }
-export function PlayerTools() {
+export function PlayerTools({
+  onRestore,
+}: { onRestore?: (stepId?: string) => void } = {}) {
   const { player, replace, saveNow } = usePlayer();
   const [message, setMessage] = useState("");
   const [reset, setReset] = useState(false);
@@ -59,8 +61,10 @@ export function PlayerTools() {
       )
         return;
       replace(parsed.data);
-      if (await saveNow()) setMessage("História restaurada.");
-      else
+      if (await saveNow()) {
+        setMessage("História restaurada.");
+        onRestore?.(parsed.data.story.experienceStep);
+      } else
         setMessage(
           "História recuperada em memória; salve ou baixe uma cópia antes de sair.",
         );
