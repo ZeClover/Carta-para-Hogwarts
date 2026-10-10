@@ -2106,3 +2106,30 @@ body:has(.cinema) > footer {
 .cinema .save-status {
   color: #dfd4b8;
 }
+
+.birth-guidance {
+  margin-top: 0.8rem;
+  padding-left: 0.9rem;
+  border-left: 2px solid #a7854a;
+  color: var(--ink);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+.birth-guidance p {
+  margin: 0.25rem 0;
+}
+.cinema .birth-guidance {
+  color: #eadcbb;
+  font-size: 0.88rem;
+  max-width: 38rem;
+}
+.cinema input[type="date"] {
+  color-scheme: dark;
+  min-height: 3rem;
+}
+.cinema[data-phase="turn"] .cinema-writing {
+  pointer-events: none;
+}
+.study-immersive .study-illustration.active .study-pages {
+  transform: none;
+}

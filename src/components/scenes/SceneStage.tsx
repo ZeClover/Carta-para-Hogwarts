@@ -36,7 +36,11 @@ export const SceneStage = memo(function SceneStage({
   onSkip,
   immersive = false,
   writtenText,
+  turnDirection = 1,
+  turning,
 }: {
+  turnDirection?: number;
+  turning?: boolean;
   immersive?: boolean;
   writtenText?: string;
   kind: SceneKind;
@@ -54,6 +58,7 @@ export const SceneStage = memo(function SceneStage({
     [visible, setVisible] = useState(false),
     [ready, setReady] = useState(false),
     [simple, setSimple] = useState(false);
+  const [limited, setLimited] = useState(false);
   const [interacted, setInteracted] = useState(false);
   const container = useRef<HTMLDivElement>(null);
   const failure = useCallback(() => {
@@ -65,6 +70,15 @@ export const SceneStage = memo(function SceneStage({
     const reduced = matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setSystemReduced(reduced.matches);
     reduced.addEventListener("change", update);
+    const device = navigator as Navigator & {
+      deviceMemory?: number;
+      connection?: { saveData?: boolean };
+    };
+    const constrained =
+      (device.deviceMemory !== undefined && device.deviceMemory <= 4) ||
+      navigator.hardwareConcurrency <= 4 ||
+      !!device.connection?.saveData;
+    setLimited(constrained);
     let probed = false;
     const observer = new IntersectionObserver(
       (entries) => {
@@ -84,7 +98,8 @@ export const SceneStage = memo(function SceneStage({
               ? String(context.getParameter(debug.UNMASKED_RENDERER_WEBGL))
               : "";
             setSimple(
-              /SwiftShader|llvmpipe|Software Rasterizer/i.test(renderer),
+              constrained ||
+                /SwiftShader|llvmpipe|Software Rasterizer/i.test(renderer),
             );
             context.getExtension("WEBGL_lose_context")?.loseContext();
           }
@@ -128,6 +143,9 @@ export const SceneStage = memo(function SceneStage({
           still={reduced}
           immersive={immersive}
           writtenText={writtenText}
+          turning={turning}
+          turnSerial={page}
+          turnDirection={turnDirection}
         />
         {render3d && (
           <div
@@ -145,6 +163,10 @@ export const SceneStage = memo(function SceneStage({
                 label={label}
                 immersive={immersive}
                 writtenText={writtenText}
+                turnSerial={page}
+                turnDirection={turnDirection}
+                turning={turning}
+                limited={limited}
               />
             </SceneBoundary>
           </div>

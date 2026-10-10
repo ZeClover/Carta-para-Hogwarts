@@ -4,6 +4,12 @@ import "./globals.css";
 import { PlayerProvider } from "@/components/narrative/PlayerProvider";
 export const metadata: Metadata = {
   title: "Carta para Hogwarts · 1890",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", type: "image/x-icon", sizes: "32x32" },
+    ],
+  },
   description:
     "Toda grande história começa com alguém. Escreva o início da sua.",
 };

@@ -21,6 +21,10 @@ describe("Registro de Admissão", () => {
   });
   it("detecta datas impossíveis, futuras e aceita exceções à idade típica", () => {
     expect(ageIn1890("1879-03-15")).toBe(11);
+    expect(ageIn1890("1878-09-02")).toBe(11);
+    expect(ageIn1890("1879-09-01")).toBe(11);
+    expect(ageIn1890("1878-09-01")).toBe(12);
+    expect(ageIn1890("1879-09-02")).toBe(10);
     expect(ageIn1890("1880-10-15")).toBe(9);
     expect(ageIn1890("1879-02-30")).toBeNull();
     expect(ageIn1890("1890-09-01")).toBeNull();

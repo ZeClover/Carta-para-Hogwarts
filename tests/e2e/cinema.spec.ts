@@ -184,3 +184,40 @@ test("restaurar o mesmo personagem cancela uma transição pendente", async ({
     "Personagem fictício preservado",
   );
 });
+
+test("virada reversa protege cliques, retoma cursor e orienta a idade excepcional", async ({
+  page,
+}) => {
+  await page.goto("/experiencia");
+  await page.locator("#I01").fill("Personagem das páginas curvas");
+  await page.clock.install();
+  await page.clock.pauseAt(new Date());
+  const next = page.getByRole("button", { name: "Continuar", exact: true });
+  await next.click();
+  await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "glow");
+  await expect(next).toBeDisabled();
+  await expect(page.locator("#I01")).toBeDisabled();
+  await page.clock.runFor(3000);
+  await expect(page.locator("#I02")).toBeVisible();
+  await page.locator("#I02").fill("Nome preservado");
+  await page.getByRole("button", { name: "Voltar", exact: true }).click();
+  await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "turn");
+  await expect(next).toBeDisabled();
+  await page
+    .getByRole("button", { name: "Pular animação / reduzir movimento" })
+    .click();
+  await expect(page.locator("#I01")).toHaveValue(
+    "Personagem das páginas curvas",
+  );
+  await next.click();
+  await expect(page.locator("#I02")).toHaveValue("Nome preservado");
+  await next.click();
+  await page.locator("#I03").fill("1870-03-15");
+  await expect(page.getByText(/1890: 20 anos/)).toBeVisible();
+  await expect(page.getByText(/Combine a exceção com o Mestre/)).toBeVisible();
+  await next.click();
+  await expect(page.locator("#I04")).toBeVisible();
+  await page.clock.resume();
+  await page.reload();
+  await expect(page.locator("#I04")).toBeVisible();
+});

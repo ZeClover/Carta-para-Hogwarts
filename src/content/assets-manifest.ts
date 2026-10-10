@@ -1,7 +1,7 @@
 import imported from "./generated-assets.json";
 /** Sources of shipped CC0 assets and original interactive geometry. */
 export const assetsManifest = {
-  version: "1.1",
+  version: "1.2",
   author: "Carta para Hogwarts — projeto",
   source: "Geometria paramétrica Three.js e ilustração SVG criadas no projeto",
   license:
@@ -17,7 +17,9 @@ export const assetsManifest = {
     "Ampulheta",
     "Mapa celeste",
     "Gaveteiro",
-    "Livro pessoal",
+    "Livro pessoal com folhas deformáveis",
+    "Coruja, pergaminhos e baú procedurais",
+    "Relógio de lareira CC0",
   ],
   imported,
   externalSources: [
@@ -28,7 +30,7 @@ export const assetsManifest = {
       apiTermsUrl:
         "https://github.com/Poly-Haven/Public-API/blob/master/ToS.md",
       status:
-        "Quatro modelos CC0 importados após liberação da rede; arquivos e checksums oficiais conferidos. Texturas até 1K, GLBs locais.",
+        "Cinco modelos CC0 importados após liberação da rede; arquivos e checksums oficiais conferidos. Texturas até 1K (relógio 512px), GLBs locais.",
     },
   ],
 } as const;

@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { chapters, chapterIds, type ChapterId } from "@/content/chapters";
 import { questions } from "@/content/admission";
 import { families } from "@/content/families";
-import { ageIn1890, validateAdmission } from "@/lib/draft";
+import { validateAdmission } from "@/lib/draft";
 import type { Story, Hook, Relation, StoryObject } from "@/lib/story";
+import { BirthGuidance } from "../BirthGuidance";
 import { SceneStage } from "../scenes/SceneStage";
 import { usePlayer } from "./PlayerProvider";
 import { QuestionField } from "./QuestionField";
@@ -61,6 +62,7 @@ function Experience({ initial }: { initial?: string }) {
   );
   const [phase, setPhase] = useState("idle");
   const [page, setPage] = useState(0);
+  const [turnDirection, setTurnDirection] = useState(1);
   const [ink, setInk] = useState("");
   const [error, setError] = useState("");
   const [menu, setMenu] = useState(false);
@@ -290,24 +292,27 @@ function Experience({ initial }: { initial?: string }) {
       else router.push("/revisao");
     };
     if (
-      !animate ||
+      (!animate && target === index) ||
       skipRequested.current ||
       matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
+      setInk("");
       finish();
       setPhase("idle");
       busy.current = false;
       return;
     }
-    const value = admission
-      ? draft.admission[admission.key]
-      : question
-        ? story.answers[question.id]?.status === "answered"
-          ? story.answers[question.id]?.value
-          : ""
-        : step.id === "II00"
-          ? story.family.displayName
-          : "";
+    const value = !animate
+      ? ""
+      : admission
+        ? draft.admission[admission.key]
+        : question
+          ? story.answers[question.id]?.status === "answered"
+            ? story.answers[question.id]?.value
+            : ""
+          : step.id === "II00"
+            ? story.family.displayName
+            : "";
     setInk(
       Array.isArray(value)
         ? value
@@ -321,13 +326,20 @@ function Experience({ initial }: { initial?: string }) {
         : value || "",
     );
     pending.current = finish;
+    setTurnDirection(target < index ? -1 : 1);
+    if (!animate) {
+      setPage((p) => p + 1);
+      setPhase("turn");
+      timer.current = setTimeout(finishAnimation, 1650);
+      return;
+    }
     setPhase("glow");
     timer.current = setTimeout(() => {
       setPhase("absorb");
       timer.current = setTimeout(() => {
         setPage((p) => p + 1);
         setPhase("turn");
-        timer.current = setTimeout(finishAnimation, 1250);
+        timer.current = setTimeout(finishAnimation, 1650);
       }, 650);
     }, 320);
   }
@@ -343,6 +355,8 @@ function Experience({ initial }: { initial?: string }) {
         kind={chapter}
         immersive
         page={page}
+        turnDirection={turnDirection}
+        turning={phase === "turn"}
         writtenText={ink}
         onSkip={skipAnimations}
       />
@@ -411,9 +425,11 @@ function Experience({ initial }: { initial?: string }) {
                 <input
                   id={step.id}
                   type={admission.type}
+                  min={admission.type === "date" ? "0001-01-01" : undefined}
+                  max={admission.type === "date" ? "1890-08-31" : undefined}
                   maxLength={5000}
                   value={draft.admission[admission.key]}
-                  aria-describedby={`${step.id}-help`}
+                  aria-describedby={`${step.id}-help${admission.key === "birthDate" ? ` ${step.id}-age` : ""}`}
                   aria-invalid={!!error}
                   onChange={(e) =>
                     change((p) => ({
@@ -437,14 +453,12 @@ function Experience({ initial }: { initial?: string }) {
                   }
                 />
               )}
-              {admission.key === "birthDate" &&
-                ageIn1890(draft.admission.birthDate) !== null && (
-                  <p className="fine-print">
-                    Idade em setembro de 1890:{" "}
-                    {ageIn1890(draft.admission.birthDate)}. Uma idade diferente
-                    de onze anos não impede seu registro.
-                  </p>
-                )}
+              {admission.key === "birthDate" && (
+                <BirthGuidance
+                  value={draft.admission.birthDate}
+                  id={`${step.id}-age`}
+                />
+              )}
             </section>
           )}
           {step.id === "II00" && (

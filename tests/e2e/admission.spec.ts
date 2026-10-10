@@ -60,7 +60,8 @@ test("validação, data excepcional e animação reduzida", async ({ page }) => 
   ).toBeVisible();
   await expect(page.getByLabel("Nome completo")).toBeFocused();
   await page.getByLabel("Data de nascimento").fill("1870-03-15");
-  await expect(page.getByText(/terá 20 anos/)).toBeVisible();
+  await expect(page.getByText(/1890: 20 anos/)).toBeVisible();
+  await expect(page.getByText(/Combine a exceção com o Mestre/)).toBeVisible();
   await page
     .getByRole("button", { name: "Recomeçar história", exact: true })
     .click();

@@ -5,9 +5,15 @@ import { gsap } from "gsap";
 import * as THREE from "three";
 import type { SceneKind } from "./config";
 import { LibraryModel } from "./LibraryModel";
+import { EnchantedBook } from "./EnchantedBook";
+import { AtmosphericDetails, ChapterProps, WritingQuill } from "./StudyDetails";
 
 type Props = {
   immersive?: boolean;
+  turnSerial?: number;
+  turnDirection?: number;
+  turning?: boolean;
+  limited?: boolean;
   writtenText?: string;
   kind: SceneKind;
   active: boolean;
@@ -79,11 +85,16 @@ function Candle({ at }: { at: [number, number, number] }) {
         <meshStandardMaterial color={brass} metalness={0.7} roughness={0.3} />
       </mesh>
       <Cylinder at={[0, 0.87, 0]} radius={0.09} height={0.46} color="#e1d4b3" />
-      <mesh position={[0, 1.17, 0]} scale={[0.055, 0.14, 0.055]}>
+      <mesh
+        name={`flame-${at[0]}`}
+        position={[0, 1.17, 0]}
+        scale={[0.055, 0.14, 0.055]}
+      >
         <sphereGeometry args={[1, 12, 12]} />
         <meshBasicMaterial color="#ffce81" />
       </mesh>
       <pointLight
+        name={`candle-light-${at[0]}`}
         position={[0, 1.22, 0]}
         intensity={3}
         distance={6}
@@ -260,6 +271,12 @@ function Room() {
           </group>
         }
       />
+      <LibraryModel
+        id="mantel_clock_01"
+        at={[-1.5, 0.08, -1.45]}
+        size={[1.2, 1.45, 0.5]}
+        fallback={<Box at={[-1.5, 0.75, -1.45]} size={[1.2, 1.45, 0.5]} />}
+      />
       <Books at={[-2.3, 0.04, -0.4]} />
       <Books at={[2.8, 0.04, -1.1]} />
       <Candle at={[-2.4, 0.05, -1.2]} />
@@ -270,14 +287,7 @@ function Room() {
         height={0.28}
         color="#162123"
       />
-      <mesh
-        position={[2.2, 0.76, 1.25]}
-        rotation={[0, 0, -0.55]}
-        scale={[0.12, 0.7, 0.025]}
-      >
-        <sphereGeometry args={[1, 16, 16]} />
-        <meshStandardMaterial color="#d5c9ac" />
-      </mesh>
+      <WritingQuill />
     </group>
   );
 }
@@ -375,183 +385,6 @@ function Envelope({
             />
           </group>
         </group>
-      </group>
-    </group>
-  );
-}
-function Album({
-  active,
-  still,
-  onAction,
-  final = false,
-  registration = false,
-  writtenText,
-  label,
-}: {
-  active: boolean;
-  still: boolean;
-  onAction: () => void;
-  final?: boolean;
-  registration?: boolean;
-  writtenText?: string;
-  label?: string;
-}) {
-  const page = useRef<THREE.Group>(null);
-  const previousPage = useRef(active);
-  const invalidate = useThree((s) => s.invalidate);
-  useEffect(() => {
-    if (!page.current) return;
-    if (registration) {
-      const changed = previousPage.current !== active;
-      previousPage.current = active;
-      page.current.rotation.z = 0.015;
-      if (!changed || still) {
-        invalidate();
-        return;
-      }
-      const sheet = page.current;
-      const turn = gsap.fromTo(
-        sheet.rotation,
-        { z: 0.015 },
-        {
-          z: Math.PI,
-          duration: 1.2,
-          ease: "power2.inOut",
-          onUpdate: invalidate,
-          onComplete: () => {
-            sheet.rotation.z = 0.015;
-            invalidate();
-          },
-        },
-      );
-      return () => {
-        turn.kill();
-      };
-    }
-    const tween = gsap.to(page.current.rotation, {
-      z: active ? (final ? -Math.PI : Math.PI * 0.87) : 0.015,
-      duration: still ? 0 : 1.2,
-      onUpdate: invalidate,
-    });
-    return () => {
-      tween.kill();
-    };
-  }, [active, still, final, registration, invalidate]);
-  const texture = useMemo(() => {
-    if (!final && !writtenText) return null;
-    const canvas = document.createElement("canvas");
-    canvas.width = 512;
-    canvas.height = 256;
-    const c = canvas.getContext("2d");
-    if (!c) return null;
-    c.fillStyle = "#e6d4a6";
-    c.fillRect(0, 0, 512, 256);
-    c.fillStyle = "#4d3427";
-    c.font = "30px Georgia";
-    c.textAlign = "center";
-    c.fillText(final ? "Seu livro pessoal" : "Registro de memórias", 256, 55);
-    c.font = "24px Georgia";
-    const text = (writtenText || label || "Uma história por escrever").slice(
-      0,
-      180,
-    );
-    const words = text.split(" ");
-    let line = "",
-      y = 130;
-    for (const word of words) {
-      if (c.measureText(line + word).width > 440) {
-        c.fillText(line, 256, y);
-        line = "";
-        y += 32;
-      }
-      line += word + " ";
-    }
-    c.fillText(line, 256, y);
-    const t = new THREE.CanvasTexture(canvas);
-    t.colorSpace = THREE.SRGBColorSpace;
-    return t;
-  }, [final, label, writtenText]);
-  useEffect(() => () => texture?.dispose(), [texture]);
-  return (
-    <group
-      position={[0, 0.13, 0.4]}
-      rotation={[0, -0.14, 0]}
-      onClick={(e) => {
-        e.stopPropagation();
-        onAction();
-      }}
-    >
-      <Box at={[0, -0.04, 0]} size={[3.2, 0.11, 2.05]} color="#63333b" />
-      <Box at={[0, 0.045, 0]} size={[3.05, 0.1, 1.88]} color={paper} />
-      <Box at={[0, 0.1, 0]} size={[0.08, 0.03, 1.91]} color={brass} />
-      {!final &&
-        !registration &&
-        [-0.8, 0.8].map((x) => (
-          <group key={x}>
-            <Box at={[x, 0.115, 0]} size={[0.84, 0.01, 0.98]} color={brass} />
-            <Box at={[x, 0.126, 0]} size={[0.72, 0.01, 0.85]} color="#48605a" />
-            {[-0.68, 0.67].map((z) => (
-              <Box
-                key={z}
-                at={[x, 0.115, z]}
-                size={[1.05, 0.01, 0.016]}
-                color="#a8956e"
-              />
-            ))}
-          </group>
-        ))}
-      {registration &&
-        [-0.75, 0.75].map((x) => (
-          <group key={x}>
-            {Array.from({ length: 8 }, (_, i) => (
-              <Box
-                key={i}
-                at={[x, 0.12, -0.6 + i * 0.15]}
-                size={[1.1, 0.007, 0.014]}
-                color="#a08d63"
-              />
-            ))}
-          </group>
-        ))}
-      {texture && (
-        <mesh
-          rotation={[-Math.PI / 2, 0, 0]}
-          position={[-0.75, registration ? 0.14 : 0.12, 0]}
-        >
-          <planeGeometry args={[1.4, 1.5]} />
-          <meshStandardMaterial map={texture} />
-        </mesh>
-      )}
-      <group ref={page} position={[0, 0.14, 0]}>
-        <Box
-          at={[0.75, 0, 0]}
-          size={[1.49, 0.012, 1.84]}
-          color={final ? "#63333b" : paper}
-        />
-        {!final && (
-          <>
-            <Box
-              at={[0.76, 0.009, 0]}
-              size={[0.73, 0.009, 0.95]}
-              color="#476365"
-            />
-            <Box
-              at={[0.76, 0.015, -0.65]}
-              size={[1.1, 0.007, 0.013]}
-              color="#a08d63"
-            />
-          </>
-        )}
-        {final && (
-          <group position={[0.75, 0.01, 0]}>
-            <Cylinder
-              at={[0, 0, 0]}
-              radius={0.17}
-              height={0.035}
-              color="#8a333f"
-            />
-          </group>
-        )}
       </group>
     </group>
   );
@@ -779,9 +612,19 @@ function CameraAndLife({
             : [3.9, 4.6, 6.1];
     if (immersive) {
       const portrait = size.width < size.height;
-      end[0] = portrait ? 0.8 : 2.4;
-      end[1] = portrait ? 4.8 : 4.3;
-      end[2] = (portrait ? 8.8 : 6.7) + (active ? 0.22 : 0);
+      const offset =
+        kind === "V"
+          ? -0.45
+          : kind === "II"
+            ? -0.2
+            : kind === "IV"
+              ? 0.28
+              : kind === "VI"
+                ? 0.12
+                : 0;
+      end[0] = (portrait ? 0.55 : 2.0) + offset + (active ? 0.08 : 0);
+      end[1] = portrait ? 4.65 : 4.05;
+      end[2] = (portrait ? 8.6 : 6.5) + (active ? 0.12 : 0);
       start[0] = end[0] + (portrait ? 0.4 : 1.2);
       start[1] = end[1] + 0.8;
       start[2] = end[2] + 2;
@@ -794,7 +637,7 @@ function CameraAndLife({
       camera.position.set(...start);
     const target = new THREE.Vector3(
       kind === "II" && entering && !still ? 1.8 : 0,
-      immersive ? 1.5 : kind === "V" ? 1 : 0.55,
+      immersive ? 1.45 : kind === "V" ? 1 : 0.55,
       0,
     );
     camera.lookAt(target);
@@ -876,61 +719,37 @@ function CameraAndLife({
   }, [gl, get]);
   return null;
 }
-function Dust() {
-  const positions = useMemo(
-    () =>
-      new Float32Array(
-        Array.from({ length: 120 }, (_, i) =>
-          i % 3 === 0
-            ? -3.6 + ((i * 0.47) % 7.2)
-            : i % 3 === 1
-              ? 0.3 + ((i * 0.19) % 3.4)
-              : -2 + ((i * 0.37) % 4),
-        ),
-      ),
-    [],
-  );
-  return (
-    <points>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.025}
-        color="#d9bf92"
-        transparent
-        opacity={0.5}
-        sizeAttenuation
-      />
-    </points>
-  );
-}
 function Study(props: Props & { label?: string }) {
   const { kind, active, still, onAction } = props;
   return (
     <>
       <color attach="background" args={["#10272b"]} />
       <fog attach="fog" args={["#10272b", 11, 24]} />
-      <ambientLight intensity={0.8} />
+      <hemisphereLight args={["#a9c2cf", "#644631", 0.9]} />
       <directionalLight
+        name="study-key"
         position={[2, 7, 4]}
-        intensity={2.4}
-        color="#e9c78d"
+        intensity={2.1}
+        color="#ffd29d"
         castShadow
         shadow-mapSize={[512, 512]}
+        shadow-bias={-0.00025}
+        shadow-normalBias={0.018}
         shadow-camera-left={-6}
         shadow-camera-right={6}
         shadow-camera-top={6}
         shadow-camera-bottom={-6}
       />
       <pointLight
+        name="window-light"
         position={[2, 2.5, -3]}
         intensity={7}
         color="#a3cdd6"
         distance={10}
       />
       <Room />
-      <Dust />
+      <AtmosphericDetails still={still} limited={props.limited} kind={kind} />
+      <ChapterProps kind={kind} />
       <group
         onClick={(e) => {
           e.stopPropagation();
@@ -951,14 +770,18 @@ function Study(props: Props & { label?: string }) {
         kind === "I" ||
         kind === "II" ||
         kind === "final" ? (
-          <Album
+          <EnchantedBook
             active={active}
             still={still}
             onAction={onAction}
             final={kind === "final"}
             label={props.label}
             registration={props.immersive}
+            album={kind === "II"}
             writtenText={props.writtenText}
+            turnSerial={props.turnSerial}
+            turnDirection={props.turnDirection}
+            turning={props.turning}
           />
         ) : null}
         <group position={props.immersive ? [-2.8, 0, -1] : [0, 0, 0]}>
@@ -999,8 +822,8 @@ export default function StudyCanvas(props: Props & { label?: string }) {
   return (
     <Canvas
       frameloop="demand"
-      dpr={[1, 1.5]}
-      shadows={{ type: THREE.PCFShadowMap }}
+      dpr={[1, props.limited ? 1 : 1.5]}
+      shadows={{ type: THREE.PCFSoftShadowMap }}
       camera={{ position: [4, 5, 6], fov: 43, near: 0.1, far: 35 }}
       gl={{ antialias: true, alpha: false, powerPreference: "low-power" }}
       fallback={null}

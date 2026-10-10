@@ -2,7 +2,9 @@
   {
     "id": "ClassicConsole_01",
     "title": "Classic Console 01",
-    "authors": ["Kirill Sannikov"],
+    "authors": [
+      "Kirill Sannikov"
+    ],
     "license": "CC0-1.0",
     "sourceUrl": "https://polyhaven.com/a/ClassicConsole_01",
     "licenseUrl": "https://polyhaven.com/license",
@@ -42,7 +44,9 @@
   {
     "id": "ornate_mirror_01",
     "title": "Ornate Mirror 01",
-    "authors": ["James Ray Cock"],
+    "authors": [
+      "James Ray Cock"
+    ],
     "license": "CC0-1.0",
     "sourceUrl": "https://polyhaven.com/a/ornate_mirror_01",
     "licenseUrl": "https://polyhaven.com/license",
@@ -82,7 +86,10 @@
   {
     "id": "fancy_picture_frame_01",
     "title": "Fancy Picture Frame 01",
-    "authors": ["Rob Tuytel", "Rico Cilliers"],
+    "authors": [
+      "Rob Tuytel",
+      "Rico Cilliers"
+    ],
     "license": "CC0-1.0",
     "sourceUrl": "https://polyhaven.com/a/fancy_picture_frame_01",
     "licenseUrl": "https://polyhaven.com/license",
@@ -137,7 +144,9 @@
   {
     "id": "ArmChair_01",
     "title": "Arm Chair 01",
-    "authors": ["Kirill Sannikov"],
+    "authors": [
+      "Kirill Sannikov"
+    ],
     "license": "CC0-1.0",
     "sourceUrl": "https://polyhaven.com/a/ArmChair_01",
     "licenseUrl": "https://polyhaven.com/license",
@@ -173,5 +182,49 @@
     "path": "/assets/ArmChair_01.glb",
     "bytes": 667144,
     "sha256": "998b7d2dfabbb86cde05f49f4796cd68b68181e67bbb221b759ec16681bbd8c9"
+  },
+  {
+    "id": "mantel_clock_01",
+    "title": "Mantel Clock 01",
+    "authors": [
+      "Yann Kervran",
+      "Rico Cilliers"
+    ],
+    "license": "CC0-1.0",
+    "sourceUrl": "https://polyhaven.com/a/mantel_clock_01",
+    "licenseUrl": "https://polyhaven.com/license",
+    "apiFilesUrl": "https://api.polyhaven.com/files/mantel_clock_01",
+    "sourceBytes": 2427220,
+    "files": [
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/mantel_clock_01/mantel_clock_01_1k.gltf",
+        "md5": "768ccf9a56c73b0ef542c93922fdb5db",
+        "bytes": 5628
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/mantel_clock_01/mantel_clock_01_diff_1k.jpg",
+        "md5": "a012d80ace15cc37f75e8679702bb92f",
+        "bytes": 542895
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/mantel_clock_01/mantel_clock_01_arm_1k.jpg",
+        "md5": "a52929305a9a0f5cbe6c840f9ee9fc6c",
+        "bytes": 700545
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/mantel_clock_01/mantel_clock_01_nor_gl_1k.jpg",
+        "md5": "ebc20f1198b1972c10d71c5960280f97",
+        "bytes": 536272
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/mantel_clock_01/mantel_clock_01.bin",
+        "md5": "200740e20c08d0c370b608af6a17e9f9",
+        "bytes": 641880
+      }
+    ],
+    "geometryVertices": 7419,
+    "path": "/assets/mantel_clock_01.glb",
+    "bytes": 424836,
+    "sha256": "c42c3e5812394a2b76cca811a100d2e44e3e8f7a37bbc966d046b4d3999ece03"
   }
 ]

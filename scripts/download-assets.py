@@ -2,6 +2,7 @@
 import argparse, hashlib, json, pathlib, urllib.request, urllib.parse
 parser = argparse.ArgumentParser()
 parser.add_argument('--cache', default='/tmp/hogwarts-polyhaven')
+parser.add_argument('--ids', nargs='+', default=['ClassicConsole_01', 'ornate_mirror_01', 'fancy_picture_frame_01', 'ArmChair_01', 'mantel_clock_01'])
 args = parser.parse_args()
 cache = pathlib.Path(args.cache)
 cache.mkdir(parents=True, exist_ok=True)
@@ -11,7 +12,7 @@ def fetch(url):
         raise ValueError('Unexpected asset host')
     return urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=60).read()
 models = json.loads(fetch('https://api.polyhaven.com/assets?type=models'))
-selected = ['ClassicConsole_01', 'ornate_mirror_01', 'fancy_picture_frame_01', 'ArmChair_01']
+selected = args.ids
 manifest = []
 for asset_id in selected:
     info = models[asset_id]

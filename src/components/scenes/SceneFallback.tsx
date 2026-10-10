@@ -8,7 +8,13 @@ export function SceneFallback({
   still,
   immersive = false,
   writtenText,
+  turning = false,
+  turnSerial = 0,
+  turnDirection = 1,
 }: {
+  turning?: boolean;
+  turnSerial?: number;
+  turnDirection?: number;
   immersive?: boolean;
   writtenText?: string;
   kind: SceneKind;
@@ -174,6 +180,16 @@ export function SceneFallback({
         </g>
         {book ? (
           <g className="study-focus" transform="translate(442 330)">
+            <path d="m-56 10 177-25 176 60v14l-183 34-170-65Z" fill="#4e3028" />
+            {[0, 1, 2, 3, 4].map((i) => (
+              <path
+                key={i}
+                d={`M-44 ${15 + i * 2} 125 ${69 + i * 2} 283 ${41 + i * 2}`}
+                stroke="#b69c72"
+                strokeWidth="1.5"
+                fill="none"
+              />
+            ))}
             <path
               d="m-56 10 177-25 176 60-183 34Z"
               fill="#623c33"
@@ -209,6 +225,31 @@ export function SceneFallback({
                 </>
               )}
             </g>
+            {turning && !still && (
+              <g
+                key={turnSerial}
+                transform={
+                  turnDirection < 0 ? "translate(240 0) scale(-1 1)" : undefined
+                }
+              >
+                <path
+                  fill="#ecdbb0"
+                  stroke="#aa9069"
+                  strokeWidth="1.3"
+                  d="M117 -17 Q190 -9 283 30 L127 57 Q119 25 117 -17Z"
+                >
+                  <animate
+                    attributeName="d"
+                    dur="1.6s"
+                    fill="freeze"
+                    values="M117 -17 Q190 -9 283 30 L127 57 Q119 25 117 -17Z;M117 -17 Q233 -112 235 -80 L127 57 Q215 -16 117 -17Z;M117 -17 Q62 -124 11 -61 L127 57 Q12 4 117 -17Z;M117 -17 Q39 -30 -44 3 L-43 19 Q44 46 127 57Z"
+                    keyTimes="0;.32;.68;1"
+                    calcMode="spline"
+                    keySplines=".4 0 .6 1;.4 0 .6 1;.4 0 .6 1"
+                  />
+                </path>
+              </g>
+            )}
             {kind === "final" && (
               <circle cx="117" cy="24" r="18" fill="#85333b" />
             )}

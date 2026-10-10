@@ -1,9 +1,9 @@
 "use client";
+import { BirthGuidance } from "./BirthGuidance";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { sheets, sheetNames } from "@/content/admission";
 import {
-  ageIn1890,
   downloadDraft,
   parseBackup,
   validateAdmission,
@@ -27,7 +27,7 @@ export function Admission() {
       </p>
     );
   const { draft, story } = player;
-  const age = ageIn1890(draft.admission.birthDate);
+
   function changeField(field: Field, value: string) {
     change((p) => ({
       ...p,
@@ -174,7 +174,7 @@ export function Admission() {
                   placeholder={q.example}
                   autoComplete="off"
                   aria-invalid={!!errors[q.key]}
-                  aria-describedby={`${q.key}-help ${errors[q.key] ? `${q.key}-error` : ""}`}
+                  aria-describedby={`${q.key}-help ${errors[q.key] ? `${q.key}-error` : ""} ${q.key === "birthDate" ? "birthDate-age" : ""}`}
                   onChange={(e) => changeField(q.key, e.target.value)}
                 />
               )}{" "}
@@ -183,12 +183,11 @@ export function Admission() {
                   {errors[q.key]}
                 </p>
               )}
-              {q.key === "birthDate" && age !== null && age !== 11 && (
-                <p className="warning">
-                  Seu personagem terá {age} anos no início das aulas. A idade
-                  típica é 11 anos; exceções são permitidas e podem ser
-                  combinadas com o Mestre.
-                </p>
+              {q.key === "birthDate" && (
+                <BirthGuidance
+                  value={draft.admission.birthDate}
+                  id="birthDate-age"
+                />
               )}
             </div>
           ))}

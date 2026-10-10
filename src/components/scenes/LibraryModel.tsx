@@ -8,7 +8,8 @@ type ModelId =
   | "ClassicConsole_01"
   | "ArmChair_01"
   | "fancy_picture_frame_01"
-  | "ornate_mirror_01";
+  | "ornate_mirror_01"
+  | "mantel_clock_01";
 class ModelBoundary extends Component<
   { children: ReactNode; fallback: ReactNode },
   { failed: boolean }

@@ -2,7 +2,7 @@ import { chromium, expect, test } from "@playwright/test";
 test("cena fullscreen 3D vira páginas, mantém campos e adapta viewport", async ({
   baseURL,
 }, info) => {
-  test.setTimeout(90000);
+  test.setTimeout(180000);
   const browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH,
     args: [
@@ -14,12 +14,25 @@ test("cena fullscreen 3D vira páginas, mantém campos e adapta viewport", async
   try {
     const mobile = info.project.name === "mobile";
     const page = await browser.newPage({
+      deviceScaleFactor: mobile ? 2 : 1,
       viewport: mobile
         ? { width: 390, height: 844 }
         : { width: 1280, height: 720 },
     });
+    if (mobile)
+      await page.addInitScript(() => {
+        Object.defineProperty(navigator, "deviceMemory", { get: () => 4 });
+        Object.defineProperty(navigator, "hardwareConcurrency", {
+          get: () => 4,
+        });
+      });
     const errors: string[] = [];
     page.on("pageerror", (e) => errors.push(e.message));
+    page.on("console", (message) => {
+      if (message.type() === "error")
+        errors.push(`${message.text()} (${message.location().url})`);
+    });
+    await page.clock.install();
     await page.goto(`${baseURL}/experiencia`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     await expect(page.locator(".study-scene")).toHaveAttribute(
@@ -27,8 +40,33 @@ test("cena fullscreen 3D vira páginas, mantém campos e adapta viewport", async
       "3d",
       { timeout: 20000 },
     );
+    await page.clock.pauseAt(await page.evaluate(() => Date.now() + 30000));
     await page.locator("#I01").fill("Estudante do Registro Mágico");
     await page.getByRole("button", { name: "Continuar", exact: true }).click();
+    await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "glow");
+    await page.clock.fastForward(320);
+    await expect(page.locator(".cinema")).toHaveAttribute(
+      "data-phase",
+      "absorb",
+    );
+    await page.clock.fastForward(650);
+    await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "turn");
+    await page.clock.fastForward(400);
+    const canvas = page.locator(".study-scene canvas");
+    if (mobile)
+      await expect
+        .poll(() =>
+          canvas.evaluate(
+            (el) => (el as HTMLCanvasElement).width / el.clientWidth,
+          ),
+        )
+        .toBe(1);
+    await expect(canvas).toHaveAttribute("data-page-direction", "1");
+    expect(Number(await canvas.getAttribute("data-page-curl"))).toBeGreaterThan(
+      0.1,
+    );
+    await page.screenshot({ path: info.outputPath("page-turn-forward.png") });
+    await page.clock.fastForward(2300);
     await expect(page.locator(".study-scene")).toHaveAttribute(
       "data-active",
       "true",
@@ -39,9 +77,23 @@ test("cena fullscreen 3D vira páginas, mantém campos e adapta viewport", async
     await page.screenshot({
       path: info.outputPath("cinema-3d.png"),
     });
+    await page.getByRole("button", { name: "Voltar", exact: true }).click();
+    await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "turn");
+    await page.clock.fastForward(400);
+    await expect(canvas).toHaveAttribute("data-page-direction", "-1");
+    expect(Number(await canvas.getAttribute("data-page-curl"))).toBeGreaterThan(
+      0.1,
+    );
+    await page.screenshot({ path: info.outputPath("page-turn-back.png") });
     await page
       .getByRole("button", { name: "Pular animação / reduzir movimento" })
       .click();
+    await expect(page.locator("#I01")).toHaveValue(
+      "Estudante do Registro Mágico",
+    );
+    await page.getByRole("button", { name: "Continuar", exact: true }).click();
+    await expect(page.locator("#I02")).toBeVisible();
+    await page.clock.resume();
     await page.locator("#I02").fill("Registro");
     await page.setViewportSize({ width: mobile ? 390 : 800, height: 350 });
     await expect(page.locator(".cinema")).toHaveCSS("height", "350px", {
