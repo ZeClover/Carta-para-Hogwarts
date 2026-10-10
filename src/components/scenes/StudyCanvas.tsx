@@ -779,11 +779,16 @@ function CameraAndLife({
       end[0] = portrait ? 0.8 : 2.4;
       end[1] = portrait ? 4.8 : 4.3;
       end[2] = (portrait ? 8.8 : 6.7) + (active ? 0.22 : 0);
+      start[0] = end[0] + (portrait ? 0.4 : 1.2);
+      start[1] = end[1] + 0.8;
+      start[2] = end[2] + 2;
     }
+    const firstEntrance = previousKind.current === null;
     const entering = previousKind.current !== kind;
     previousKind.current = kind;
     if (still) camera.position.set(...end);
-    else if (entering) camera.position.set(...start);
+    else if (entering && (!immersive || firstEntrance))
+      camera.position.set(...start);
     const target = new THREE.Vector3(
       kind === "II" && entering && !still ? 1.8 : 0,
       immersive ? 1.5 : kind === "V" ? 1 : 0.55,
