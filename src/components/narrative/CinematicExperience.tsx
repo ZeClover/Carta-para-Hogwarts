@@ -240,6 +240,8 @@ function Experience({
       : original;
   const review = step.id.endsWith("-review");
   const archiveLoading = chapter === "VII" && !presentationReady;
+  const inkLoading = chapter === "III" && !presentationReady;
+  const objectLoading = archiveLoading || inkLoading;
   function editStory(edit: (s: Story) => Story) {
     change((p) => ({
       ...p,
@@ -455,7 +457,7 @@ function Experience({
       busy.current ||
       travelling ||
       intro ||
-      archiveLoading ||
+      objectLoading ||
       phase !== "idle"
     )
       return;
@@ -474,15 +476,16 @@ function Experience({
       data-phase={phase}
       data-entry={intro ? "opening" : "reading"}
       data-storage-ready="true"
+      data-ink-loading={inkLoading ? "true" : "false"}
       data-archive-loading={archiveLoading ? "true" : "false"}
       data-interaction-ready={
-        !intro && !travelling && !archiveLoading && phase === "idle"
+        !intro && !travelling && !objectLoading && phase === "idle"
           ? "true"
           : "false"
       }
       data-chapter={chapter}
       data-travelling={travelling ? "true" : "false"}
-      aria-busy={archiveLoading || travelling || phase !== "idle"}
+      aria-busy={objectLoading || travelling || phase !== "idle"}
     >
       <SceneStage
         selectedPhoto={step.id}
@@ -530,16 +533,18 @@ function Experience({
       )}
       <div className="chapter-cover" aria-hidden="true" />
       <div className="cinema-scrim" aria-hidden="true" />
-      {archiveLoading && (
+      {objectLoading && (
         <p className="entry-readiness" role="status">
-          Preparando a caixa de fotografias…
+          {chapter === "VII"
+            ? "Preparando a caixa de fotografias…"
+            : "Preparando o tinteiro…"}
         </p>
       )}
       {chapter === "VII" && (
         <PhotoNavigation
           overlay
           selected={step.id}
-          disabled={archiveLoading || intro || travelling || phase !== "idle"}
+          disabled={objectLoading || intro || travelling || phase !== "idle"}
           onSelect={selectPhoto}
         />
       )}
@@ -556,7 +561,7 @@ function Experience({
         </button>
       </header>
       <DocumentSurface
-        inactive={archiveLoading || intro || travelling || phase !== "idle"}
+        inactive={objectLoading || intro || travelling || phase !== "idle"}
       >
         <div
           ref={heading}
@@ -566,7 +571,7 @@ function Experience({
           aria-label={`Página ${step.id}`}
         >
           <fieldset
-            disabled={archiveLoading || intro || travelling || phase !== "idle"}
+            disabled={objectLoading || intro || travelling || phase !== "idle"}
             className="cinema-fields"
           >
             {chapter === "VII" && (
@@ -817,7 +822,7 @@ function Experience({
             <button
               className="button secondary"
               disabled={
-                archiveLoading ||
+                objectLoading ||
                 intro ||
                 travelling ||
                 index === 0 ||
@@ -830,7 +835,7 @@ function Experience({
             <button
               className="button"
               disabled={
-                archiveLoading || intro || travelling || phase !== "idle"
+                objectLoading || intro || travelling || phase !== "idle"
               }
               onClick={() => void move(index + 1, true)}
             >

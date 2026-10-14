@@ -33,7 +33,7 @@ test("sete composições reconhecíveis, leitura acessível e viagem real de câ
     const objects = [
       "correspondence",
       "album",
-      "memory",
+      "ink-quill",
       "window-letter",
       "mirror",
       "celestial-map",

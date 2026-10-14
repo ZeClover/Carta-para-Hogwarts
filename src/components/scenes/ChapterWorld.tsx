@@ -14,6 +14,8 @@ import { ChapterModel } from "./ChapterModel";
 import { LibraryModel } from "./LibraryModel";
 import { EnchantedBook } from "./EnchantedBook";
 import { createPageGeometry, deformPage } from "./pageGeometry";
+import { InkQuill } from "./InkQuill";
+import { SceneEntrancePlayback } from "./sceneEntrancePlayback";
 import { PhotoBox } from "./PhotoBox";
 import { PhotoBoxPlayback } from "./photoBoxMotion";
 
@@ -34,6 +36,7 @@ type Props = {
   onPhotoSelect?: (id: string) => void;
   selectedPhoto?: string;
   archivePlayback?: PhotoBoxPlayback;
+  inkPlayback?: SceneEntrancePlayback;
 };
 function useSurface(kind: "wood" | "wall" | "letter" | "paper") {
   const map = useMemo(() => {
@@ -477,55 +480,6 @@ function WindowDelivery({ turning, still, onAction, onReady }: Props) {
     </group>
   );
 }
-function ReactiveHero({
-  chapter,
-  turning,
-  still,
-  scale = 1,
-  onAction,
-  onReady,
-}: {
-  chapter: ChapterId;
-  turning?: boolean;
-  still: boolean;
-  scale?: number;
-  onAction?: () => void;
-  onReady?: (phase?: "assets") => void;
-}) {
-  const ref = useRef<THREE.Group>(null);
-  const { invalidate } = useThree();
-  useEffect(() => {
-    if (!ref.current) return;
-    const group = ref.current;
-    const timeline = gsap.timeline();
-    timeline.to(group.position, {
-      y: chapter === "III" && turning && !still ? 0.08 : 0,
-      z: chapter === "VII" && turning && !still ? 0.09 : 0,
-      duration: still ? 0 : 0.25,
-      ease: "sine.inOut",
-      onUpdate: invalidate,
-    });
-    return () => {
-      timeline.kill();
-    };
-  }, [chapter, turning, still, invalidate]);
-  return (
-    <group
-      ref={ref}
-      scale={scale}
-      onClick={
-        onAction
-          ? (event) => {
-              event.stopPropagation();
-              onAction();
-            }
-          : undefined
-      }
-    >
-      <ChapterModel chapter={chapter} onReady={onReady} />
-    </group>
-  );
-}
 function Protagonist({ chapter, ...props }: Props & { chapter: ChapterId }) {
   const singlePage = useThree((state) => state.size.width <= 700);
   const { turning, still, onAction } = props;
@@ -561,15 +515,7 @@ function Protagonist({ chapter, ...props }: Props & { chapter: ChapterId }) {
       </group>
     );
   if (chapter === "III")
-    return (
-      <ReactiveHero
-        chapter="III"
-        onReady={props.onReady}
-        turning={turning}
-        still={still}
-        scale={1.9}
-      />
-    );
+    return <InkQuill playback={props.inkPlayback!} onReady={props.onReady} />;
   if (chapter === "IV") return <WindowDelivery {...props} />;
   if (chapter === "V")
     return (
@@ -644,6 +590,7 @@ function Bay({ chapter, props }: { chapter: ChapterId; props: Props }) {
   );
 }
 export function ChapterWorld(props: Props) {
+  const inkPlayback = useMemo(() => new SceneEntrancePlayback(), []);
   const archivePlayback = useMemo(() => new PhotoBoxPlayback(), []);
   const { still } = props;
   const chapter = chapterOrder.includes(props.kind as ChapterId)
@@ -708,6 +655,7 @@ export function ChapterWorld(props: Props) {
           props={{
             ...props,
             archivePlayback,
+            inkPlayback,
             onReady: c === chapter ? props.onReady : undefined,
             turning: c === chapter && props.turning,
             turnSerial: c === chapter ? props.turnSerial : 0,
@@ -726,6 +674,7 @@ export function ChapterWorld(props: Props) {
         turning={props.turning}
         onJourney={props.onJourney}
         archivePlayback={archivePlayback}
+        inkPlayback={inkPlayback}
       />
     </>
   );

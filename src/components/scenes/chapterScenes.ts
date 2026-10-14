@@ -1,6 +1,7 @@
 import { chapterDirection, chapterOrder } from "./chapterDirection";
 import posters from "@/content/redesign-posters.json";
 import assets from "@/content/redesign-assets.json";
+import inkQuill from "@/content/ink-quill.json";
 import photoBox from "@/content/photo-box.json";
 /** Presentation-only manifest. It contains no questions, answers or narrative conditions. */
 export const chapterScenes = Object.fromEntries(
@@ -13,7 +14,9 @@ export const chapterScenes = Object.fromEntries(
         criticalAssets: [
           id === "VII"
             ? photoBox.path
-            : assets.find((a) => a.chapter === id)!.path,
+            : id === "III"
+              ? inkQuill.path
+              : assets.find((a) => a.chapter === id)!.path,
         ],
         optionalAssets:
           id === "II"

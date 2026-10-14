@@ -10,13 +10,13 @@ A abertura é silenciosa e automática para um registro novo: envelope, aba arti
 | -------- | ------------------------------------------------------------------------------------------------- | ------------------------------ |
 | I        | Envelope de papel com espessura, dobras, lacre irregular em relevo; aba e folha animadas          | Carta marfim                   |
 | II       | Pranchas de couro, tecido, lombada costurada e cantoneiras; preserva a folha deformável existente | Álbum; uma página no celular   |
-| III      | Tinteiro, pena e papel subdividido curvo; gesto abstrato curto                                    | Cartão de relato claro         |
+| III      | GLB original de tinteiro com pena de Matthew Collings; gesto abstrato curto                                    | Cartão de relato claro         |
 | IV       | Caixilho profundo, perfis, vidraças com chumbo e peitoril; correspondência em primeiro plano      | Correspondência                |
 | V        | Nova moldura Poly Haven 02 convertida em espelho, vidro prateado e base modelada                  | Pergaminho ao lado             |
 | VI       | Mapa circular de algodão com coordenadas e estrelas geométricas; suporte torneado e ampulheta     | Cartela marfim com tinta azul  |
 | VII      | Caixa de fotografias enviada pelo proprietário, tampa animada original e fotografias interativas  | Ficha de arquivo e índice HTML |
 
-Os protagonistas da entrega 3.0 são GLBs locais novos ou reconstruídos por scripts Blender; o capítulo VII imersivo agora usa a caixa enviada pelo proprietário. Nenhum requer Blender no navegador. O espelho deriva da nova `fancy_picture_frame_02`, de Rob Tuytel e Rico Cilliers, CC0, com origem e checksums oficiais registrados. O acervo anterior permanece para as rotas compactas. Livro enciclopédico e gaveteiro Poly Haven também foram pesquisados e baixados com verificação, mas não integrados: o álbum articulado e a gaveta rasa exigem outras silhuetas/estruturas. Não há criaturas, rosto inventado, webcam, varinha, Expresso ou Seleção. A fotografia CC0 do álbum é ambientação anônima, sem determinar a infância.
+Os protagonistas da entrega 3.0 são GLBs locais novos ou reconstruídos por scripts Blender; os capítulos III e VII imersivos agora usam respectivamente o tinteiro e a caixa enviados pelo proprietário. Nenhum requer Blender no navegador. O espelho deriva da nova `fancy_picture_frame_02`, de Rob Tuytel e Rico Cilliers, CC0, com origem e checksums oficiais registrados. O acervo anterior permanece para as rotas compactas. Livro enciclopédico e gaveteiro Poly Haven também foram pesquisados e baixados com verificação, mas não integrados: o álbum articulado e a gaveta rasa exigem outras silhuetas/estruturas. Não há criaturas, rosto inventado, webcam, varinha, Expresso ou Seleção. A fotografia CC0 do álbum é ambientação anônima, sem determinar a infância.
 
 ## Direção e edição
 

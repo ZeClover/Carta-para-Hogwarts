@@ -3,6 +3,8 @@ import { useEffect, useRef } from "react";
 import { useThree } from "@react-three/fiber";
 import { gsap } from "gsap";
 import * as THREE from "three";
+import inkQuill from "@/content/ink-quill.json";
+import type { SceneEntrancePlayback } from "./sceneEntrancePlayback";
 import photoBox from "@/content/photo-box.json";
 import type { PhotoBoxPlayback } from "./photoBoxMotion";
 import type { ChapterId } from "@/content/chapters";
@@ -19,6 +21,7 @@ export function CameraDirector({
   opening = false,
   onJourney,
   archivePlayback,
+  inkPlayback,
 }: {
   chapter: ChapterId;
   still: boolean;
@@ -26,6 +29,7 @@ export function CameraDirector({
   turning?: boolean;
   onJourney?: (moving: boolean) => void;
   archivePlayback?: PhotoBoxPlayback;
+  inkPlayback?: SceneEntrancePlayback;
 }) {
   const { camera, size, gl, invalidate } = useThree();
   const previous = useRef<{ chapter: ChapterId; opening: boolean } | null>(
@@ -42,9 +46,13 @@ export function CameraDirector({
       !!prior && (prior.chapter !== chapter || prior.opening !== opening);
     const archiveEntrance =
       chapter === "VII" && (!prior || prior.chapter !== "VII") && !still;
+    const inkEntrance =
+      chapter === "III" && (!prior || prior.chapter !== "III") && !still;
+    const entrance = archiveEntrance || inkEntrance;
+    const entrancePlayback = archiveEntrance ? archivePlayback : inkPlayback;
     const arrivalDuration = prior && prior.chapter !== "VII" ? 1.1 : 0;
     const archiveDuration = arrivalDuration + 2.2;
-    const moving = (changing || archiveEntrance) && !still;
+    const moving = (changing || entrance) && !still;
     const report = changing || !prior || still || animating.current;
     animating.current = moving;
     if (report) onJourney?.(moving);
@@ -58,6 +66,12 @@ export function CameraDirector({
         : ([stageX - 1.1, 4.8, 6.5] as const)),
     );
     const archiveTarget = new THREE.Vector3(stageX, portrait ? -1.15 : 0.3, 0);
+    const inkStart = end
+      .clone()
+      .add(new THREE.Vector3(portrait ? 0 : -0.25, 0.35, 1.1));
+    const inkTarget = endTarget.clone();
+    const inkArrival = prior && prior.chapter !== "III" ? 1.1 : 0;
+    const inkDuration = inkArrival + inkQuill.animation.duration;
     const lens = chapterDirection[chapter].fov;
     if (!prior) {
       camera.position.copy(end);
@@ -65,6 +79,10 @@ export function CameraDirector({
       if (archiveEntrance) {
         camera.position.copy(archiveStart);
         target.current.copy(archiveTarget);
+      }
+      if (inkEntrance) {
+        camera.position.copy(inkStart);
+        target.current.copy(inkTarget);
       }
       if (opening && !still)
         camera.position.add(new THREE.Vector3(0.6, 0.5, 1.0));
@@ -103,6 +121,32 @@ export function CameraDirector({
         gl.domElement.setAttribute(
           "data-photo-box-state",
           openingProgress < 1 ? "opening" : "open",
+        );
+      }
+      if (chapter === "III") {
+        let manifestation = 1;
+        if (inkEntrance) {
+          const elapsed = state.p * inkDuration;
+          if (elapsed < inkArrival) {
+            const p = -(Math.cos((Math.PI * elapsed) / inkArrival) - 1) / 2;
+            camera.position.lerpVectors(start, inkStart, p);
+            target.current.lerpVectors(startTarget, inkTarget, p);
+            manifestation = 0;
+          } else {
+            manifestation = THREE.MathUtils.clamp(
+              (elapsed - inkArrival) / inkQuill.animation.duration,
+              0,
+              1,
+            );
+            const p = -(Math.cos(Math.PI * manifestation) - 1) / 2;
+            camera.position.lerpVectors(inkStart, end, p);
+            target.current.lerpVectors(inkTarget, endTarget, p);
+          }
+        }
+        inkPlayback?.seek(manifestation * inkQuill.animation.duration);
+        gl.domElement.setAttribute(
+          "data-ink-state",
+          manifestation < 1 ? "manifesting" : "settled",
         );
       }
       camera.lookAt(target.current);
@@ -165,7 +209,7 @@ export function CameraDirector({
       "data-camera-state",
       moving ? "travelling" : "arrived",
     );
-    if (still || (!changing && !opening && !archiveEntrance)) {
+    if (still || (!changing && !opening && !entrance)) {
       state.p = 1;
       update();
       complete();
@@ -173,21 +217,23 @@ export function CameraDirector({
     }
     const duration = archiveEntrance
       ? archiveDuration
-      : opening
-        ? portrait
-          ? 1
-          : 1.6
-        : prior?.opening
+      : inkEntrance
+        ? inkDuration
+        : opening
           ? portrait
-            ? 0.55
-            : 0.9
-          : 1.1;
+            ? 1
+            : 1.6
+          : prior?.opening
+            ? portrait
+              ? 0.55
+              : 0.9
+            : 1.1;
     let deadline: ReturnType<typeof setTimeout> | undefined;
     let remaining = duration * 1000 + 250;
     let started = performance.now();
-    // Shader compilation must not consume the opening: show a closed, actually
-    // drawn box before starting the shared clock on direct chapter entry.
-    let waitingForDraw = archiveEntrance && !prior && !!archivePlayback;
+    // Shader compilation must not consume the entrance: draw the object in its
+    // initial pose before starting the shared clock on direct chapter entry.
+    let waitingForDraw = entrance && !prior && !!entrancePlayback;
     if (waitingForDraw) update();
     const timeline = gsap.timeline({
       paused: waitingForDraw,
@@ -199,7 +245,7 @@ export function CameraDirector({
     timeline.to(state, {
       p: 1,
       duration,
-      ease: archiveEntrance ? "none" : "sine.inOut",
+      ease: entrance ? "none" : "sine.inOut",
       onUpdate: update,
     });
     const settle = () => {
@@ -213,7 +259,7 @@ export function CameraDirector({
       deadline = setTimeout(settle, Math.max(0, remaining));
     };
     const stopWaiting = waitingForDraw
-      ? archivePlayback!.whenDrawn(() => {
+      ? entrancePlayback!.whenDrawn(() => {
           waitingForDraw = false;
           if (!document.hidden && !finished) {
             timeline.play();
@@ -252,6 +298,7 @@ export function CameraDirector({
     invalidate,
     onJourney,
     archivePlayback,
+    inkPlayback,
   ]);
   return null;
 }

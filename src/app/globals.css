@@ -2769,11 +2769,13 @@ body:has(.cinema) > footer {
   inset: 0;
 }
 
-/* The archive opening stays visible; its document waits until the hinge settles. */
-.cinema[data-chapter="VII"][data-travelling="true"] .chapter-cover {
+/* Object entrances stay visible; documents wait until camera and object settle. */
+.cinema:is([data-chapter="III"], [data-chapter="VII"])[data-travelling="true"]
+  .chapter-cover {
   opacity: 0;
 }
-.cinema[data-archive-loading="true"] .cinema-document-layout {
+.cinema:is([data-archive-loading="true"], [data-ink-loading="true"])
+  .cinema-document-layout {
   opacity: 0;
   pointer-events: none;
 }

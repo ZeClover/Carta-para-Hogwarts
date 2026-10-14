@@ -195,37 +195,38 @@ function ChapterVector({
         )}
         {chapter === "III" && (
           <g>
-            <rect
-              x="-194"
-              y="-160"
-              width="388"
-              height="316"
-              rx="5"
-              fill={url("gold")}
-            />
-            <image
-              href="/assets/memory-forest.jpg"
-              x="-171"
-              y="-138"
-              width="342"
-              height="272"
-              preserveAspectRatio="xMidYMid slice"
-            />
             <path
-              d="M-170 108Q-30 87 170 112"
-              fill="none"
-              stroke="#acdfcc"
+              d="M-75 160v-110q0-18 17-18h10V6H8v26h10q17 0 17 18v110q-54 18-110 0Z"
+              fill={url("glass")}
+              stroke="#bdc8be"
               strokeWidth="3"
             />
-            <g className="memory-orb">
-              <circle cy="190" r="24" fill={url("glass")} stroke="#cbe4c8" />
-              <ellipse
-                cy="190"
-                rx="36"
-                ry="12"
+            <path
+              d="M-67 136v-76q43-10 93 0v76Z"
+              fill="#1b2929"
+              opacity=".85"
+            />
+            <ellipse
+              cx="-20"
+              cy="6"
+              rx="28"
+              ry="9"
+              fill="#182322"
+              stroke="#bfc9bb"
+              strokeWidth="3"
+            />
+            <g transform="rotate(24 -20 0)">
+              <path
+                d="M-20 22q-10-93 20-215 100 68 21 207L-8-22Z"
+                fill={url("paper")}
+                stroke="#9f8d6d"
+                strokeWidth="2"
+              />
+              <path
+                d="M-20 22 0-193m-9 60 45-6m-53 46 57-5m-65 45 60-4m-65 38 46-3"
                 fill="none"
-                stroke={url("gold")}
-                strokeWidth="3"
+                stroke="#8b7c60"
+                strokeWidth="2"
               />
             </g>
           </g>

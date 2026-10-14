@@ -1,0 +1,30 @@
+{
+  "id": "ink-bottle-with-quill",
+  "chapter": "III",
+  "path": "/assets/ink-quill/ink-bottle-with-quill-28d3e47d6ed8.glb",
+  "bytes": 2641960,
+  "sha256": "28d3e47d6ed89564f6a9a545ed3a44a4ca782f9ef060868a3e59c34da7989908",
+  "title": "Ink Bottle with Quill",
+  "author": "Matthew Collings",
+  "authorUrl": "https://sketchfab.com/mtcollings",
+  "source": "https://sketchfab.com/3d-models/ink-bottle-with-quill-ef967c9bc13b4635add8ab7517dfedfe",
+  "license": "CC-BY-4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "triangles": 1288,
+  "textures": {
+    "count": 3,
+    "dimensions": [1024, 1024],
+    "preservation": "Original embedded images, UVs and GLB retained byte for byte"
+  },
+  "animation": {
+    "duration": 2.4,
+    "target": "Feather_Quill_low",
+    "source": "Procedural entrance only; no original clips supplied",
+    "sourceTarget": "Feather Quill_low"
+  },
+  "runtimeMaterialAdjustments": [
+    "Original PBR maps and alpha retained; alpha hash depth testing on glass prevents transparent triangle sorting artifacts",
+    "Feather alpha cutout 0.25; ink depth tested",
+    "Glass does not receive self-shadow; contact silhouette shadow retained"
+  ]
+}

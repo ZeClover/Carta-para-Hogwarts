@@ -73,7 +73,14 @@ export const SceneStage = memo(function SceneStage({
           title: "A caixa de fotografias",
           caption: "Fotografias por preencher. Você escolhe o que guardar.",
         }
-      : sceneConfig[kind];
+      : immersive && kind === "III"
+        ? {
+            ...sceneConfig[kind],
+            title: "O tinteiro e a pena",
+            caption:
+              "A pena se move por um instante. Sua história ainda está por escrever.",
+          }
+        : sceneConfig[kind];
   const [active, setActive] = useState(false),
     [still, setStill] = useState(false),
     [systemReduced, setSystemReduced] = useState(false);
@@ -396,7 +403,9 @@ export const SceneStage = memo(function SceneStage({
           {render3d && ready ? "Cenário 3D interativo" : "Cenário leve 2.5D"} ·
           {immersive && kind === "VII"
             ? "Caixa de fotografias · modelo fornecido"
-            : "Arte original e modelos CC0"}
+            : immersive && kind === "III"
+              ? "Tinteiro com pena · Matthew Collings · CC BY 4.0"
+              : "Arte original e modelos CC0"}
         </p>
         <p className="sr-only" aria-live="polite">
           {interacted ? config.result : ""}
@@ -405,6 +414,15 @@ export const SceneStage = memo(function SceneStage({
           <span className="scene-source-credit">
             Modelo fornecido ao projeto
           </span>
+        ) : immersive && kind === "III" ? (
+          <a
+            className="scene-source-credit"
+            href="https://sketchfab.com/3d-models/ink-bottle-with-quill-ef967c9bc13b4635add8ab7517dfedfe"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Ink Bottle with Quill — Matthew Collings · CC BY 4.0
+          </a>
         ) : (
           <a
             className="scene-source-credit"
