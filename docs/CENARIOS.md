@@ -1,10 +1,12 @@
-# Cenários visuais · versão 1.2
+# Cenários visuais · versão 2.0
 
-As rotas do jogador usam um escritório vitoriano original, construído em Three.js/React Three Fiber, com câmera e objetos animados por GSAP. Combina modelos vitorianos CC0 do Poly Haven com geometria própria para os objetos interativos; não usa reproduções oficiais de Hogwarts. O emblema H também é uma composição original do projeto.
+As rotas compactas do jogador usam um escritório vitoriano original, construído em Three.js/React Three Fiber, com câmera e objetos animados por GSAP. Combina modelos vitorianos CC0 do Poly Haven com geometria própria para os objetos interativos; não usa reproduções oficiais de Hogwarts. O emblema H também é uma composição original do projeto.
 
 Carta: envelope com aba articulada, selo e papel que sai. Registro: folhas sobre a mesa. II: álbum de fotografias com página que vira. III: fotografia iluminada por magia. IV: envelope chega da janela. V: espelho ornamental Poly Haven com vidro texturizado (não uma reflexão planar em tempo real). VI: mapa celeste e ampulheta. VII: gaveta com fotografias. Revisão: livro com nome escolhido e capa que fecha com lacre.
 
 Cada interação possui botão HTML acessível. Nenhum campo é renderizado como textura 3D. O nome fictício e a resposta confirmada aparecem também na textura local do livro, produzida no próprio navegador; não há transmissão de respostas ou assets buscados em APIs externas durante o uso.
+
+O modo fullscreen agora usa composições e direção próprias por capítulo; veja [direção dos capítulos 2.0](DIRECAO-CAPITULOS.md). O relato 1.2 abaixo preserva o histórico do escritório compacto, não descreve o enquadramento atual da experiência. A coruja procedural foi removida.
 
 ## Funcionamento e orçamento
 

@@ -2133,3 +2133,459 @@ body:has(.cinema) > footer {
 .study-immersive .study-illustration.active .study-pages {
   transform: none;
 }
+
+/* Chapter direction: the document and its protagonist share the composition.
+   Reading surfaces stay opaque enough that a moving scene never reduces contrast. */
+.cinema[data-chapter] {
+  --surface: #f0dfbb;
+  --writing-ink: #33271f;
+  --muted-ink: #5d5143;
+  --edge: #a28a60;
+}
+.cinema[data-chapter] .cinema-scrim {
+  background: linear-gradient(
+    #11192295,
+    transparent 20%,
+    transparent 80%,
+    #111922b0
+  );
+}
+.cinema[data-chapter] .study-vignette {
+  opacity: 0.25;
+}
+.cinema[data-chapter] .cinema-header {
+  padding: 22px 5vw;
+}
+.cinema[data-chapter] .cinema-header h1 {
+  font-size: clamp(18px, 2vw, 27px);
+  color: #f1dfbc;
+}
+.cinema[data-chapter] .cinema-header .eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+}
+.cinema[data-chapter] .cinema-writing {
+  top: 23%;
+  left: 5vw;
+  transform: none;
+  width: min(540px, 43vw);
+  max-height: calc(77% - 148px);
+  padding: 30px 34px;
+  color: var(--writing-ink);
+  background: var(--surface);
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    #a3824310 4px
+  );
+  border: 1px solid var(--edge);
+  border-radius: 3px 3px 16px 3px;
+  box-shadow:
+    0 20px 55px #0004,
+    inset 0 0 40px #926d3920;
+  scrollbar-width: thin;
+  scrollbar-color: var(--edge) transparent;
+  animation: chapter-document-in 0.8s ease both;
+}
+.cinema:is([data-chapter="III"], [data-chapter="V"], [data-chapter="VII"])
+  .cinema-writing,
+.cinema:is([data-chapter="III"], [data-chapter="V"], [data-chapter="VII"])
+  .cinema-bottom {
+  left: auto;
+  right: 5vw;
+}
+.cinema[data-chapter] .cinema-writing::before {
+  content: "";
+  display: block;
+  width: 42px;
+  height: 2px;
+  background: var(--edge);
+  margin-bottom: 22px;
+}
+.cinema[data-chapter="II"] .cinema-writing {
+  border: 8px solid #d0b68a;
+  outline: 1px solid #8b704b;
+  border-radius: 2px;
+}
+.cinema[data-chapter="III"] {
+  --surface: #183d3bf5;
+  --writing-ink: #f4eddc;
+  --muted-ink: #dfdfce;
+  --edge: #a2c1b2;
+}
+.cinema[data-chapter="III"] .cinema-writing {
+  background-image: none;
+  border-width: 1px 1px 1px 4px;
+}
+.cinema[data-chapter="IV"] .cinema-writing {
+  border-top: 4px double #b59b72;
+  border-radius: 2px;
+}
+.cinema[data-chapter="V"] {
+  --surface: #dfe5de;
+  --writing-ink: #233936;
+  --muted-ink: #465951;
+  --edge: #8a9b8f;
+}
+.cinema[data-chapter="V"] .cinema-writing {
+  border-radius: 52px 52px 6px 6px;
+  padding-top: 32px;
+  background-image: linear-gradient(135deg, #ffffffe0, #d6dfd8);
+  border: 3px double #9b916e;
+}
+.cinema[data-chapter="VI"] {
+  --surface: #1b304af7;
+  --writing-ink: #fff0d6;
+  --muted-ink: #e0decf;
+  --edge: #bea475;
+}
+.cinema[data-chapter="VI"] .cinema-writing {
+  border: 3px double #bda376;
+  border-radius: 0;
+  background-image: radial-gradient(ellipse at top right, #335572, #1b304a);
+}
+.cinema[data-chapter="VII"] .cinema-writing {
+  border-radius: 1px;
+  border-top: 12px solid #a08869;
+  box-shadow:
+    7px 7px 0 #ba9e77,
+    14px 14px 0 #7d5d48,
+    0 20px 55px #0005;
+}
+.cinema[data-chapter] .question-block h2 {
+  font-size: clamp(24px, 2.6vw, 34px);
+  color: var(--writing-ink);
+  text-shadow: none;
+  line-height: 1.25;
+}
+.cinema[data-chapter]
+  .cinema-writing
+  :is(
+    .field-help,
+    .fine-print,
+    .birth-guidance,
+    .question-id,
+    .question-block h2 small,
+    .entity-row small,
+    .hook-card dt,
+    .save-status
+  ) {
+  color: var(--muted-ink);
+}
+.cinema[data-chapter]
+  .cinema-writing
+  :is(input:not([type="checkbox"]), textarea, select) {
+  background: #ffffff18;
+  border: 1px solid var(--edge);
+  border-bottom-width: 2px;
+  color: var(--writing-ink);
+  text-shadow: none;
+  border-radius: 3px;
+  font-size: 18px;
+}
+.cinema[data-chapter] .cinema-writing :is(input, textarea)::placeholder {
+  color: var(--muted-ink);
+  opacity: 0.85;
+}
+.cinema[data-chapter] .cinema-writing :is(input, textarea, select):focus {
+  outline: 2px solid var(--writing-ink);
+  outline-offset: 3px;
+  background: #ffffff25;
+}
+.cinema[data-chapter] .cinema-writing select option {
+  color: #2e281f;
+  background: #f2e4c7;
+}
+.cinema[data-chapter] .cinema-writing input[type="date"] {
+  color-scheme: light;
+}
+.cinema[data-chapter]
+  .cinema-writing
+  :is(
+    .choice-grid label,
+    .family-card,
+    .entity-card,
+    .hook-card,
+    .entity-editor,
+    .hook-editor
+  ) {
+  color: var(--writing-ink);
+  background: var(--surface);
+  border-color: var(--edge);
+}
+.cinema[data-chapter] .cinema-writing :is(.text-button, a) {
+  color: var(--writing-ink);
+}
+.cinema[data-chapter] .cinema-writing .field-error {
+  color: #8f2624;
+  background: #fff2d3;
+  padding: 8px;
+  border-left: 3px solid #982e26;
+}
+.cinema[data-chapter] .cinema-writing .button.secondary {
+  color: var(--writing-ink);
+  background: transparent;
+  border-color: var(--edge);
+}
+.cinema[data-chapter] .cinema-bottom {
+  left: 5vw;
+  width: min(540px, 43vw);
+  transform: none;
+  bottom: 66px;
+}
+.cinema[data-chapter] .cinema-progress {
+  font-size: 12px;
+}
+.cinema[data-chapter] .cinema-actions .button {
+  min-height: 46px;
+  border-radius: 3px;
+  font-size: 14px;
+}
+.cinema[data-chapter] .cinema-actions .button:not(.secondary) {
+  color: #332817;
+  background: #e2c68e;
+  border-color: #e2c68e;
+}
+.cinema[data-chapter] .cinema-actions .button.secondary {
+  background: #18232db8;
+}
+.cinema[data-chapter] .cinema-ink {
+  left: 71%;
+  top: 48%;
+}
+.cinema:is([data-chapter="III"], [data-chapter="V"], [data-chapter="VII"])
+  .cinema-ink {
+  left: 29%;
+}
+.chapter-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.chapter-art-object {
+  transition: filter 0.7s;
+}
+.reacting .chapter-art-object {
+  filter: drop-shadow(0 0 12px #e7cf9766);
+}
+.reacting .memory-orb {
+  animation: memory-lift 1.55s ease both;
+}
+.reacting .celestial-hourglass {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: hourglass-turn 1.55s ease both;
+}
+.reacting .archive-drawer {
+  animation: drawer-reveal 1.55s ease both;
+}
+.reacting .delivery-letter {
+  animation: delivery-settle 1.55s ease both;
+}
+@keyframes chapter-document-in {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@keyframes memory-lift {
+  50% {
+    translate: 0 -20px;
+  }
+}
+@keyframes hourglass-turn {
+  to {
+    rotate: 180deg;
+  }
+}
+@keyframes drawer-reveal {
+  50% {
+    translate: 0 20px;
+  }
+}
+@keyframes delivery-settle {
+  50% {
+    translate: 0 -30px;
+    rotate: -3deg;
+  }
+}
+@media (max-width: 700px) {
+  .cinema[data-chapter] .cinema-header {
+    padding: 12px 18px;
+    flex-wrap: wrap;
+    gap: 5px 16px;
+  }
+  .cinema[data-chapter] .cinema-header > div {
+    flex-basis: 100%;
+  }
+  .cinema[data-chapter] .cinema-header h1 {
+    font-size: 19px;
+  }
+  .cinema[data-chapter] .cinema-header button {
+    font-size: 11px;
+  }
+  .cinema[data-chapter] .cinema-writing {
+    top: 43%;
+    left: 5vw;
+    right: auto;
+    width: 90vw;
+    max-height: calc(57% - 144px);
+    padding: 20px 22px;
+  }
+  .cinema[data-chapter] .cinema-writing::before {
+    margin-bottom: 12px;
+    width: 30px;
+  }
+  .cinema[data-chapter] .question-block h2 {
+    font-size: 25px;
+  }
+  .cinema[data-chapter]
+    .cinema-writing
+    :is(input:not([type="checkbox"]), textarea, select) {
+    font-size: 16px;
+  }
+  .cinema[data-chapter] .cinema-bottom {
+    left: 5vw;
+    right: auto;
+    width: 90vw;
+    bottom: 52px;
+  }
+  .cinema[data-chapter] .cinema-actions .button {
+    padding: 10px 14px;
+    font-size: 12px;
+    min-height: 42px;
+  }
+  .cinema[data-chapter] .cinema-ink {
+    left: 50%;
+    top: 29%;
+  }
+  .chapter-art-object {
+    translate: -220px -100px;
+    scale: 0.6;
+  }
+  .chapter-art-III .chapter-art-object,
+  .chapter-art-V .chapter-art-object,
+  .chapter-art-VII .chapter-art-object {
+    translate: 220px -100px;
+  }
+}
+@media (max-height: 500px) {
+  .cinema[data-chapter] .cinema-header {
+    padding: 5px 4vw;
+  }
+  .cinema[data-chapter] .cinema-header .eyebrow {
+    display: none;
+  }
+  .cinema[data-chapter] .cinema-writing {
+    top: 24%;
+    max-height: calc(76% - 102px);
+    padding: 12px 20px;
+  }
+  .cinema[data-chapter] .cinema-writing::before {
+    display: none;
+  }
+  .cinema[data-chapter] .question-block h2 {
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+  .cinema[data-chapter] .cinema-bottom {
+    bottom: 34px;
+  }
+  .cinema[data-chapter] .cinema-progress {
+    margin-bottom: 5px;
+  }
+  .cinema[data-chapter] .cinema-actions .button {
+    min-height: 34px;
+    padding: 6px 10px;
+  }
+}
+.cinema[data-chapter] .cinema-writing .field-help {
+  font-size: 15px;
+}
+.cinema[data-chapter] .cinema-writing input:not([type="checkbox"]) {
+  width: 100%;
+}
+.cinema[data-phase="absorb"] .cinema-writing,
+.cinema[data-phase="turn"] .cinema-writing {
+  animation: none;
+  opacity: 0;
+}
+@media (max-width: 700px) {
+  .cinema[data-chapter] .cinema-writing .field-help {
+    font-size: 14px;
+  }
+}
+@media (min-width: 701px) {
+  .cinema:is([data-chapter="III"], [data-chapter="V"], [data-chapter="VII"])
+    .cinema-bottom {
+    left: auto;
+    right: 5vw;
+  }
+}
+.cinema[data-chapter] .cinema-writing .eyebrow {
+  color: var(--muted-ink);
+}
+/* Keep the response and its navigation together, including short questions. */
+.cinema[data-chapter] .cinema-document-layout {
+  position: absolute;
+  top: 23%;
+  left: 5vw;
+  width: min(540px, 43vw);
+  max-height: calc(77% - 60px);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.cinema:is([data-chapter="III"], [data-chapter="V"], [data-chapter="VII"])
+  .cinema-document-layout {
+  left: auto;
+  right: 5vw;
+}
+.cinema[data-chapter] .cinema-document-layout .cinema-writing {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  width: 100%;
+  max-height: none;
+  flex: 0 1 auto;
+  min-height: 0;
+}
+.cinema[data-chapter] .cinema-document-layout .cinema-bottom {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  right: auto;
+  width: 100%;
+  flex: 0 0 auto;
+}
+@media (max-width: 700px) {
+  .cinema[data-chapter] .cinema-document-layout {
+    top: 43%;
+    left: 5vw;
+    right: auto;
+    width: 90vw;
+    max-height: calc(57% - 54px);
+    gap: 14px;
+  }
+}
+@media (max-height: 500px) {
+  .cinema[data-chapter] .cinema-document-layout {
+    top: 24%;
+    max-height: calc(76% - 34px);
+    gap: 10px;
+  }
+}
+.cinema[data-travelling="true"] .cinema-document-layout {
+  opacity: 0;
+  pointer-events: none;
+}
+.cinema-document-layout {
+  transition: opacity 0.25s ease;
+}

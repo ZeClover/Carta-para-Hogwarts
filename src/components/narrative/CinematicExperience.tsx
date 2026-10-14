@@ -61,6 +61,7 @@ function Experience({ initial }: { initial?: string }) {
     ),
   );
   const [phase, setPhase] = useState("idle");
+  const [travelling, setTravelling] = useState(false);
   const [page, setPage] = useState(0);
   const [turnDirection, setTurnDirection] = useState(1);
   const [ink, setInk] = useState("");
@@ -350,6 +351,9 @@ function Experience({ initial }: { initial?: string }) {
       id="conteudo"
       className={`cinema ${skip ? "cinema-still" : ""}`}
       data-phase={phase}
+      data-chapter={chapter}
+      data-travelling={travelling ? "true" : "false"}
+      aria-busy={travelling || phase !== "idle"}
     >
       <SceneStage
         kind={chapter}
@@ -359,6 +363,7 @@ function Experience({ initial }: { initial?: string }) {
         turning={phase === "turn"}
         writtenText={ink}
         onSkip={skipAnimations}
+        onJourney={setTravelling}
       />
       <div className="cinema-scrim" aria-hidden="true" />
       <header className="cinema-header">
@@ -373,268 +378,272 @@ function Experience({ initial }: { initial?: string }) {
           Sair e continuar depois
         </button>
       </header>
-      <div
-        ref={heading}
-        tabIndex={-1}
-        className="cinema-writing"
-        key={step.id}
-        aria-label={`Página ${step.id}`}
-      >
-        <fieldset disabled={phase !== "idle"} className="cinema-fields">
-          {admission && (
-            <section className="question-block">
-              <h2 id={`${step.id}-title`}>
-                {admission.label}
-                {admission.required ? " *" : ""}
-              </h2>
-              <p id={`${step.id}-help`} className="field-help">
-                {admission.help}
-              </p>
-              <label className="sr-only" htmlFor={step.id}>
-                {admission.label}
-              </label>
-              {admission.type === "textarea" ? (
-                <textarea
-                  id={step.id}
-                  rows={4}
-                  maxLength={5000}
-                  value={draft.admission[admission.key]}
-                  aria-describedby={`${step.id}-help`}
-                  onChange={(e) =>
-                    change((p) => ({
-                      ...p,
-                      draft: {
-                        ...p.draft,
-                        completed: false,
-                        updatedAt: new Date().toISOString(),
-                        admission: {
-                          ...p.draft.admission,
-                          [admission.key]: e.target.value,
-                        },
-                      },
-                      story: {
-                        ...p.story,
-                        chaptersReviewed: p.story.chaptersReviewed.filter(
-                          (v) => v !== "I",
-                        ),
-                      },
-                    }))
-                  }
-                />
-              ) : (
-                <input
-                  id={step.id}
-                  type={admission.type}
-                  min={admission.type === "date" ? "0001-01-01" : undefined}
-                  max={admission.type === "date" ? "1890-08-31" : undefined}
-                  maxLength={5000}
-                  value={draft.admission[admission.key]}
-                  aria-describedby={`${step.id}-help${admission.key === "birthDate" ? ` ${step.id}-age` : ""}`}
-                  aria-invalid={!!error}
-                  onChange={(e) =>
-                    change((p) => ({
-                      ...p,
-                      draft: {
-                        ...p.draft,
-                        completed: false,
-                        updatedAt: new Date().toISOString(),
-                        admission: {
-                          ...p.draft.admission,
-                          [admission.key]: e.target.value,
-                        },
-                      },
-                      story: {
-                        ...p.story,
-                        chaptersReviewed: p.story.chaptersReviewed.filter(
-                          (v) => v !== "I",
-                        ),
-                      },
-                    }))
-                  }
-                />
-              )}
-              {admission.key === "birthDate" && (
-                <BirthGuidance
-                  value={draft.admission.birthDate}
-                  id={`${step.id}-age`}
-                />
-              )}
-            </section>
-          )}
-          {step.id === "II00" && (
-            <FamilySelector
-              family={story.family}
-              applies={story.answers["II00-applies"]}
-              onChange={(family) =>
-                editStory((s) => ({
-                  ...s,
-                  family,
-                  answers:
-                    s.family.catalogId !== family.catalogId &&
-                    s.answers["II00-applies"]
-                      ? {
-                          ...s.answers,
-                          "II00-applies": {
-                            ...s.answers["II00-applies"],
-                            status: "unknown",
+      <div className="cinema-document-layout">
+        <div
+          ref={heading}
+          tabIndex={-1}
+          className="cinema-writing"
+          key={step.id}
+          aria-label={`Página ${step.id}`}
+        >
+          <fieldset
+            disabled={travelling || phase !== "idle"}
+            className="cinema-fields"
+          >
+            {admission && (
+              <section className="question-block">
+                <h2 id={`${step.id}-title`}>
+                  {admission.label}
+                  {admission.required ? " *" : ""}
+                </h2>
+                <p id={`${step.id}-help`} className="field-help">
+                  {admission.help}
+                </p>
+                <label className="sr-only" htmlFor={step.id}>
+                  {admission.label}
+                </label>
+                {admission.type === "textarea" ? (
+                  <textarea
+                    id={step.id}
+                    rows={4}
+                    maxLength={5000}
+                    value={draft.admission[admission.key]}
+                    aria-describedby={`${step.id}-help`}
+                    onChange={(e) =>
+                      change((p) => ({
+                        ...p,
+                        draft: {
+                          ...p.draft,
+                          completed: false,
+                          updatedAt: new Date().toISOString(),
+                          admission: {
+                            ...p.draft.admission,
+                            [admission.key]: e.target.value,
                           },
-                        }
-                      : s.answers,
-                }))
-              }
-              onApply={(a) =>
-                editStory((s) => ({
-                  ...s,
-                  answers: { ...s.answers, "II00-applies": a },
-                }))
-              }
-            />
-          )}
-          {question && (
-            <QuestionField
-              question={question}
-              answer={story.answers[question.id]}
-              onChange={(a) =>
-                editStory((s) => ({
-                  ...s,
-                  answers: { ...s.answers, [question.id]: a },
-                }))
-              }
-              relations={story.relationships}
-              objects={story.objects}
-              onSaveRelation={saveRelation}
-              onSaveObject={saveObject}
-              onOpen={() => setOpening({ source: question.id })}
-            />
-          )}
-          {review && (
-            <section className="question-block">
-              <h2>{c.transition}</h2>
-              <p>{c.intro}</p>
-              {chapter !== "I" && (
-                <>
-                  <h3>Uma página ainda em branco</h3>
-                  <p className="field-help">
-                    Você pode deixar algo em aberto; não precisa. As sugestões
-                    nunca viram fatos automaticamente.
-                  </p>
-                  {c.extensions.map((ext) => (
+                        },
+                        story: {
+                          ...p.story,
+                          chaptersReviewed: p.story.chaptersReviewed.filter(
+                            (v) => v !== "I",
+                          ),
+                        },
+                      }))
+                    }
+                  />
+                ) : (
+                  <input
+                    id={step.id}
+                    type={admission.type}
+                    min={admission.type === "date" ? "0001-01-01" : undefined}
+                    max={admission.type === "date" ? "1890-08-31" : undefined}
+                    maxLength={5000}
+                    value={draft.admission[admission.key]}
+                    aria-describedby={`${step.id}-help${admission.key === "birthDate" ? ` ${step.id}-age` : ""}`}
+                    aria-invalid={!!error}
+                    onChange={(e) =>
+                      change((p) => ({
+                        ...p,
+                        draft: {
+                          ...p.draft,
+                          completed: false,
+                          updatedAt: new Date().toISOString(),
+                          admission: {
+                            ...p.draft.admission,
+                            [admission.key]: e.target.value,
+                          },
+                        },
+                        story: {
+                          ...p.story,
+                          chaptersReviewed: p.story.chaptersReviewed.filter(
+                            (v) => v !== "I",
+                          ),
+                        },
+                      }))
+                    }
+                  />
+                )}
+                {admission.key === "birthDate" && (
+                  <BirthGuidance
+                    value={draft.admission.birthDate}
+                    id={`${step.id}-age`}
+                  />
+                )}
+              </section>
+            )}
+            {step.id === "II00" && (
+              <FamilySelector
+                family={story.family}
+                applies={story.answers["II00-applies"]}
+                onChange={(family) =>
+                  editStory((s) => ({
+                    ...s,
+                    family,
+                    answers:
+                      s.family.catalogId !== family.catalogId &&
+                      s.answers["II00-applies"]
+                        ? {
+                            ...s.answers,
+                            "II00-applies": {
+                              ...s.answers["II00-applies"],
+                              status: "unknown",
+                            },
+                          }
+                        : s.answers,
+                  }))
+                }
+                onApply={(a) =>
+                  editStory((s) => ({
+                    ...s,
+                    answers: { ...s.answers, "II00-applies": a },
+                  }))
+                }
+              />
+            )}
+            {question && (
+              <QuestionField
+                question={question}
+                answer={story.answers[question.id]}
+                onChange={(a) =>
+                  editStory((s) => ({
+                    ...s,
+                    answers: { ...s.answers, [question.id]: a },
+                  }))
+                }
+                relations={story.relationships}
+                objects={story.objects}
+                onSaveRelation={saveRelation}
+                onSaveObject={saveObject}
+                onOpen={() => setOpening({ source: question.id })}
+              />
+            )}
+            {review && (
+              <section className="question-block">
+                <h2>{c.transition}</h2>
+                <p>{c.intro}</p>
+                {chapter !== "I" && (
+                  <>
+                    <h3>Uma página ainda em branco</h3>
+                    <p className="field-help">
+                      Você pode deixar algo em aberto; não precisa. As sugestões
+                      nunca viram fatos automaticamente.
+                    </p>
+                    {c.extensions.map((ext) => (
+                      <button
+                        className="text-button"
+                        key={ext.id}
+                        onClick={() => setOpening({ source: ext.id })}
+                      >
+                        {ext.title}
+                      </button>
+                    ))}
                     <button
                       className="text-button"
-                      key={ext.id}
-                      onClick={() => setOpening({ source: ext.id })}
+                      onClick={() => setOpening({ source: `${chapter}-livre` })}
                     >
-                      {ext.title}
+                      Quero deixar uma parte em aberto
                     </button>
+                  </>
+                )}
+                {story.narrativeHooks
+                  .filter(
+                    (h) =>
+                      h.sourceQuestionId.replace(/\d.*$/, "") === chapter ||
+                      h.sourceQuestionId.startsWith(`${chapter}-`),
+                  )
+                  .map((h) => (
+                    <HookCard
+                      key={h.id}
+                      hook={h}
+                      onEdit={() =>
+                        setOpening({ source: h.sourceQuestionId, hook: h })
+                      }
+                      onDelete={() => {
+                        if (confirm("Excluir esta oportunidade?"))
+                          editStory((s) => ({
+                            ...s,
+                            narrativeHooks: s.narrativeHooks.filter(
+                              (v) => v.id !== h.id,
+                            ),
+                          }));
+                      }}
+                    />
                   ))}
-                  <button
-                    className="text-button"
-                    onClick={() => setOpening({ source: `${chapter}-livre` })}
-                  >
-                    Quero deixar uma parte em aberto
-                  </button>
-                </>
-              )}
-              {story.narrativeHooks
-                .filter(
-                  (h) =>
-                    h.sourceQuestionId.replace(/\d.*$/, "") === chapter ||
-                    h.sourceQuestionId.startsWith(`${chapter}-`),
-                )
-                .map((h) => (
-                  <HookCard
-                    key={h.id}
-                    hook={h}
-                    onEdit={() =>
-                      setOpening({ source: h.sourceQuestionId, hook: h })
-                    }
-                    onDelete={() => {
-                      if (confirm("Excluir esta oportunidade?"))
-                        editStory((s) => ({
-                          ...s,
-                          narrativeHooks: s.narrativeHooks.filter(
-                            (v) => v.id !== h.id,
-                          ),
-                        }));
-                    }}
-                  />
-                ))}
-            </section>
+              </section>
+            )}
+            {opening && (
+              <HookEditor
+                key={opening.hook?.id ?? opening.source}
+                initial={opening.hook}
+                source={opening.source}
+                suggestions={
+                  family?.perguntasContextuais ??
+                  c.extensions.map((e) => e.title)
+                }
+                onCancel={() => setOpening(null)}
+                onSave={(h) => {
+                  editStory((s) => ({
+                    ...s,
+                    narrativeHooks: s.narrativeHooks.some((v) => v.id === h.id)
+                      ? s.narrativeHooks.map((v) => (v.id === h.id ? h : v))
+                      : [...s.narrativeHooks, h],
+                  }));
+                  setOpening(null);
+                }}
+              />
+            )}
+          </fieldset>
+          {error && (
+            <p role="alert" className="field-error">
+              {error}
+            </p>
           )}
-          {opening && (
-            <HookEditor
-              key={opening.hook?.id ?? opening.source}
-              initial={opening.hook}
-              source={opening.source}
-              suggestions={
-                family?.perguntasContextuais ?? c.extensions.map((e) => e.title)
-              }
-              onCancel={() => setOpening(null)}
-              onSave={(h) => {
-                editStory((s) => ({
-                  ...s,
-                  narrativeHooks: s.narrativeHooks.some((v) => v.id === h.id)
-                    ? s.narrativeHooks.map((v) => (v.id === h.id ? h : v))
-                    : [...s.narrativeHooks, h],
-                }));
-                setOpening(null);
-              }}
+        </div>
+        <div className="cinema-bottom">
+          <div className="cinema-progress">
+            <span>
+              {index + 1} / {experienceSteps.length}
+            </span>
+            <progress
+              aria-label="Progresso da história"
+              value={index + 1}
+              max={experienceSteps.length}
             />
-          )}
-        </fieldset>
-        {error && (
-          <p role="alert" className="field-error">
-            {error}
+          </div>
+          <div className="cinema-actions">
+            <button
+              className="button secondary"
+              disabled={travelling || index === 0 || phase !== "idle"}
+              onClick={() => void move(index - 1)}
+            >
+              Voltar
+            </button>
+            <button
+              className="button"
+              disabled={travelling || phase !== "idle"}
+              onClick={() => void move(index + 1, true)}
+            >
+              {review
+                ? chapter === "VII"
+                  ? "Revisar minha história"
+                  : "Confirmar capítulo e continuar"
+                : "Continuar"}
+            </button>
+          </div>
+          <p className="sr-only" role="status">
+            {phase === "idle" ? `Página ${step.id}` : "Guardando sua resposta…"}
           </p>
-        )}
+          {storageError && (
+            <button className="text-button" onClick={() => setMenu(true)}>
+              Falha ao salvar — preservar backup
+            </button>
+          )}
+        </div>
       </div>
       {phase !== "idle" && (
         <div className="cinema-ink" aria-hidden="true">
           {ink.slice(0, 250)}
         </div>
       )}
-      <div className="cinema-bottom">
-        <div className="cinema-progress">
-          <span>
-            {index + 1} / {experienceSteps.length}
-          </span>
-          <progress
-            aria-label="Progresso da história"
-            value={index + 1}
-            max={experienceSteps.length}
-          />
-        </div>
-        <div className="cinema-actions">
-          <button
-            className="button secondary"
-            disabled={index === 0 || phase !== "idle"}
-            onClick={() => void move(index - 1)}
-          >
-            Voltar
-          </button>
-          <button
-            className="button"
-            disabled={phase !== "idle"}
-            onClick={() => void move(index + 1, true)}
-          >
-            {review
-              ? chapter === "VII"
-                ? "Revisar minha história"
-                : "Confirmar capítulo e continuar"
-              : "Continuar"}
-          </button>
-        </div>
-        <p className="sr-only" role="status">
-          {phase === "idle"
-            ? `Página ${step.id}`
-            : "Registrando sua resposta no livro…"}
-        </p>
-        {storageError && (
-          <button className="text-button" onClick={() => setMenu(true)}>
-            Falha ao salvar — preservar backup
-          </button>
-        )}
-      </div>
       <dialog
         ref={dialog}
         className="cinema-menu"

@@ -1,0 +1,21 @@
+{
+  "id": "autumn_forest_01",
+  "authors": [
+    "Andreas Mischok"
+  ],
+  "title": "Autumn Forest 01",
+  "license": "CC0-1.0",
+  "sourceUrl": "https://polyhaven.com/a/autumn_forest_01",
+  "licenseUrl": "https://polyhaven.com/license",
+  "files": [
+    {
+      "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/autumn_forest_01.jpg",
+      "md5": "950ec8ce8dea28794ed0f3f814ce47dd",
+      "bytes": 12226358
+    }
+  ],
+  "path": "/assets/memory-forest.jpg",
+  "bytes": 86270,
+  "sha256": "a01f8764086ca1b956e3cf3ec6817a7a09c5c0c9f9af3930266906d3a66b55d0",
+  "processing": "Recorte de paisagem anônima, 512px, tonalidade sépia. Ambientação artística; não define a infância do jogador."
+}

@@ -189,45 +189,6 @@ function Scroll({ at }: { at: [number, number, number] }) {
     </group>
   );
 }
-function Owl() {
-  return (
-    <group position={[2.85, 1.07, -3.5]} rotation={[0, -0.25, 0]}>
-      <mesh scale={[0.22, 0.34, 0.18]} castShadow>
-        <sphereGeometry args={[1, 16, 12]} />
-        <meshStandardMaterial color="#ac9a79" roughness={1} />
-      </mesh>
-      <mesh position={[0, 0.28, 0.005]} scale={[0.25, 0.22, 0.2]} castShadow>
-        <sphereGeometry args={[1, 16, 12]} />
-        <meshStandardMaterial color="#cabda1" roughness={1} />
-      </mesh>
-      {[-1, 1].map((side) => (
-        <group key={side}>
-          <mesh
-            position={[side * 0.2, -0.03, 0.02]}
-            rotation={[0, 0, side * 0.16]}
-            scale={[0.08, 0.27, 0.15]}
-            castShadow
-          >
-            <sphereGeometry args={[1, 12, 8]} />
-            <meshStandardMaterial color="#716653" roughness={1} />
-          </mesh>
-          <mesh position={[side * 0.09, 0.3, 0.18]}>
-            <sphereGeometry args={[0.05, 12, 8]} />
-            <meshStandardMaterial color="#282a24" roughness={0.35} />
-          </mesh>
-          <mesh position={[side * 0.105, 0.31, 0.218]}>
-            <sphereGeometry args={[0.013, 8, 6]} />
-            <meshBasicMaterial color="#eee1bc" />
-          </mesh>
-        </group>
-      ))}
-      <mesh position={[0, 0.24, 0.21]} rotation={[Math.PI / 2, 0, 0]}>
-        <coneGeometry args={[0.035, 0.09, 8]} />
-        <meshStandardMaterial color="#947746" roughness={0.65} />
-      </mesh>
-    </group>
-  );
-}
 export function ChapterProps({ kind }: { kind: SceneKind }) {
   return (
     <group>
@@ -257,7 +218,6 @@ export function ChapterProps({ kind }: { kind: SceneKind }) {
           </mesh>
         </group>
       )}
-      {kind === "IV" && <Owl />}
       {kind === "VI" && (
         <group position={[2.4, 0.18, -0.7]} rotation={[0, -0.22, 0]}>
           <Solid at={[0, 0, 0]} size={[0.8, 0.36, 0.5]} color="#493026" />

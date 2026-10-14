@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef } from "react";
-import { useThree } from "@react-three/fiber";
+import { useLoader, useThree } from "@react-three/fiber";
 import { gsap } from "gsap";
 import * as THREE from "three";
 import { createPageGeometry, deformPage } from "./pageGeometry";
@@ -18,7 +18,12 @@ type Props = {
   turnDirection?: number;
   turning?: boolean;
 };
-function texture(kind: "leather" | "paper", text = "", album = false) {
+function texture(
+  kind: "leather" | "paper",
+  text = "",
+  album = false,
+  photo?: HTMLImageElement,
+) {
   const canvas = document.createElement("canvas");
   canvas.width = kind === "leather" ? 256 : 512;
   canvas.height = kind === "leather" ? 256 : 512;
@@ -72,15 +77,21 @@ function texture(kind: "leather" | "paper", text = "", album = false) {
     if (album && !text) {
       c.fillStyle = "#77664b";
       c.fillRect(95, 106, 322, 294);
-      c.fillStyle = "#3c4540";
-      c.fillRect(106, 118, 300, 270);
-      c.fillStyle = "#939484";
-      c.beginPath();
-      c.ellipse(256, 212, 50, 65, 0, 0, Math.PI * 2);
-      c.fill();
-      c.beginPath();
-      c.ellipse(256, 345, 92, 100, 0, Math.PI, 0);
-      c.fill();
+      if (photo) {
+        c.filter = "sepia(.35)";
+        c.drawImage(photo, 106, 118, 300, 270);
+        c.filter = "none";
+      }
+      c.strokeStyle = "#d4bd8b";
+      c.lineWidth = 3;
+      for (const x of [106, 406])
+        for (const y of [118, 388]) {
+          c.beginPath();
+          c.moveTo(x + (x === 106 ? 18 : -18), y);
+          c.lineTo(x, y);
+          c.lineTo(x, y + (y === 118 ? 18 : -18));
+          c.stroke();
+        }
     }
     c.fillStyle = "#543b27";
     c.font = "24px Georgia";
@@ -120,6 +131,10 @@ export function EnchantedBook({
   turning = true,
 }: Props) {
   const { invalidate, gl } = useThree();
+  const photograph = useLoader(
+    THREE.TextureLoader,
+    "/assets/memory-forest.jpg",
+  );
   const sheet = useMemo(() => createPageGeometry(), []);
   const resting = useMemo(
     () => [createPageGeometry(-1), createPageGeometry(1)],
@@ -127,8 +142,8 @@ export function EnchantedBook({
   );
   const leather = useMemo(() => texture("leather"), []),
     blank = useMemo(
-      () => texture("paper", "", album && !final),
-      [album, final],
+      () => texture("paper", "", album && !final, photograph.image),
+      [album, final, photograph],
     );
   const ink = useMemo(
     () =>
@@ -136,8 +151,9 @@ export function EnchantedBook({
         "paper",
         writtenText || (final ? label || "" : ""),
         album && !final,
+        photograph.image,
       ),
-    [writtenText, label, final, album],
+    [writtenText, label, final, album, photograph],
   );
   const sheetMesh = useRef<THREE.Mesh>(null);
   const previous = useRef({ active, turnSerial });

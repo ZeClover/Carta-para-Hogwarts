@@ -1,7 +1,8 @@
+import memory from "./memory-asset.json";
 import imported from "./generated-assets.json";
 /** Sources of shipped CC0 assets and original interactive geometry. */
 export const assetsManifest = {
-  version: "1.2",
+  version: "2.0",
   author: "Carta para Hogwarts — projeto",
   source: "Geometria paramétrica Three.js e ilustração SVG criadas no projeto",
   license:
@@ -18,10 +19,10 @@ export const assetsManifest = {
     "Mapa celeste",
     "Gaveteiro",
     "Livro pessoal com folhas deformáveis",
-    "Coruja, pergaminhos e baú procedurais",
+    "Pergaminhos e baú procedurais",
     "Relógio de lareira CC0",
   ],
-  imported,
+  imported: [...imported, memory],
   externalSources: [
     {
       title: "Poly Haven",

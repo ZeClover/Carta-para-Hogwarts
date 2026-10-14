@@ -9,6 +9,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { ChapterFallback } from "./ChapterFallback";
+import { chapterOrder } from "./chapterDirection";
+import type { ChapterId } from "@/content/chapters";
 import { SceneFallback } from "./SceneFallback";
 import { sceneConfig, type SceneKind } from "./config";
 const StudyCanvas = dynamic(() => import("./StudyCanvas"), { ssr: false });
@@ -38,7 +41,9 @@ export const SceneStage = memo(function SceneStage({
   writtenText,
   turnDirection = 1,
   turning,
+  onJourney,
 }: {
+  onJourney?: (moving: boolean) => void;
   turnDirection?: number;
   turning?: boolean;
   immersive?: boolean;
@@ -137,16 +142,25 @@ export const SceneStage = memo(function SceneStage({
       data-active={value ? "true" : "false"}
     >
       <div className="study-viewport" ref={container}>
-        <SceneFallback
-          kind={kind}
-          active={value}
-          still={reduced}
-          immersive={immersive}
-          writtenText={writtenText}
-          turning={turning}
-          turnSerial={page}
-          turnDirection={turnDirection}
-        />
+        {immersive && chapterOrder.includes(kind as ChapterId) ? (
+          <ChapterFallback
+            chapter={kind as ChapterId}
+            turnDirection={turnDirection}
+            turning={turning}
+            still={reduced}
+          />
+        ) : (
+          <SceneFallback
+            kind={kind}
+            active={value}
+            still={reduced}
+            immersive={immersive}
+            writtenText={writtenText}
+            turning={turning}
+            turnSerial={page}
+            turnDirection={turnDirection}
+          />
+        )}
         {render3d && (
           <div
             className={`study-webgl ${ready ? "ready" : ""}`}
@@ -167,6 +181,7 @@ export const SceneStage = memo(function SceneStage({
                 turnDirection={turnDirection}
                 turning={turning}
                 limited={limited}
+                onJourney={onJourney}
               />
             </SceneBoundary>
           </div>
