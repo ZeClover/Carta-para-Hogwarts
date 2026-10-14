@@ -1,0 +1,99 @@
+[
+  {
+    "id": "chapter-i",
+    "chapter": "I",
+    "title": "Folded cotton envelope and wax",
+    "authors": ["Carta para Hogwarts · original scripted modeling"],
+    "license": "CC0-1.0",
+    "source": "scripts/redesign/model-chapters.py",
+    "path": "/assets/redesign/chapter-i-c8985c6c8a36.glb",
+    "bytes": 171324,
+    "sha256": "c8985c6c8a36d045c720c25b179a9e5e608fa8eca520d4728d720fe26dc42c49",
+    "triangles": 11584,
+    "primitiveCount": 4
+  },
+  {
+    "id": "chapter-ii",
+    "chapter": "II",
+    "title": "Leather photo album and spine",
+    "authors": ["Carta para Hogwarts · original scripted modeling"],
+    "license": "CC0-1.0",
+    "source": "scripts/redesign/model-chapters.py",
+    "path": "/assets/redesign/chapter-ii-0eccdbdba13a.glb",
+    "bytes": 118776,
+    "sha256": "0eccdbdba13afa699ac40cce36a3cef728371ed21e7736b5769640425ea7c427",
+    "triangles": 6444,
+    "primitiveCount": 4
+  },
+  {
+    "id": "chapter-iii",
+    "chapter": "III",
+    "title": "Ink and suspended paper",
+    "authors": ["Carta para Hogwarts · original scripted modeling"],
+    "license": "CC0-1.0",
+    "source": "scripts/redesign/model-chapters.py",
+    "path": "/assets/redesign/chapter-iii-08db98fb00e0.glb",
+    "bytes": 35552,
+    "sha256": "08db98fb00e0912ff2d72686f65e078162e6c85f7be6c0c875a8f28371654c15",
+    "triangles": 2056,
+    "primitiveCount": 5
+  },
+  {
+    "id": "chapter-iv",
+    "chapter": "IV",
+    "title": "Leaded Victorian window",
+    "authors": ["Carta para Hogwarts · original scripted modeling"],
+    "license": "CC0-1.0",
+    "source": "scripts/redesign/model-chapters.py",
+    "path": "/assets/redesign/chapter-iv-dbf092a12bdd.glb",
+    "bytes": 121076,
+    "sha256": "dbf092a12bdd96fe65cfc15d6dea4ec45731b69fa28a2ebbfc2c8672eb61b154",
+    "triangles": 7108,
+    "primitiveCount": 6
+  },
+  {
+    "id": "chapter-v",
+    "chapter": "V",
+    "title": "Sculpted oval Victorian mirror",
+    "authors": [
+      "Rob Tuytel",
+      "Rico Cilliers",
+      "Carta para Hogwarts · mirror conversion and modeled plinth"
+    ],
+    "license": "CC0-1.0",
+    "source": "scripts/redesign/model-chapters.py",
+    "path": "/assets/redesign/chapter-v-3c467f6879e7.glb",
+    "bytes": 1306176,
+    "sha256": "3c467f6879e733371b4047bb8140162baf56dce1cbfab8f7aae08d3e3414d63e",
+    "triangles": 36426,
+    "derivedFrom": "https://polyhaven.com/a/fancy_picture_frame_02",
+    "licenseUrl": "https://polyhaven.com/license",
+    "primitiveCount": 5
+  },
+  {
+    "id": "chapter-vi",
+    "chapter": "VI",
+    "title": "Circular celestial chart and sandglass stand",
+    "authors": ["Carta para Hogwarts · original scripted modeling"],
+    "license": "CC0-1.0",
+    "source": "scripts/redesign/model-chapters.py",
+    "path": "/assets/redesign/chapter-vi-4cc006ef8152.glb",
+    "bytes": 559860,
+    "sha256": "4cc006ef8152277c51afd6d30fc8d7ba082eeda56601346437e120ee0fd92d6a",
+    "triangles": 39240,
+    "primitiveCount": 5
+  },
+  {
+    "id": "chapter-vii",
+    "chapter": "VII",
+    "title": "Shallow walnut document drawer",
+    "authors": ["Carta para Hogwarts · original scripted modeling"],
+    "license": "CC0-1.0",
+    "source": "scripts/redesign/model-chapters.py",
+    "path": "/assets/redesign/chapter-vii-c50d7bfa9c0d.glb",
+    "bytes": 87392,
+    "sha256": "c50d7bfa9c0d0adf95605ebd0de4adf21a3436aa6d920c0e085b14f85f1b47c6",
+    "triangles": 4892,
+    "primitiveCount": 5
+  }
+]

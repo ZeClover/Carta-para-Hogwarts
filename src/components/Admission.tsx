@@ -16,10 +16,18 @@ import { ChapterNav } from "./narrative/ChapterNav";
 import { SceneStage } from "./scenes/SceneStage";
 export function Admission() {
   const router = useRouter();
-  const { player, change, replace, saveNow } = usePlayer();
+  const { player, origin, status, change, replace, saveNow } = usePlayer();
   const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
   const [notice, setNotice] = useState("");
   const heading = useRef<HTMLHeadingElement>(null);
+  if (origin === "recovery-error")
+    return (
+      <section className="paper">
+        <h1>Recuperar sua história</h1>
+        <p role="alert">{status}</p>
+        <PlayerTools />
+      </section>
+    );
   if (!player)
     return (
       <p className="paper" role="status">

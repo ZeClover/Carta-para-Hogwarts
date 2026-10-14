@@ -7,6 +7,7 @@ import library from "@/content/generated-assets.json";
 type ModelId =
   | "ClassicConsole_01"
   | "ArmChair_01"
+  | "fancy_picture_frame_02"
   | "fancy_picture_frame_01"
   | "ornate_mirror_01"
   | "mantel_clock_01";
@@ -35,16 +36,18 @@ function LoadedModel({
 }) {
   const path = library.find((a) => a.id === id)!.path;
   const gltf = useLoader(GLTFLoader, path);
+  const [width, height, depth] = size;
   const model = useMemo(() => {
     const scene = gltf.scene.clone(true);
     const bounds = new Box3().setFromObject(scene),
       actual = bounds.getSize(new Vector3()),
       center = bounds.getCenter(new Vector3());
-    const factors = new Vector3(
-      size[0] / actual.x,
-      size[1] / actual.y,
-      size[2] / actual.z,
+    const factor = Math.min(
+      width / actual.x,
+      height / actual.y,
+      depth / actual.z,
     );
+    const factors = new Vector3(factor, factor, factor);
     scene.scale.copy(factors);
     scene.position.set(
       -center.x * factors.x,
@@ -58,7 +61,7 @@ function LoadedModel({
       }
     });
     return scene;
-  }, [gltf, size]);
+  }, [gltf, width, height, depth]);
   return (
     <group
       position={at}

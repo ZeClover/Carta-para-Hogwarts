@@ -1,9 +1,10 @@
 "use client";
-import { useId } from "react";
+import { useId, useEffect, useState } from "react";
 import type { ChapterId } from "@/content/chapters";
+import { chapterScenes } from "./chapterScenes";
 import { chapterDirection } from "./chapterDirection";
 /** Distinct authored compositions for low power devices; never a blank or generic study. */
-export function ChapterFallback({
+function ChapterVector({
   chapter,
   turning,
   still,
@@ -19,7 +20,7 @@ export function ChapterFallback({
   const d = chapterDirection[chapter];
   return (
     <svg
-      className={`chapter-fallback chapter-art-${chapter} ${turning && !still ? "reacting" : ""}`}
+      className={`chapter-vector chapter-art-vector-${chapter} ${turning && !still ? "reacting" : ""}`}
       viewBox="0 0 1000 700"
       preserveAspectRatio="xMidYMid slice"
       aria-hidden="true"
@@ -378,5 +379,52 @@ export function ChapterFallback({
         )}
       </g>
     </svg>
+  );
+}
+
+export function ChapterFallback(props: Parameters<typeof ChapterVector>[0]) {
+  const [loaded, setLoaded] = useState<{
+    chapter: string;
+    path: string;
+  } | null>(null);
+  useEffect(() => {
+    let active = true;
+    const media = matchMedia("(max-width: 700px)");
+    const prepare = () => {
+      const path = media.matches
+        ? chapterScenes[props.chapter].poster.mobile
+        : chapterScenes[props.chapter].poster.desktop;
+      const image = new Image();
+      image.onload = () => {
+        if (active) setLoaded({ chapter: props.chapter, path });
+      };
+      image.onerror = () => {
+        if (active) setLoaded(null);
+      };
+      image.src = path;
+    };
+    prepare();
+    media.addEventListener("change", prepare);
+    return () => {
+      active = false;
+      media.removeEventListener("change", prepare);
+    };
+  }, [props.chapter]);
+  const poster = loaded?.chapter === props.chapter ? loaded.path : null;
+  return (
+    <div
+      className={`chapter-fallback chapter-art-${props.chapter}`}
+      aria-hidden="true"
+      data-poster={poster ? "ready" : "vector"}
+    >
+      {poster ? (
+        <div
+          className="chapter-poster"
+          style={{ backgroundImage: `url("${poster}")` }}
+        />
+      ) : (
+        <ChapterVector {...props} />
+      )}
+    </div>
   );
 }

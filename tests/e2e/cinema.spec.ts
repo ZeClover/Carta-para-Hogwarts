@@ -113,10 +113,8 @@ test("salva antes da animação, permite pular e sair", async ({ page }) => {
   await page.goto("/experiencia");
   await page.locator("#I01").fill("Nome persistente");
   await page.getByRole("button", { name: "Continuar", exact: true }).click();
-  await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "glow");
-  await page
-    .getByRole("button", { name: "Pular animação / reduzir movimento" })
-    .click();
+  await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "turn");
+  await page.getByRole("button", { name: "Pular animações" }).click();
   await expect(page.locator("#I02")).toBeVisible();
   await page.getByRole("button", { name: "Sair e continuar depois" }).click();
   await page.goto("/experiencia");
@@ -140,7 +138,7 @@ test("texto oculto fica guardado e não aparece na tinta ou nas páginas", async
   await page.locator("#II02").fill("Texto fictício reservado ao rascunho");
   await page.locator("#II02-status").selectOption("prefer_not_to_answer");
   await page.getByRole("button", { name: "Continuar", exact: true }).click();
-  await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "glow");
+  await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "turn");
   await expect(page.locator(".cinema-ink")).toBeEmpty();
   await expect(page.locator("#II03-title")).toBeVisible();
   await page.getByRole("button", { name: "Voltar", exact: true }).click();
@@ -165,7 +163,7 @@ test("restaurar o mesmo personagem cancela uma transição pendente", async ({
   await page.clock.install({ time: new Date() });
   await page.clock.pauseAt(new Date(Date.now() + 1000));
   await page.getByRole("button", { name: "Continuar", exact: true }).click();
-  await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "glow");
+  await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "turn");
   await page.getByRole("button", { name: "Capítulos e opções" }).click();
   page.once("dialog", (d) => d.accept());
   await page.getByLabel("Restaurar história").setInputFiles({
@@ -194,7 +192,7 @@ test("virada reversa protege cliques, retoma cursor e orienta a idade excepciona
   await page.clock.pauseAt(new Date());
   const next = page.getByRole("button", { name: "Continuar", exact: true });
   await next.click();
-  await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "glow");
+  await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "turn");
   await expect(next).toBeDisabled();
   await expect(page.locator("#I01")).toBeDisabled();
   await page.clock.runFor(3000);
@@ -203,9 +201,7 @@ test("virada reversa protege cliques, retoma cursor e orienta a idade excepciona
   await page.getByRole("button", { name: "Voltar", exact: true }).click();
   await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "turn");
   await expect(next).toBeDisabled();
-  await page
-    .getByRole("button", { name: "Pular animação / reduzir movimento" })
-    .click();
+  await page.getByRole("button", { name: "Pular animações" }).click();
   await expect(page.locator("#I01")).toHaveValue(
     "Personagem das páginas curvas",
   );

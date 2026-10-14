@@ -7,13 +7,18 @@ import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeom
 import type { ChapterId } from "@/content/chapters";
 import type { SceneKind } from "./config";
 import { chapterDirection, chapterOrder } from "./chapterDirection";
-import { Box, Mirror } from "./StudyObjects";
+import { DocumentHandoff } from "./DocumentHandoff";
+import { SceneDiagnostics } from "./SceneDiagnostics";
 import { CameraDirector } from "./CameraDirector";
+import { ChapterModel } from "./ChapterModel";
 import { LibraryModel } from "./LibraryModel";
 import { EnchantedBook } from "./EnchantedBook";
 import { createPageGeometry, deformPage } from "./pageGeometry";
 
 type Props = {
+  onReady?: (phase?: "assets") => void;
+  opening?: boolean;
+  open?: boolean;
   kind: SceneKind;
   still: boolean;
   active: boolean;
@@ -81,11 +86,34 @@ function Document({
   still,
   turnSerial,
   turnDirection = 1,
-}: Pick<Props, "turning" | "still" | "turnSerial" | "turnDirection">) {
+  opening,
+  open,
+}: Pick<
+  Props,
+  "turning" | "still" | "turnSerial" | "turnDirection" | "opening" | "open"
+>) {
   const map = useSurface("letter"),
     g = useMemo(() => createPageGeometry(), []);
   const { invalidate, gl } = useThree();
   const mesh = useRef<THREE.Mesh>(null);
+  const emerging = useRef<THREE.Group>(null);
+  useEffect(() => {
+    if (!emerging.current) return;
+    const group = emerging.current;
+    group.visible = !opening || !!open;
+    if (opening && !still) gsap.set(group.position, { z: -0.8, y: 0.05 });
+    const timeline = gsap.timeline();
+    timeline.to(group.position, {
+      z: 0,
+      y: 0,
+      duration: opening && !still ? 1.5 : 0,
+      ease: "power2.out",
+      onUpdate: invalidate,
+    });
+    return () => {
+      timeline.kill();
+    };
+  }, [opening, open, still, invalidate]);
   useEffect(() => () => g.dispose(), [g]);
   useEffect(() => {
     const state = { p: 0 };
@@ -102,7 +130,7 @@ function Document({
     if (!turning || still) return;
     const t = gsap.to(state, {
       p: 1,
-      duration: 1.55,
+      duration: 0.28,
       ease: "power1.inOut",
       onUpdate: paint,
       onComplete: () => {
@@ -115,14 +143,16 @@ function Document({
     };
   }, [turning, turnSerial, turnDirection, still, g, invalidate, gl]);
   return (
-    <group position={[-0.75, -0.15, 0]} scale={1.25}>
-      <mesh ref={mesh} geometry={g} castShadow receiveShadow>
-        <meshStandardMaterial
-          map={map}
-          roughness={0.94}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
+    <group ref={emerging}>
+      <group position={[-0.75, -0.15, 0]} scale={1.25}>
+        <mesh ref={mesh} geometry={g} castShadow receiveShadow>
+          <meshStandardMaterial
+            map={map}
+            roughness={0.94}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+      </group>
     </group>
   );
 }
@@ -160,70 +190,6 @@ function Photograph({
     </group>
   );
 }
-function Memory({ turning, still }: { turning?: boolean; still: boolean }) {
-  const photo = usePhotograph(),
-    object = useRef<THREE.Group>(null),
-    { invalidate } = useThree();
-  useEffect(() => {
-    if (!object.current) return;
-    const t = gsap.to(object.current.position, {
-      y: turning && !still ? 0.35 : 0,
-      duration: still ? 0 : 0.75,
-      ease: "sine.inOut",
-      onUpdate: invalidate,
-    });
-    return () => {
-      t.kill();
-    };
-  }, [turning, still, invalidate]);
-  return (
-    <group>
-      <group position={[0, 1.65, -0.6]}>
-        <LibraryModel
-          id="fancy_picture_frame_01"
-          at={[0, -1.5, 0]}
-          size={[3.7, 3, 0.18]}
-          fallback={
-            <Box at={[0, 0, 0]} size={[3.7, 3, 0.15]} color="#a7854a" />
-          }
-        />
-        <mesh position={[0, 0, 0.11]}>
-          <planeGeometry args={[3.2, 2.5]} />
-          <meshStandardMaterial map={photo} roughness={0.9} />
-        </mesh>
-      </group>
-      <group ref={object}>
-        <group position={[0.3, 0.15, 0.6]} rotation={[0, 0.4, 0]}>
-          <mesh castShadow>
-            <sphereGeometry args={[0.18, 32, 24]} />
-            <meshStandardMaterial
-              color="#bccaad"
-              roughness={0.24}
-              metalness={0.25}
-            />
-          </mesh>
-          <mesh rotation={[-Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[0.22, 0.014, 8, 64]} />
-            <meshStandardMaterial
-              color="#c5a366"
-              metalness={0.7}
-              roughness={0.35}
-            />
-          </mesh>
-        </group>
-      </group>
-      <mesh position={[0, 1.7, -0.35]}>
-        <planeGeometry args={[3.2, 2.5]} />
-        <meshBasicMaterial
-          color="#abefdb"
-          transparent
-          opacity={turning ? 0.16 : 0.035}
-          depthWrite={false}
-        />
-      </mesh>
-    </group>
-  );
-}
 function Beveled({
   at,
   size,
@@ -250,7 +216,11 @@ function Correspondence({
   open,
   still,
   onAction,
+  rebuilt = false,
+  onReady,
 }: {
+  rebuilt?: boolean;
+  onReady?: (phase?: "assets") => void;
   open: boolean;
   still: boolean;
   onAction: () => void;
@@ -300,14 +270,27 @@ function Correspondence({
         onAction();
       }}
     >
-      <mesh castShadow receiveShadow>
-        <boxGeometry args={[2.2, 1.45, 0.025]} />
-        <meshStandardMaterial map={paper} roughness={0.94} />
-      </mesh>
-      <mesh position={[0, 0, 0.022]}>
-        <planeGeometry args={[2.16, 1.4]} />
-        <meshStandardMaterial map={paper} roughness={0.94} />
-      </mesh>
+      {rebuilt ? (
+        <group rotation={[Math.PI / 2, 0, 0]}>
+          <ChapterModel
+            chapter="I"
+            sealOpen={open}
+            still={still}
+            onReady={onReady}
+          />
+        </group>
+      ) : (
+        <>
+          <mesh castShadow receiveShadow>
+            <boxGeometry args={[2.2, 1.45, 0.025]} />
+            <meshStandardMaterial map={paper} roughness={0.94} />
+          </mesh>
+          <mesh position={[0, 0, 0.022]}>
+            <planeGeometry args={[2.16, 1.4]} />
+            <meshStandardMaterial map={paper} roughness={0.94} />
+          </mesh>
+        </>
+      )}
       <group position={[0, 0.72, 0.03]} ref={flap}>
         <mesh castShadow>
           <extrudeGeometry
@@ -330,36 +313,40 @@ function Correspondence({
           />
         </mesh>
       </group>
-      <mesh position={[0, -0.19, 0.04]} castShadow>
-        <extrudeGeometry
-          args={[
-            wax,
-            {
-              depth: 0.027,
-              bevelEnabled: true,
-              bevelSegments: 3,
-              steps: 1,
-              bevelSize: 0.007,
-              bevelThickness: 0.009,
-            },
-          ]}
-        />
-        <meshStandardMaterial color="#812c38" roughness={0.38} />
-      </mesh>
-      <mesh position={[0, -0.19, 0.083]}>
-        <torusGeometry args={[0.108, 0.009, 8, 48]} />
-        <meshStandardMaterial color="#b96759" roughness={0.45} />
-      </mesh>
-      {[-1, 1].map((s) => (
-        <mesh key={s} position={[s * 0.023, -0.19, 0.083]}>
-          <boxGeometry args={[0.012, 0.082, 0.008]} />
-          <meshStandardMaterial color="#b96759" roughness={0.45} />
-        </mesh>
-      ))}
-      <mesh position={[0, -0.19, 0.083]}>
-        <boxGeometry args={[0.05, 0.012, 0.008]} />
-        <meshStandardMaterial color="#b96759" roughness={0.45} />
-      </mesh>
+      {!rebuilt && (
+        <>
+          <mesh position={[0, -0.19, 0.04]} castShadow>
+            <extrudeGeometry
+              args={[
+                wax,
+                {
+                  depth: 0.027,
+                  bevelEnabled: true,
+                  bevelSegments: 3,
+                  steps: 1,
+                  bevelSize: 0.007,
+                  bevelThickness: 0.009,
+                },
+              ]}
+            />
+            <meshStandardMaterial color="#812c38" roughness={0.38} />
+          </mesh>
+          <mesh position={[0, -0.19, 0.083]}>
+            <torusGeometry args={[0.108, 0.009, 8, 48]} />
+            <meshStandardMaterial color="#b96759" roughness={0.45} />
+          </mesh>
+          {[-1, 1].map((s) => (
+            <mesh key={s} position={[s * 0.023, -0.19, 0.083]}>
+              <boxGeometry args={[0.012, 0.082, 0.008]} />
+              <meshStandardMaterial color="#b96759" roughness={0.45} />
+            </mesh>
+          ))}
+          <mesh position={[0, -0.19, 0.083]}>
+            <boxGeometry args={[0.05, 0.012, 0.008]} />
+            <meshStandardMaterial color="#b96759" roughness={0.45} />
+          </mesh>
+        </>
+      )}
     </group>
   );
 }
@@ -402,7 +389,7 @@ function GlassHourglass({
     if (!ref.current) return;
     const t = gsap.to(ref.current.rotation, {
       z: turning ? Math.PI : 0,
-      duration: still ? 0 : 1.4,
+      duration: still ? 0 : 0.28,
       ease: "power2.inOut",
       onUpdate: invalidate,
     });
@@ -473,200 +460,11 @@ function GlassHourglass({
     </group>
   );
 }
-function CelestialChart({
-  turning,
-  still,
-}: {
-  turning?: boolean;
-  still: boolean;
-}) {
-  const ref = useRef<THREE.Group>(null),
-    { invalidate } = useThree();
-  const map = useMemo(() => {
-    const c = document.createElement("canvas");
-    c.width = c.height = 512;
-    const ctx = c.getContext("2d")!;
-    ctx.fillStyle = "#19324a";
-    ctx.fillRect(0, 0, 512, 512);
-    ctx.strokeStyle = "#bdab7e";
-    ctx.fillStyle = "#e8d4a2";
-    ctx.lineWidth = 1;
-    for (let r = 40; r < 235; r += 38) {
-      ctx.beginPath();
-      ctx.arc(256, 256, r, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-    for (let i = 0; i < 24; i++) {
-      const a = (i * Math.PI) / 12;
-      ctx.beginPath();
-      ctx.moveTo(256, 256);
-      ctx.lineTo(256 + Math.cos(a) * 228, 256 + Math.sin(a) * 228);
-      ctx.stroke();
-      ctx.font = "10px Georgia";
-      ctx.fillText(
-        String(i + 1),
-        250 + Math.cos(a) * 240,
-        260 + Math.sin(a) * 240,
-      );
-    }
-    for (let i = 0; i < 70; i++) {
-      const x = 45 + ((i * 137) % 422),
-        y = 45 + ((i * 97) % 422);
-      ctx.beginPath();
-      ctx.arc(x, y, i % 9 ? 1.3 : 3, 0, Math.PI * 2);
-      ctx.fill();
-      if (i % 9 === 0) {
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        ctx.lineTo(45 + (((i + 1) * 137) % 422), 45 + (((i + 1) * 97) % 422));
-        ctx.stroke();
-      }
-    }
-    ctx.strokeRect(18, 18, 476, 476);
-    const t = new THREE.CanvasTexture(c);
-    t.colorSpace = THREE.SRGBColorSpace;
-    return t;
-  }, []);
-  useEffect(() => () => map.dispose(), [map]);
-  useEffect(() => {
-    if (!ref.current) return;
-    const t = gsap.to(ref.current.rotation, {
-      y: turning ? 0.075 : 0,
-      duration: still ? 0 : 1.2,
-      onUpdate: invalidate,
-    });
-    return () => {
-      t.kill();
-    };
-  }, [turning, still, invalidate]);
-  return (
-    <group ref={ref} position={[0, 0.035, 0]}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[3.2, 2.4]} />
-        <meshStandardMaterial map={map} roughness={0.88} />
-      </mesh>
-      {[-1, 1].map((s) => (
-        <mesh
-          key={s}
-          position={[s * 1.6, 0.035, 0]}
-          rotation={[Math.PI / 2, 0, 0]}
-        >
-          <cylinderGeometry args={[0.045, 0.045, 2.55, 24]} />
-          <meshStandardMaterial color="#b8a37f" roughness={0.9} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-function ArchiveCabinet({
-  turning,
-  still,
-}: {
-  turning?: boolean;
-  still: boolean;
-}) {
-  const wood = useSurface("wood"),
-    drawer = useRef<THREE.Group>(null),
-    { invalidate } = useThree();
-  useEffect(() => {
-    if (!drawer.current) return;
-    const t = gsap.to(drawer.current.position, {
-      z: turning ? 0.18 : 0.75,
-      duration: still ? 0 : 1.4,
-      ease: "power2.inOut",
-      onUpdate: invalidate,
-    });
-    return () => {
-      t.kill();
-    };
-  }, [turning, still, invalidate]);
-  return (
-    <group position={[0, 0.03, 0]}>
-      <Beveled at={[0, 0.14, 0]} size={[2.6, 0.12, 1.5]} map={wood} />
-      <Beveled at={[0, 1.05, 0]} size={[2.8, 0.14, 1.7]} map={wood} />
-      <Beveled at={[0, 0.6, -0.72]} size={[2.5, 0.85, 0.12]} map={wood} />
-      {[-1.24, 1.24].map((x) => (
-        <Beveled key={x} at={[x, 0.6, 0]} size={[0.13, 0.85, 1.5]} map={wood} />
-      ))}
-      <group ref={drawer}>
-        <Beveled at={[0, 0.25, 0]} size={[2.35, 0.08, 1.35]} map={wood} />
-        {[-1.13, 1.13].map((x) => (
-          <Beveled
-            key={x}
-            at={[x, 0.44, 0]}
-            size={[0.07, 0.32, 1.3]}
-            map={wood}
-          />
-        ))}
-        <Beveled at={[0, 0.55, 0.69]} size={[2.55, 0.62, 0.12]} map={wood} />
-        <Beveled
-          at={[0, 0.55, 0.76]}
-          size={[2.13, 0.39, 0.025]}
-          map={wood}
-          color="#8e6342"
-        />
-        <mesh position={[0, 0.56, 0.79]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.105, 0.019, 12, 48]} />
-          <meshStandardMaterial
-            color="#c09c60"
-            roughness={0.3}
-            metalness={0.8}
-          />
-        </mesh>
-        {[-0.65, 0.35].map((x, i) => (
-          <group
-            key={x}
-            position={[x, 0.3, 0.15 + i * 0.1]}
-            rotation={[0, i * 0.17, 0]}
-          >
-            <Correspondence open={false} still={still} onAction={() => {}} />
-          </group>
-        ))}
-      </group>
-      {[-1.21, 1.21].map((x) => (
-        <Box
-          key={x}
-          at={[x, 0.58, 0.78]}
-          size={[0.025, 0.79, 0.025]}
-          color="#b39565"
-        />
-      ))}
-    </group>
-  );
-}
-function WindowDelivery({ turning, still, onAction }: Props) {
+function WindowDelivery({ turning, still, onAction, onReady }: Props) {
   return (
     <group>
-      <group position={[0, 2, -0.7]}>
-        <Box at={[0, 0, 0]} size={[3.1, 3.8, 0.15]} color="#94754b" />
-        <Box at={[0, 0, 0.1]} size={[2.8, 3.5, 0.07]} color="#283e5b" />
-        {[-0.7, 0, 0.7].map((x) => (
-          <Box
-            key={x}
-            at={[x, 0, 0.16]}
-            size={[0.035, 3.5, 0.05]}
-            color="#b3a07e"
-          />
-        ))}
-        {[-0.8, 0.4].map((y) => (
-          <Box
-            key={y}
-            at={[0, y, 0.16]}
-            size={[2.8, 0.04, 0.05]}
-            color="#b3a07e"
-          />
-        ))}
-        <mesh position={[0.75, 1.1, 0.15]}>
-          <circleGeometry args={[0.24, 48]} />
-          <meshBasicMaterial color="#eee8c8" />
-        </mesh>
-        <Box at={[0, -1.9, 0.3]} size={[3.5, 0.12, 0.8]} color="#ad9776" />
-        {[-1.9, 1.9].map((x) => (
-          <mesh key={x} position={[x, 0, 0.3]}>
-            <cylinderGeometry args={[0.25, 0.4, 4, 32]} />
-            <meshStandardMaterial color="#4c455d" roughness={0.96} />
-          </mesh>
-        ))}
+      <group position={[0, 0, -0.7]}>
+        <ChapterModel chapter="IV" onReady={onReady} />
       </group>
       <group position={[0, 0.16, 0.7]} scale={1.2}>
         <Correspondence open={!turning} still={still} onAction={onAction} />
@@ -674,30 +472,57 @@ function WindowDelivery({ turning, still, onAction }: Props) {
     </group>
   );
 }
-function MirrorGlass({ turning }: { turning?: boolean }) {
-  const shape = useMemo(() => {
-    const s = new THREE.Shape();
-    s.moveTo(-0.94, -1.48);
-    s.lineTo(0.94, -1.48);
-    s.lineTo(0.94, 0.78);
-    s.bezierCurveTo(0.94, 1.3, 0.53, 1.61, 0, 1.61);
-    s.bezierCurveTo(-0.53, 1.61, -0.94, 1.3, -0.94, 0.78);
-    s.closePath();
-    return s;
-  }, []);
+function ReactiveHero({
+  chapter,
+  turning,
+  still,
+  scale = 1,
+  onAction,
+  onReady,
+}: {
+  chapter: ChapterId;
+  turning?: boolean;
+  still: boolean;
+  scale?: number;
+  onAction?: () => void;
+  onReady?: (phase?: "assets") => void;
+}) {
+  const ref = useRef<THREE.Group>(null);
+  const { invalidate } = useThree();
+  useEffect(() => {
+    if (!ref.current) return;
+    const group = ref.current;
+    const timeline = gsap.timeline();
+    timeline.to(group.position, {
+      y: chapter === "III" && turning && !still ? 0.08 : 0,
+      z: chapter === "VII" && turning && !still ? 0.09 : 0,
+      duration: still ? 0 : 0.25,
+      ease: "sine.inOut",
+      onUpdate: invalidate,
+    });
+    return () => {
+      timeline.kill();
+    };
+  }, [chapter, turning, still, invalidate]);
   return (
-    <mesh position={[0, 1.87, 0.115]}>
-      <shapeGeometry args={[shape, 32]} />
-      <meshBasicMaterial
-        color="#ecdfc9"
-        transparent
-        opacity={turning ? 0.14 : 0.008}
-        depthWrite={false}
-      />
-    </mesh>
+    <group
+      ref={ref}
+      scale={scale}
+      onClick={
+        onAction
+          ? (event) => {
+              event.stopPropagation();
+              onAction();
+            }
+          : undefined
+      }
+    >
+      <ChapterModel chapter={chapter} onReady={onReady} />
+    </group>
   );
 }
 function Protagonist({ chapter, ...props }: Props & { chapter: ChapterId }) {
+  const singlePage = useThree((state) => state.size.width <= 700);
   const { turning, still, onAction } = props;
   if (chapter === "I")
     return (
@@ -707,7 +532,13 @@ function Protagonist({ chapter, ...props }: Props & { chapter: ChapterId }) {
           rotation={[0, 0.3, 0]}
           scale={0.85}
         >
-          <Correspondence open={!turning} still={still} onAction={onAction} />
+          <Correspondence
+            onReady={props.onReady}
+            rebuilt
+            open={props.open ?? !turning}
+            still={still}
+            onAction={onAction}
+          />
         </group>
         <Document {...props} />
       </>
@@ -715,76 +546,56 @@ function Protagonist({ chapter, ...props }: Props & { chapter: ChapterId }) {
   if (chapter === "II")
     return (
       <group scale={1.25} rotation={[0, -0.18, 0]}>
-        <EnchantedBook {...props} registration album />
+        <EnchantedBook
+          {...props}
+          registration
+          album
+          rebuilt
+          singlePage={singlePage}
+        />
       </group>
     );
-  if (chapter === "III") return <Memory turning={turning} still={still} />;
+  if (chapter === "III")
+    return (
+      <ReactiveHero
+        chapter="III"
+        onReady={props.onReady}
+        turning={turning}
+        still={still}
+        scale={1.9}
+      />
+    );
   if (chapter === "IV") return <WindowDelivery {...props} />;
   if (chapter === "V")
     return (
-      <group>
-        <LibraryModel
-          id="ornate_mirror_01"
-          at={[0, 0.08, 0]}
-          size={[2.65, 3.9, 0.2]}
-          fallback={
-            <group scale={1.3}>
-              <Mirror active={false} />
-            </group>
-          }
-        />
-        <MirrorGlass turning={turning} />
+      <group scale={1.15}>
+        <ChapterModel chapter="V" onReady={props.onReady} />
       </group>
     );
   if (chapter === "VI")
     return (
       <>
-        <group scale={1.3}>
-          <CelestialChart turning={turning} still={still} />
+        <group scale={1.2}>
+          <ChapterModel chapter="VI" onReady={props.onReady} />
         </group>
-        <group position={[0.9, 0, -0.1]}>
+        <group position={[2.4, 0, 0]} scale={0.82}>
           <GlassHourglass turning={turning} still={still} />
-        </group>
-        <group position={[-0.6, 1.4, -1.3]} rotation={[0.45, 0, 0.3]}>
-          <mesh>
-            <torusGeometry args={[1, 0.018, 8, 96]} />
-            <meshStandardMaterial
-              color="#b99a60"
-              roughness={0.35}
-              metalness={0.7}
-            />
-          </mesh>
-          <mesh rotation={[0, 0.6, 0]}>
-            <torusGeometry args={[0.95, 0.014, 8, 96]} />
-            <meshStandardMaterial
-              color="#b99a60"
-              roughness={0.35}
-              metalness={0.7}
-            />
-          </mesh>
         </group>
       </>
     );
   return (
-    <group scale={1.25}>
-      <ArchiveCabinet turning={turning} still={still} />
-      {[0, 1, 2].map((i) => (
-        <Photograph
-          key={i}
-          at={[-1.1 + i * 0.8, 0.17, 1.1 - i * 0.2]}
-          rotation={i * 0.15 - 0.2}
-          scale={0.7}
-        />
-      ))}
-      <group position={[1.4, 0, 0.5]} scale={0.65}>
-        <Correspondence open={false} still={still} onAction={onAction} />
-      </group>
-    </group>
+    <ReactiveHero
+      chapter="VII"
+      onAction={onAction}
+      onReady={props.onReady}
+      turning={turning}
+      still={still}
+      scale={1.35}
+    />
   );
 }
 function Bay({ chapter, props }: { chapter: ChapterId; props: Props }) {
   const d = chapterDirection[chapter],
-    wall = useSurface("wall"),
     wood = useSurface("wood");
   return (
     <group
@@ -793,17 +604,8 @@ function Bay({ chapter, props }: { chapter: ChapterId; props: Props }) {
     >
       <mesh position={[0, 1, -2.3]} receiveShadow>
         <planeGeometry args={[13, 10]} />
-        <meshStandardMaterial map={wall} color={d.wall} roughness={0.95} />
+        <meshStandardMaterial color={d.wall} roughness={0.95} />
       </mesh>
-      {[-4, -2, 0, 2, 4].map((x) => (
-        <Box
-          key={x}
-          at={[x, 1, -2.25]}
-          size={[0.04, 8, 0.04]}
-          color="#ac9471"
-        />
-      ))}
-      <Box at={[0, -0.75, -2.16]} size={[13, 0.1, 0.15]} color="#aa8962" />
       <mesh
         position={[0, -1.1, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
@@ -812,33 +614,26 @@ function Bay({ chapter, props }: { chapter: ChapterId; props: Props }) {
         <planeGeometry args={[13, 10]} />
         <meshStandardMaterial map={wood} color="#74523e" roughness={0.86} />
       </mesh>
-      {chapter !== "V" && (
-        <LibraryModel
-          id="ClassicConsole_01"
-          at={[0, -1.8, 0]}
-          size={[6.5, 1.8, 3.8]}
-          fallback={
-            <Box at={[0, -0.18, 0]} size={[6.5, 0.3, 3.8]} color="#6e4932" />
-          }
-        />
+      {chapter === "II" ? (
+        <Beveled at={[0, -0.08, 0]} size={[5.3, 0.15, 3.2]} color="#9a8c71" />
+      ) : chapter === "V" ? (
+        <Beveled at={[0, -0.1, 0]} size={[3.2, 0.2, 1]} color="#584333" />
+      ) : (
+        <Beveled at={[0, -0.1, 0]} size={[5, 0.2, 3.5]} map={wood} />
       )}
-      {chapter === "V" && (
-        <>
-          <Box at={[0, -0.12, 0]} size={[3.2, 0.24, 1]} color="#583d38" />
-          {[-1.1, 1.1].map((x) => (
-            <Box
-              key={x}
-              at={[x, -0.65, 0]}
-              size={[0.08, 1.1, 0.5]}
-              color="#987856"
-            />
-          ))}
-        </>
-      )}
-      <Protagonist {...props} chapter={chapter} />
+      <group name={`hero-${chapter}`}>
+        <Protagonist {...props} chapter={chapter} />
+      </group>
       {chapter === "II" && (
         <>
-          <Photograph at={[-2, 0.06, 0.6]} rotation={-0.4} />
+          <group position={[-2, 0.08, -0.4]} rotation={[-Math.PI / 2, 0, -0.3]}>
+            <LibraryModel
+              id="fancy_picture_frame_02"
+              at={[0, 0, 0]}
+              size={[1.2, 1.6, 0.35]}
+              fallback={null}
+            />
+          </group>
           <Photograph at={[2, 0.06, -0.4]} rotation={0.3} scale={0.75} />
         </>
       )}
@@ -867,7 +662,7 @@ export function ChapterWorld(props: Props) {
         setJourney((current) =>
           current.from ? { ...current, from: null } : current,
         ),
-      still ? 0 : 2300,
+      still ? 0 : 1400,
     );
     return () => {
       clearTimeout(exit);
@@ -908,6 +703,7 @@ export function ChapterWorld(props: Props) {
           chapter={c}
           props={{
             ...props,
+            onReady: c === chapter ? props.onReady : undefined,
             turning: c === chapter && props.turning,
             turnSerial: c === chapter ? props.turnSerial : 0,
             active: c === chapter && props.active,
@@ -916,7 +712,10 @@ export function ChapterWorld(props: Props) {
           }}
         />
       ))}
+      <DocumentHandoff opening={props.opening} turning={props.turning} />
+      <SceneDiagnostics chapter={chapter} />
       <CameraDirector
+        opening={props.opening}
         chapter={chapter}
         still={props.still}
         turning={props.turning}

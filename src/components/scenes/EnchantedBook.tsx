@@ -1,4 +1,5 @@
 "use client";
+import { ChapterModel } from "./ChapterModel";
 import { useEffect, useMemo, useRef } from "react";
 import { useLoader, useThree } from "@react-three/fiber";
 import { gsap } from "gsap";
@@ -12,6 +13,9 @@ type Props = {
   final?: boolean;
   registration?: boolean;
   album?: boolean;
+  rebuilt?: boolean;
+  singlePage?: boolean;
+  onReady?: () => void;
   writtenText?: string;
   label?: string;
   turnSerial?: number;
@@ -124,6 +128,9 @@ export function EnchantedBook({
   final = false,
   registration = false,
   album = false,
+  rebuilt = false,
+  singlePage = false,
+  onReady,
   writtenText,
   label,
   turnSerial = 0,
@@ -208,7 +215,7 @@ export function EnchantedBook({
     if (sheetMesh.current) sheetMesh.current.visible = true;
     const tween = gsap.to(progress, {
       value: 1,
-      duration: 1.55,
+      duration: registration ? (album ? 0.65 : 0.28) : 1.55,
       ease: "sine.inOut",
       onUpdate: () => mark(progress.value),
       onComplete: () => {
@@ -225,6 +232,7 @@ export function EnchantedBook({
     turnSerial,
     turnDirection,
     registration,
+    album,
     final,
     still,
     turning,
@@ -249,7 +257,7 @@ export function EnchantedBook({
   useEffect(() => () => edges.dispose(), [edges]);
   return (
     <group
-      position={[0, 0.09, 0.48]}
+      position={[singlePage ? -0.9 : 0, 0.09, 0.48]}
       rotation={[0, -0.14, 0]}
       userData={{ cinematicBook: true }}
       onClick={(e) => {
@@ -257,17 +265,26 @@ export function EnchantedBook({
         onAction();
       }}
     >
-      {[-1, 1].map((side) => (
+      {rebuilt && (
+        <group scale={[1.17, 1, 1.15]}>
+          <ChapterModel chapter="II" singlePage={singlePage} onReady={onReady} />
+        </group>
+      )}
+      {(singlePage ? [1] : [-1, 1]).map((side) => (
         <group key={side}>
-          <mesh position={[side * 0.82, 0.025, 0]} castShadow receiveShadow>
-            <boxGeometry args={[1.68, 0.1, 2.16]} />
-            <meshStandardMaterial
-              map={leather}
-              bumpMap={leather}
-              bumpScale={0.035}
-              roughness={0.9}
-            />
-          </mesh>
+          {!rebuilt && (
+            <>
+              <mesh position={[side * 0.82, 0.025, 0]} castShadow receiveShadow>
+                <boxGeometry args={[1.68, 0.1, 2.16]} />
+                <meshStandardMaterial
+                  map={leather}
+                  bumpMap={leather}
+                  bumpScale={0.035}
+                  roughness={0.9}
+                />
+              </mesh>
+            </>
+          )}
           <mesh position={[side * 0.81, 0.162, 0]} castShadow receiveShadow>
             <boxGeometry args={[1.48, 0.19, 1.92]} />
             <meshStandardMaterial color="#c9b389" roughness={1} />

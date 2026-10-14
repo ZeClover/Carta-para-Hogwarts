@@ -2589,3 +2589,193 @@ body:has(.cinema) > footer {
 .cinema-document-layout {
   transition: opacity 0.25s ease;
 }
+
+/* Direct scene entry and a covered cut: the document stays in one DOM tree. */
+.intro-skip {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 8;
+  min-height: 44px;
+  color: #fff4df;
+  background: #29251ee0;
+  padding: 10px 18px;
+}
+.cinema[data-entry="opening"] :is(.cinema-header, .cinema-document-layout) {
+  visibility: hidden;
+  pointer-events: none;
+}
+.chapter-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: #e9dec7;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.16s ease;
+}
+.cinema[data-travelling="true"] .chapter-cover {
+  opacity: 1;
+}
+.cinema .question-necessity {
+  color: var(--muted-ink);
+  font-size: 0.78rem;
+  margin: 16px 0 0;
+}
+.cinema-save {
+  color: #f1e6d2;
+  font-size: 0.8rem;
+  margin: 0;
+}
+.recovery-screen {
+  max-width: 680px;
+  margin: 10vh auto;
+  padding: 24px;
+}
+.cinema .text-button {
+  min-height: 44px;
+}
+@media (max-width: 700px), (max-height: 500px) {
+  .cinema[data-chapter] {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .cinema[data-chapter] .cinema-header {
+    position: relative;
+    padding: 18px 5vw 0;
+    flex-wrap: wrap;
+  }
+  .cinema[data-chapter] .cinema-document-layout {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    width: auto;
+    max-height: none;
+    margin: 200px 5vw 160px;
+  }
+  .cinema[data-chapter] .cinema-document-layout .cinema-writing {
+    overflow: visible;
+    max-height: none;
+    flex: none;
+  }
+  .cinema .cinema-bottom {
+    position: sticky !important;
+    bottom: 12px !important;
+    background: #282824f0;
+    padding: 12px;
+    border-radius: 3px;
+  }
+  .cinema-progress span {
+    font-size: 0.8rem;
+  }
+}
+@media (max-height: 500px) {
+  .cinema[data-chapter] .cinema-document-layout {
+    margin-top: 12px;
+  }
+  .cinema[data-chapter] .cinema-header h1 {
+    font-size: 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chapter-cover {
+    transition: none;
+  }
+}
+
+.cinema[data-chapter="III"],
+.cinema[data-chapter="VI"] {
+  --surface: #ece4ce;
+  --writing-ink: #243239;
+  --muted-ink: #47545b;
+  --edge: #7f8b88;
+}
+.cinema[data-chapter="VI"] .cinema-writing {
+  background-image: none;
+}
+.cinema[data-chapter] .cinema-writing {
+  animation-duration: 0.18s;
+}
+.cinema[data-phase="turn"] .cinema-writing {
+  animation: none;
+  opacity: 0;
+}
+@media (max-width: 700px), (max-height: 500px) {
+  .cinema .study-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #222822f5;
+    padding: 4px 10px;
+    flex-wrap: wrap;
+  }
+  .cinema .study-buttons {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .cinema .scene-source-credit {
+    align-self: center;
+  }
+  .cinema[data-entry="opening"] .cinema-document-layout {
+    display: none;
+  }
+}
+.entry-readiness {
+  position: absolute;
+  left: 5vw;
+  bottom: 8vh;
+  padding: 14px 20px;
+  background: #27241fe8;
+  color: #f4e9ce;
+}
+
+@media (min-width: 701px) and (min-height: 501px) {
+  .cinema[data-chapter] .cinema-document-layout {
+    left: clamp(
+      56px,
+      var(--document-left, 5vw),
+      calc(100vw - min(540px, 43vw) - 56px)
+    );
+    right: auto;
+  }
+  .cinema:is([data-chapter="III"], [data-chapter="V"], [data-chapter="VII"])
+    .cinema-document-layout {
+    left: clamp(
+      56px,
+      var(--document-left, calc(95vw - min(540px, 43vw))),
+      calc(100vw - min(540px, 43vw) - 56px)
+    );
+    right: auto;
+  }
+}
+.cinema[data-chapter="V"] .cinema-writing {
+  border-radius: 3px;
+  background-image: none;
+}
+
+@media (max-width: 700px), (max-height: 500px) {
+  .cinema .cinema-bottom {
+    bottom: 76px !important;
+  }
+}
+
+.chapter-poster,
+.chapter-vector {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+.chapter-poster {
+  background-position: center;
+  background-size: cover;
+}
+@media (max-width: 700px), (max-height: 500px) {
+  /* Actions follow the complete field; they never cover a textarea or checkbox. */
+  .cinema .cinema-bottom {
+    position: relative !important;
+    bottom: auto !important;
+  }
+}

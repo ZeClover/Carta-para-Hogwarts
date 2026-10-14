@@ -12,7 +12,7 @@ import { FamilySelector } from "./FamilySelector";
 import { QuestionField } from "./QuestionField";
 import { HookEditor, HookCard } from "./HookEditor";
 export function Chapter({ chapter }: { chapter: ChapterId }) {
-  const { player, change, saveNow } = usePlayer();
+  const { player, origin, status, change, saveNow } = usePlayer();
   const router = useRouter();
   const c = chapters[chapter];
   const [opening, setOpening] = useState<{
@@ -21,6 +21,14 @@ export function Chapter({ chapter }: { chapter: ChapterId }) {
   } | null>(null);
   const [error, setError] = useState("");
   const heading = useRef<HTMLHeadingElement>(null);
+  if (origin === "recovery-error")
+    return (
+      <section className="paper">
+        <h1>Recuperar sua história</h1>
+        <p role="alert">{status}</p>
+        <PlayerTools />
+      </section>
+    );
   if (!player)
     return (
       <p className="paper" role="status">

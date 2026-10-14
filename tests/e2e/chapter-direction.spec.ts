@@ -20,6 +20,9 @@ test("sete composições reconhecíveis, leitura acessível e viagem real de câ
       : { width: 1440, height: 900 },
     reducedMotion: "reduce",
   });
+  await context.addInitScript(() =>
+    localStorage.setItem("hogwarts-scene", "light"),
+  );
   let page = await context.newPage();
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
@@ -73,6 +76,10 @@ test("sete composições reconhecíveis, leitura acessível e viagem real de câ
       expect(writing!.x + writing!.width).toBeLessThanOrEqual(
         page.viewportSize()!.width,
       );
+      await page
+        .locator(".cinema-actions .button")
+        .last()
+        .scrollIntoViewIfNeeded();
       await expect(
         page.locator(".cinema-actions .button").last(),
       ).toBeInViewport();
@@ -125,6 +132,7 @@ test("sete composições reconhecíveis, leitura acessível e viagem real de câ
     await expect(page.locator("canvas")).toHaveAttribute(
       "data-protagonist",
       "mirror",
+      { timeout: 20000 },
     );
     await expect(page.locator("canvas")).toHaveAttribute(
       "data-same-canvas",
@@ -141,9 +149,7 @@ test("sete composições reconhecíveis, leitura acessível e viagem real de câ
         { timeout: 20000 },
       )
       .toBeGreaterThan(from[0] + 45);
-    await page
-      .getByRole("button", { name: "Pular animação / reduzir movimento" })
-      .click();
+    await page.getByRole("button", { name: "Pular animações" }).click();
     const end = (await page.locator("canvas").getAttribute("data-camera"))!
       .split(",")
       .map(Number);

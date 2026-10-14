@@ -1,12 +1,16 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { gsap } from "gsap";
 import { useRouter } from "next/navigation";
 import { chapters, chapterIds, type ChapterId } from "@/content/chapters";
 import { questions } from "@/content/admission";
 import { families } from "@/content/families";
 import { validateAdmission } from "@/lib/draft";
 import type { Story, Hook, Relation, StoryObject } from "@/lib/story";
+import { usePaperAudio } from "./usePaperAudio";
+import { DocumentSurface } from "./DocumentSurface";
 import { BirthGuidance } from "../BirthGuidance";
+import { ChapterFallback } from "../scenes/ChapterFallback";
 import { SceneStage } from "../scenes/SceneStage";
 import { usePlayer } from "./PlayerProvider";
 import { QuestionField } from "./QuestionField";
@@ -25,16 +29,41 @@ export const experienceSteps = chapterIds.flatMap((chapter) => [
 ]);
 
 export function CinematicExperience({ chapter }: { chapter?: ChapterId }) {
-  const { player } = usePlayer();
+  const { player, origin, status } = usePlayer();
+  if (origin === "recovery-error")
+    return (
+      <main id="conteudo" className="recovery-screen">
+        <h1>Seu registro precisa ser recuperado</h1>
+        <p role="alert">{status}</p>
+        <p>
+          Feche outras abas e tente recarregar. Seus dados anteriores continuam
+          preservados.
+        </p>
+        <button className="button" onClick={() => window.location.reload()}>
+          Tentar recuperar novamente
+        </button>
+        <PlayerTools />
+      </main>
+    );
   if (!player)
     return (
       <main className="cinema" id="conteudo">
-        <p role="status">Recuperando seu registro mágico…</p>
+        <ChapterFallback chapter="I" still />
+        <p className="entry-readiness" role="status">
+          Recuperando seu registro mágico…
+        </p>
       </main>
     );
   return (
     <Experience
       key={player.draft.id}
+      introduce={
+        origin === "new" &&
+        !chapter &&
+        !player.story.experienceStep &&
+        Object.values(player.draft.admission).every((value) => !value) &&
+        Object.keys(player.story.answers).length === 0
+      }
       initial={
         chapter
           ? experienceSteps.find((s) => s.chapter === chapter)?.id
@@ -51,8 +80,14 @@ export function CinematicExperience({ chapter }: { chapter?: ChapterId }) {
     />
   );
 }
-function Experience({ initial }: { initial?: string }) {
-  const { player, change, saveNow, storageError } = usePlayer();
+function Experience({
+  initial,
+  introduce,
+}: {
+  initial?: string;
+  introduce: boolean;
+}) {
+  const { player, change, saveNow, storageError, status } = usePlayer();
   const router = useRouter();
   const [index, setIndex] = useState(() =>
     Math.max(
@@ -60,13 +95,25 @@ function Experience({ initial }: { initial?: string }) {
       experienceSteps.findIndex((s) => s.id === initial),
     ),
   );
+  const [intro, setIntro] = useState(introduce);
+  const [presentationReady, setPresentationReady] = useState(false);
+  const [letterOpen, setLetterOpen] = useState(!introduce);
+  const introTimeline = useRef<gsap.core.Timeline | null>(null);
+  const transitionTimeline = useRef<gsap.core.Timeline | null>(null);
+  const completeIntro = () => {
+    introTimeline.current?.kill();
+    setLetterOpen(true);
+    setIntro(false);
+  };
   const [phase, setPhase] = useState("idle");
+  const audio = usePaperAudio(phase);
   const [travelling, setTravelling] = useState(false);
   const [page, setPage] = useState(0);
   const [turnDirection, setTurnDirection] = useState(1);
   const [ink, setInk] = useState("");
   const [error, setError] = useState("");
   const [menu, setMenu] = useState(false);
+  const [documentAction, setDocumentAction] = useState(0);
   const [skip, setSkip] = useState(false);
   const [opening, setOpening] = useState<{
     source: string;
@@ -75,12 +122,56 @@ function Experience({ initial }: { initial?: string }) {
   const root = useRef<HTMLElement>(null),
     heading = useRef<HTMLDivElement>(null),
     dialog = useRef<HTMLDialogElement>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const busy = useRef(false);
   const operation = useRef(0);
   const skipRequested = useRef(false);
   const pending = useRef<(() => void) | null>(null);
   useEffect(() => {
+    if (!intro || !presentationReady) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const frame = requestAnimationFrame(() => {
+        setLetterOpen(true);
+        setIntro(false);
+      });
+      return () => cancelAnimationFrame(frame);
+    }
+    const mobile = window.innerWidth <= 700;
+    const motion = matchMedia("(prefers-reduced-motion: reduce)");
+    const timeline = gsap.timeline();
+    introTimeline.current = timeline;
+    timeline.call(() => setLetterOpen(true), [], mobile ? 1 : 1.8);
+    timeline.call(
+      () => {
+        if (
+          root.current
+            ?.querySelector(".study-scene")
+            ?.getAttribute("data-renderer") === "3d"
+        )
+          setTravelling(true);
+        setIntro(false);
+      },
+      [],
+      mobile ? 3.4 : 4.6,
+    );
+    const pause = () =>
+      document.hidden ? timeline.pause() : timeline.resume();
+    const reduce = () => {
+      if (motion.matches) {
+        timeline.kill();
+        setLetterOpen(true);
+        setIntro(false);
+      }
+    };
+    document.addEventListener("visibilitychange", pause);
+    motion.addEventListener("change", reduce);
+    return () => {
+      timeline.kill();
+      document.removeEventListener("visibilitychange", pause);
+      motion.removeEventListener("change", reduce);
+    };
+  }, [intro, presentationReady]);
+  useEffect(() => {
+    gsap.ticker.lagSmoothing(0);
     // A chapter link selects the entry point once; reload must use the saved cursor.
     if (new URL(window.location.href).searchParams.has("capitulo"))
       window.history.replaceState(window.history.state, "", "/experiencia");
@@ -96,15 +187,21 @@ function Experience({ initial }: { initial?: string }) {
       );
     };
     update();
+    const motion = matchMedia("(prefers-reduced-motion: reduce)");
+    const reduce = () => {
+      if (motion.matches && pending.current) finishAnimation();
+    };
+    motion.addEventListener("change", reduce);
     window.addEventListener("resize", update);
     viewport?.addEventListener("resize", update);
     viewport?.addEventListener("scroll", update);
     return () => {
       operation.current += 1;
+      motion.removeEventListener("change", reduce);
       window.removeEventListener("resize", update);
       viewport?.removeEventListener("resize", update);
       viewport?.removeEventListener("scroll", update);
-      if (timer.current) clearTimeout(timer.current);
+      transitionTimeline.current?.kill();
     };
   }, []);
   useEffect(() => {
@@ -118,7 +215,14 @@ function Experience({ initial }: { initial?: string }) {
     }));
     heading.current?.focus({ preventScroll: true });
     heading.current?.scrollTo(0, 0);
+    root.current?.scrollTo(0, 0);
   }, [index, change]);
+  useEffect(() => {
+    if (!documentAction) return;
+    heading.current
+      ?.querySelector<HTMLElement>(".entity-editor input, .hook-editor input")
+      ?.focus();
+  }, [documentAction]);
   if (!player) return null;
   const { story, draft } = player;
   const step = experienceSteps[index],
@@ -178,13 +282,14 @@ function Experience({ initial }: { initial?: string }) {
     return o.id;
   }
   function finishAnimation() {
-    if (timer.current) clearTimeout(timer.current);
+    transitionTimeline.current?.kill();
     pending.current?.();
     pending.current = null;
     setPhase("idle");
     busy.current = false;
   }
   function skipAnimations() {
+    completeIntro();
     skipRequested.current = true;
     setSkip(true);
     if (pending.current) finishAnimation();
@@ -201,7 +306,7 @@ function Experience({ initial }: { initial?: string }) {
   }
   function cancelTransition() {
     operation.current += 1;
-    if (timer.current) clearTimeout(timer.current);
+    transitionTimeline.current?.kill();
     pending.current = null;
     busy.current = false;
     setPhase("idle");
@@ -289,8 +394,15 @@ function Experience({ initial }: { initial?: string }) {
     }
     const finish = () => {
       setOpening(null);
-      if (next) setIndex(target);
-      else router.push("/revisao");
+      if (next) {
+        if (
+          next.chapter !== chapter &&
+          !skipRequested.current &&
+          !matchMedia("(prefers-reduced-motion: reduce)").matches
+        )
+          setTravelling(true);
+        setIndex(target);
+      } else router.push("/revisao");
     };
     if (
       (!animate && target === index) ||
@@ -328,21 +440,12 @@ function Experience({ initial }: { initial?: string }) {
     );
     pending.current = finish;
     setTurnDirection(target < index ? -1 : 1);
-    if (!animate) {
-      setPage((p) => p + 1);
-      setPhase("turn");
-      timer.current = setTimeout(finishAnimation, 1650);
-      return;
-    }
-    setPhase("glow");
-    timer.current = setTimeout(() => {
-      setPhase("absorb");
-      timer.current = setTimeout(() => {
-        setPage((p) => p + 1);
-        setPhase("turn");
-        timer.current = setTimeout(finishAnimation, 1650);
-      }, 650);
-    }, 320);
+    // A single timeline owns the visual operation; the saved cursor is already durable.
+    const duration = chapter === "II" ? 0.7 : 0.3;
+    setPage((p) => p + 1);
+    setPhase("turn");
+    transitionTimeline.current = gsap.timeline({ onComplete: finishAnimation });
+    transitionTimeline.current.to({}, { duration });
   }
   const family = families.find((f) => f.id === story.family.catalogId);
   return (
@@ -351,11 +454,43 @@ function Experience({ initial }: { initial?: string }) {
       id="conteudo"
       className={`cinema ${skip ? "cinema-still" : ""}`}
       data-phase={phase}
+      data-entry={intro ? "opening" : "reading"}
+      data-storage-ready="true"
+      data-interaction-ready={
+        !intro && !travelling && phase === "idle" ? "true" : "false"
+      }
       data-chapter={chapter}
       data-travelling={travelling ? "true" : "false"}
       aria-busy={travelling || phase !== "idle"}
     >
       <SceneStage
+        onDocumentAction={() => {
+          if (busy.current || travelling || intro) return;
+          const editor = heading.current?.querySelector(
+            ".entity-editor, .hook-editor",
+          );
+          if (editor) {
+            editor.querySelector<HTMLElement>("input, textarea")?.focus();
+            return;
+          }
+          const label =
+            question?.type === "relations"
+              ? "Adicionar pessoa"
+              : question?.type === "objects"
+                ? "Adicionar objeto ou lugar"
+                : null;
+          if (label) {
+            const button = Array.from(
+              heading.current?.querySelectorAll<HTMLButtonElement>("button") ??
+                [],
+            ).find((b) => b.textContent?.trim() === label);
+            button?.click();
+          } else if (question) setOpening({ source: question.id });
+          setDocumentAction((n) => n + 1);
+        }}
+        onPresentationReady={setPresentationReady}
+        opening={intro}
+        open={letterOpen}
         kind={chapter}
         immersive
         page={page}
@@ -365,6 +500,12 @@ function Experience({ initial }: { initial?: string }) {
         onSkip={skipAnimations}
         onJourney={setTravelling}
       />
+      {intro && (
+        <button className="intro-skip text-button" onClick={completeIntro}>
+          Pular abertura
+        </button>
+      )}
+      <div className="chapter-cover" aria-hidden="true" />
       <div className="cinema-scrim" aria-hidden="true" />
       <header className="cinema-header">
         <div>
@@ -374,11 +515,11 @@ function Experience({ initial }: { initial?: string }) {
         <button className="text-button" onClick={() => setMenu(true)}>
           Capítulos e opções
         </button>
-        <button className="text-button" onClick={() => void leave("/")}>
+        <button className="text-button" onClick={() => void leave("/revisao")}>
           Sair e continuar depois
         </button>
       </header>
-      <div className="cinema-document-layout">
+      <DocumentSurface inactive={intro || travelling || phase !== "idle"}>
         <div
           ref={heading}
           tabIndex={-1}
@@ -387,7 +528,7 @@ function Experience({ initial }: { initial?: string }) {
           aria-label={`Página ${step.id}`}
         >
           <fieldset
-            disabled={travelling || phase !== "idle"}
+            disabled={intro || travelling || phase !== "idle"}
             className="cinema-fields"
           >
             {admission && (
@@ -592,6 +733,13 @@ function Experience({ initial }: { initial?: string }) {
               />
             )}
           </fieldset>
+          <p className="question-necessity">
+            {admission?.required || question?.required
+              ? "Resposta obrigatória"
+              : review
+                ? "Revisão do capítulo"
+                : "Resposta opcional"}
+          </p>
           {error && (
             <p role="alert" className="field-error">
               {error}
@@ -601,25 +749,36 @@ function Experience({ initial }: { initial?: string }) {
         <div className="cinema-bottom">
           <div className="cinema-progress">
             <span>
-              {index + 1} / {experienceSteps.length}
+              Capítulo {chapter} de VII ·{" "}
+              {
+                experienceSteps.filter(
+                  (s, i) => s.chapter === chapter && i <= index,
+                ).length
+              }{" "}
+              / {experienceSteps.filter((s) => s.chapter === chapter).length}{" "}
+              neste capítulo
             </span>
             <progress
               aria-label="Progresso da história"
-              value={index + 1}
-              max={experienceSteps.length}
+              value={
+                experienceSteps.filter(
+                  (s, i) => s.chapter === chapter && i <= index,
+                ).length
+              }
+              max={experienceSteps.filter((s) => s.chapter === chapter).length}
             />
           </div>
           <div className="cinema-actions">
             <button
               className="button secondary"
-              disabled={travelling || index === 0 || phase !== "idle"}
+              disabled={intro || travelling || index === 0 || phase !== "idle"}
               onClick={() => void move(index - 1)}
             >
               Voltar
             </button>
             <button
               className="button"
-              disabled={travelling || phase !== "idle"}
+              disabled={intro || travelling || phase !== "idle"}
               onClick={() => void move(index + 1, true)}
             >
               {review
@@ -632,13 +791,16 @@ function Experience({ initial }: { initial?: string }) {
           <p className="sr-only" role="status">
             {phase === "idle" ? `Página ${step.id}` : "Guardando sua resposta…"}
           </p>
+          <p className="cinema-save" role="status">
+            {status}
+          </p>
           {storageError && (
             <button className="text-button" onClick={() => setMenu(true)}>
               Falha ao salvar — preservar backup
             </button>
           )}
         </div>
-      </div>
+      </DocumentSurface>
       {phase !== "idle" && (
         <div className="cinema-ink" aria-hidden="true">
           {ink.slice(0, 250)}
@@ -679,6 +841,14 @@ function Experience({ initial }: { initial?: string }) {
             Arquivo do Mestre
           </button>
         </nav>
+        <button
+          className="button secondary"
+          aria-pressed={audio.enabled}
+          onClick={() => void audio.toggle()}
+        >
+          {audio.enabled ? "Desativar som de papel" : "Ativar som de papel"}
+        </button>
+        {audio.notice && <p aria-live="polite">{audio.notice}</p>}
         <PlayerStatus />
         <PlayerTools
           onRestore={(stepId) => {

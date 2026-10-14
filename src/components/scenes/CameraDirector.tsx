@@ -4,43 +4,67 @@ import { useThree } from "@react-three/fiber";
 import { gsap } from "gsap";
 import * as THREE from "three";
 import type { ChapterId } from "@/content/chapters";
-import { chapterDirection, chapterPose } from "./chapterDirection";
+import {
+  chapterDirection,
+  chapterPose,
+  chapterOrder,
+} from "./chapterDirection";
+
+/** Sole camera writer. Reading and keyboard resizes never start a camera tween. */
 export function CameraDirector({
   chapter,
   still,
-  turning,
+  opening = false,
   onJourney,
 }: {
   chapter: ChapterId;
   still: boolean;
+  opening?: boolean;
   turning?: boolean;
   onJourney?: (moving: boolean) => void;
 }) {
   const { camera, size, gl, invalidate } = useThree();
-  const previous = useRef<ChapterId | null>(null);
-  const first = useRef(true),
-    target = useRef(new THREE.Vector3());
+  const previous = useRef<{ chapter: ChapterId; opening: boolean } | null>(
+    null,
+  );
+  const target = useRef(new THREE.Vector3());
+  const animating = useRef(false);
+  const portrait = size.width <= 700;
   useEffect(() => {
-    const changing = previous.current !== null && previous.current !== chapter;
-    previous.current = chapter;
+    gsap.ticker.lagSmoothing(0);
+    const prior = previous.current;
+    previous.current = { chapter, opening };
+    const changing =
+      !!prior && (prior.chapter !== chapter || prior.opening !== opening);
     const moving = changing && !still;
-    onJourney?.(moving);
-    gl.domElement.setAttribute(
-      "data-camera-state",
-      moving ? "travelling" : "arrived",
-    );
-    const pose = chapterPose(chapter, size.width < size.height);
-    if (first.current) {
-      camera.position.set(
-        pose.camera[0] + 0.8,
-        pose.camera[1] + 0.6,
-        pose.camera[2] + 1.4,
-      );
-      target.current.set(...pose.target);
-      first.current = false;
+    const report = changing || !prior || still || animating.current;
+    animating.current = moving;
+    if (report) onJourney?.(moving);
+    const pose = chapterPose(chapter, portrait);
+    const end = new THREE.Vector3(...pose.camera);
+    const endTarget = new THREE.Vector3(...pose.target);
+    const lens = chapterDirection[chapter].fov;
+    if (!prior) {
+      camera.position.copy(end);
+      target.current.copy(endTarget);
+      if (opening && !still)
+        camera.position.add(new THREE.Vector3(0.6, 0.5, 1.0));
     }
+    if (opening) end.add(new THREE.Vector3(0.25, 0.18, 0.45));
+    const start = camera.position.clone(),
+      startTarget = target.current.clone();
+    const perspective = camera as THREE.PerspectiveCamera;
+    const startFov = perspective.fov;
+    const state = { p: 0 };
     const update = () => {
+      camera.position.lerpVectors(start, end, state.p);
+      target.current.lerpVectors(startTarget, endTarget, state.p);
       camera.lookAt(target.current);
+      gsap.set(perspective, {
+        fov: THREE.MathUtils.lerp(startFov, lens, state.p),
+      });
+      perspective.updateProjectionMatrix();
+      camera.updateMatrixWorld();
       gl.domElement.setAttribute(
         "data-camera",
         camera.position
@@ -59,66 +83,110 @@ export function CameraDirector({
         "data-protagonist",
         chapterDirection[chapter].object,
       );
+      const root = gl.domElement.closest<HTMLElement>(".cinema");
+      if (root && !portrait) {
+        const anchor = new THREE.Vector3(
+          ...chapterDirection[chapter].documentAnchor,
+        );
+        anchor.x += chapterOrder.indexOf(chapter) * 18;
+        anchor.project(camera);
+        const width = Math.min(540, gl.domElement.clientWidth * 0.43);
+        const left = THREE.MathUtils.clamp(
+          ((anchor.x + 1) * gl.domElement.clientWidth) / 2 - width / 2,
+          56,
+          gl.domElement.clientWidth - width - 56,
+        );
+        root.style.setProperty("--document-left", `${left}px`);
+        gl.domElement.setAttribute(
+          "data-document-anchor",
+          JSON.stringify({
+            x: left + width / 2,
+            y: ((1 - anchor.y) * gl.domElement.clientHeight) / 2,
+          }),
+        );
+      }
       invalidate();
     };
-    const start = camera.position.clone(),
-      startTarget = target.current.clone();
-    const end = new THREE.Vector3(...pose.camera),
-      endTarget = new THREE.Vector3(...pose.target);
-    const began = performance.now(),
-      duration = still ? 0 : 2200;
-    let frame = 0;
-    // Real elapsed time prevents GSAP's lag smoothing from extending a journey on slow GPUs.
-    const tick = (now: number) => {
-      const p = duration
-        ? Math.min(1, Math.max(0, (now - began) / duration))
-        : 1;
-      const eased = p * p * (3 - 2 * p);
-      camera.position.lerpVectors(start, end, eased);
-      target.current.lerpVectors(startTarget, endTarget, eased);
+    let finished = false;
+    const complete = () => {
+      if (finished) return;
+      finished = true;
+      gl.domElement.setAttribute("data-camera-state", "arrived");
+      animating.current = false;
+      if (report) onJourney?.(false);
+    };
+    gl.domElement.setAttribute(
+      "data-camera-state",
+      moving ? "travelling" : "arrived",
+    );
+    if (still || (!changing && !opening)) {
+      state.p = 1;
       update();
-      if (p < 1) frame = requestAnimationFrame(tick);
-      else {
-        gl.domElement.setAttribute("data-camera-state", "arrived");
-        onJourney?.(false);
+      complete();
+      return;
+    }
+    const duration = opening
+      ? portrait
+        ? 1
+        : 1.6
+      : prior?.opening
+        ? portrait
+          ? 0.55
+          : 0.9
+        : 1.1;
+    let deadline: ReturnType<typeof setTimeout> | undefined;
+    let remaining = duration * 1000 + 250;
+    let started = performance.now();
+    const timeline = gsap.timeline({
+      onComplete: () => {
+        clearTimeout(deadline);
+        complete();
+      },
+    });
+    timeline.to(state, {
+      p: 1,
+      duration,
+      ease: "sine.inOut",
+      onUpdate: update,
+    });
+    const settle = () => {
+      timeline.kill();
+      state.p = 1;
+      update();
+      complete();
+    };
+    const arm = () => {
+      started = performance.now();
+      deadline = setTimeout(settle, Math.max(0, remaining));
+    };
+    arm();
+    // Bounded completion also protects input when RAF/ticker stalls; hidden time is excluded.
+    const pause = () => {
+      if (document.hidden) {
+        timeline.pause();
+        clearTimeout(deadline);
+        remaining = Math.max(0, remaining - (performance.now() - started));
+      } else if (!finished) {
+        timeline.resume();
+        arm();
       }
     };
-    update();
-    if (still) tick(began);
-    else frame = requestAnimationFrame(tick);
+    document.addEventListener("visibilitychange", pause);
     return () => {
-      cancelAnimationFrame(frame);
-      onJourney?.(false);
+      clearTimeout(deadline);
+      timeline.kill();
+      document.removeEventListener("visibilitychange", pause);
     };
   }, [
     chapter,
+    opening,
     still,
-    camera,
+    portrait,
     size.width,
-    size.height,
+    camera,
     gl,
     invalidate,
     onJourney,
   ]);
-  useEffect(() => {
-    if (still || !turning) return;
-    const pose = chapterPose(chapter, size.width < size.height);
-    const t = gsap.to(camera.position, {
-      z: pose.camera[2] - 0.32,
-      duration: 0.7,
-      repeat: 1,
-      yoyo: true,
-      ease: "sine.inOut",
-      onUpdate: () => {
-        camera.lookAt(target.current);
-        invalidate();
-      },
-    });
-    return () => {
-      t.kill();
-      camera.position.z = pose.camera[2];
-      invalidate();
-    };
-  }, [turning, still, chapter, camera, size.width, size.height, invalidate]);
   return null;
 }

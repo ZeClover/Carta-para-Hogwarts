@@ -2,9 +2,7 @@
   {
     "id": "ClassicConsole_01",
     "title": "Classic Console 01",
-    "authors": [
-      "Kirill Sannikov"
-    ],
+    "authors": ["Kirill Sannikov"],
     "license": "CC0-1.0",
     "sourceUrl": "https://polyhaven.com/a/ClassicConsole_01",
     "licenseUrl": "https://polyhaven.com/license",
@@ -44,9 +42,7 @@
   {
     "id": "ornate_mirror_01",
     "title": "Ornate Mirror 01",
-    "authors": [
-      "James Ray Cock"
-    ],
+    "authors": ["James Ray Cock"],
     "license": "CC0-1.0",
     "sourceUrl": "https://polyhaven.com/a/ornate_mirror_01",
     "licenseUrl": "https://polyhaven.com/license",
@@ -86,10 +82,7 @@
   {
     "id": "fancy_picture_frame_01",
     "title": "Fancy Picture Frame 01",
-    "authors": [
-      "Rob Tuytel",
-      "Rico Cilliers"
-    ],
+    "authors": ["Rob Tuytel", "Rico Cilliers"],
     "license": "CC0-1.0",
     "sourceUrl": "https://polyhaven.com/a/fancy_picture_frame_01",
     "licenseUrl": "https://polyhaven.com/license",
@@ -144,9 +137,7 @@
   {
     "id": "ArmChair_01",
     "title": "Arm Chair 01",
-    "authors": [
-      "Kirill Sannikov"
-    ],
+    "authors": ["Kirill Sannikov"],
     "license": "CC0-1.0",
     "sourceUrl": "https://polyhaven.com/a/ArmChair_01",
     "licenseUrl": "https://polyhaven.com/license",
@@ -186,10 +177,7 @@
   {
     "id": "mantel_clock_01",
     "title": "Mantel Clock 01",
-    "authors": [
-      "Yann Kervran",
-      "Rico Cilliers"
-    ],
+    "authors": ["Yann Kervran", "Rico Cilliers"],
     "license": "CC0-1.0",
     "sourceUrl": "https://polyhaven.com/a/mantel_clock_01",
     "licenseUrl": "https://polyhaven.com/license",
@@ -226,5 +214,60 @@
     "path": "/assets/mantel_clock_01.glb",
     "bytes": 424836,
     "sha256": "c42c3e5812394a2b76cca811a100d2e44e3e8f7a37bbc966d046b4d3999ece03"
+  },
+  {
+    "id": "fancy_picture_frame_02",
+    "title": "Fancy Picture Frame 02",
+    "authors": ["Rob Tuytel", "Rico Cilliers"],
+    "license": "CC0-1.0",
+    "sourceUrl": "https://polyhaven.com/a/fancy_picture_frame_02",
+    "licenseUrl": "https://polyhaven.com/license",
+    "apiFilesUrl": "https://api.polyhaven.com/files/fancy_picture_frame_02",
+    "sourceBytes": 1728120,
+    "files": [
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/fancy_picture_frame_02/fancy_picture_frame_02_1k.gltf",
+        "md5": "07f596515503229724f68ee70971fef3",
+        "bytes": 5085
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/fancy_picture_frame_02/fancy_picture_frame_02_diff_1k.jpg",
+        "md5": "8f7ffb96ac8e673720bcebd7a12f9793",
+        "bytes": 216324
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/8k/fancy_picture_frame_02/fancy_picture_frame_02.bin",
+        "md5": "352cff9f333720063a5948aaffc9d0f3",
+        "bytes": 825908
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/fancy_picture_frame_02/fancy_picture_frame_02_canvas_nor_gl_1k.jpg",
+        "md5": "bd8da1137ef30894d06d29430eb257a8",
+        "bytes": 51705
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/fancy_picture_frame_02/fancy_picture_frame_02_canvas_diff_1k.jpg",
+        "md5": "3af550bb5e86d52a7215b0b9e15ed3b4",
+        "bytes": 136007
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/fancy_picture_frame_02/fancy_picture_frame_02_rough_1k.jpg",
+        "md5": "f89e09f8c7c56c04215f90076c25c4f6",
+        "bytes": 165509
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/fancy_picture_frame_02/fancy_picture_frame_02_nor_gl_1k.jpg",
+        "md5": "53c4575296a4c54843625d72c261d223",
+        "bytes": 229904
+      },
+      {
+        "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/fancy_picture_frame_02/fancy_picture_frame_02_canvas_rough_1k.jpg",
+        "md5": "697c1a6ca6331fe383e2b0ec6fc34f19",
+        "bytes": 97678
+      }
+    ],
+    "path": "/assets/fancy_picture_frame_02.glb",
+    "bytes": 1598008,
+    "sha256": "8870f0c4f9799d3c05d433e872cbac8d360002b38b667ca19da13979b7217edd"
   }
 ]

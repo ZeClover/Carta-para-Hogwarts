@@ -1,6 +1,6 @@
 "use client";
 import { Canvas, useThree } from "@react-three/fiber";
-import { memo, useEffect, useRef } from "react";
+import { memo, Suspense, useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import * as THREE from "three";
 import type { SceneKind } from "./config";
@@ -19,6 +19,8 @@ import { EnchantedBook } from "./EnchantedBook";
 import { AtmosphericDetails, ChapterProps } from "./StudyDetails";
 
 type Props = {
+  opening?: boolean;
+  open?: boolean;
   immersive?: boolean;
   turnSerial?: number;
   turnDirection?: number;
@@ -31,7 +33,7 @@ type Props = {
   onAction: () => void;
   onJourney?: (moving: boolean) => void;
   onFailure: () => void;
-  onReady: () => void;
+  onReady: (phase?: "assets") => void;
 };
 function CameraAndLife({
   kind,
@@ -51,9 +53,9 @@ function CameraAndLife({
       onFailure();
     };
     canvas.addEventListener("webglcontextlost", lose);
-    onReady();
+    if (!environmentOnly) onReady();
     return () => canvas.removeEventListener("webglcontextlost", lose);
-  }, [gl, onFailure, onReady]);
+  }, [gl, onFailure, onReady, environmentOnly]);
   useEffect(() => {
     if (environmentOnly) return;
     const start: [number, number, number] =
@@ -188,7 +190,9 @@ function Study(props: Props & { label?: string }) {
   if (props.immersive)
     return (
       <>
-        <ChapterWorld {...props} />
+        <Suspense fallback={null}>
+          <ChapterWorld {...props} />
+        </Suspense>
         <CameraAndLife {...props} environmentOnly />
       </>
     );

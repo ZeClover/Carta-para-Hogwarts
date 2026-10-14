@@ -43,7 +43,7 @@ export function PlayerTools({
   const { player, replace, saveNow } = usePlayer();
   const [message, setMessage] = useState("");
   const [reset, setReset] = useState(false);
-  if (!player) return null;
+
   async function restore(file: File | undefined) {
     if (!file) return;
     try {
@@ -78,6 +78,20 @@ export function PlayerTools({
       );
     }
   }
+  if (!player)
+    return (
+      <section className="backup-tools">
+        <h2>Recuperar de um backup</h2>
+        <label htmlFor="recovery-backup">Restaurar backup completo</label>
+        <input
+          id="recovery-backup"
+          type="file"
+          accept=".json,application/json"
+          onChange={(e) => void restore(e.target.files?.[0])}
+        />
+        <p role="status">{message}</p>
+      </section>
+    );
   return (
     <section className="backup-tools">
       <h2>Preserve sua história</h2>

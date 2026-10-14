@@ -10,6 +10,8 @@ export const chapterOrder: ChapterId[] = [
 ];
 type Point = [number, number, number];
 export type Direction = {
+  documentAnchor: Point;
+  fov: number;
   object: string;
   surface: string;
   wall: string;
@@ -25,18 +27,22 @@ export type Direction = {
  * Reading poses are static. Navigation moves both camera and its look target. */
 export const chapterDirection: Record<ChapterId, Direction> = {
   I: {
+    documentAnchor: [-3.4, 1.3, 1.1],
+    fov: 34,
     object: "correspondence",
     surface: "letter",
     wall: "#4a3930",
     key: "#ffdfb6",
     fill: "#c8d5df",
     layout: "left",
-    camera: [1.3, 4.1, 4.4],
+    camera: [1.3, 5.0, 5.4],
     target: [-1.1, 0.3, 0],
     mobileCamera: [0, 6.5, 8.5],
     mobileTarget: [0, -2.1, 0],
   },
   II: {
+    documentAnchor: [-3.4, 1.1, 0.8],
+    fov: 36,
     object: "album",
     surface: "album",
     wall: "#5b5042",
@@ -49,6 +55,8 @@ export const chapterDirection: Record<ChapterId, Direction> = {
     mobileTarget: [0, -2.4, 0],
   },
   III: {
+    documentAnchor: [3.1, 1.3, 0.8],
+    fov: 36,
     object: "memory",
     surface: "memory",
     wall: "#345553",
@@ -58,9 +66,11 @@ export const chapterDirection: Record<ChapterId, Direction> = {
     camera: [-1.8, 3.1, 6.8],
     target: [1.3, 0.8, 0],
     mobileCamera: [0, 3.6, 12],
-    mobileTarget: [0, -0.6, 0],
+    mobileTarget: [0, -1.7, 0],
   },
   IV: {
+    documentAnchor: [-3.5, 1.7, 0.8],
+    fov: 38,
     object: "window-letter",
     surface: "delivery",
     wall: "#263f56",
@@ -73,30 +83,36 @@ export const chapterDirection: Record<ChapterId, Direction> = {
     mobileTarget: [0, -0.6, 0],
   },
   V: {
+    documentAnchor: [3.6, 1.7, 0.6],
+    fov: 32,
     object: "mirror",
     surface: "mirror",
     wall: "#433a50",
     key: "#ede2ff",
     fill: "#b9e1da",
     layout: "right",
-    camera: [-1.3, 2.3, 7.0],
-    target: [1.6, 1.6, 0],
-    mobileCamera: [0, 3, 16],
-    mobileTarget: [0, -1.5, 0],
+    camera: [-1.0, 2.2, 9.0],
+    target: [1.3, 1.5, 0],
+    mobileCamera: [0, 3, 23],
+    mobileTarget: [0, -1.8, 0],
   },
   VI: {
+    documentAnchor: [-3.4, 1.3, 0.8],
+    fov: 38,
     object: "celestial-map",
     surface: "celestial",
     wall: "#1e344e",
     key: "#d5ddff",
     fill: "#ffe0ad",
     layout: "left",
-    camera: [1.8, 4.4, 5],
-    target: [-1.3, 0.5, 0],
+    camera: [1.8, 5.6, 7.0],
+    target: [-0.6, 0.5, 0],
     mobileCamera: [0, 6, 11],
-    mobileTarget: [0, -1.8, 0],
+    mobileTarget: [0.5, -1.8, 0],
   },
   VII: {
+    documentAnchor: [3.2, 1.3, 0.8],
+    fov: 35,
     object: "personal-archive",
     surface: "archive",
     wall: "#47302e",

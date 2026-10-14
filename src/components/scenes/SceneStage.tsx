@@ -11,6 +11,7 @@ import {
 } from "react";
 import { ChapterFallback } from "./ChapterFallback";
 import { chapterOrder } from "./chapterDirection";
+import { chapterScenes } from "./chapterScenes";
 import type { ChapterId } from "@/content/chapters";
 import { SceneFallback } from "./SceneFallback";
 import { sceneConfig, type SceneKind } from "./config";
@@ -42,7 +43,13 @@ export const SceneStage = memo(function SceneStage({
   turnDirection = 1,
   turning,
   onJourney,
+  opening = false,
+  onPresentationReady,
+  onDocumentAction,
 }: {
+  onDocumentAction?: () => void;
+  opening?: boolean;
+  onPresentationReady?: (ready: boolean) => void;
   onJourney?: (moving: boolean) => void;
   turnDirection?: number;
   turning?: boolean;
@@ -61,16 +68,34 @@ export const SceneStage = memo(function SceneStage({
     [systemReduced, setSystemReduced] = useState(false);
   const [available, setAvailable] = useState(false),
     [visible, setVisible] = useState(false),
-    [ready, setReady] = useState(false),
     [simple, setSimple] = useState(false);
+  const [probed, setProbed] = useState(false);
+  const [manualSelection, setManualSelection] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
+  const announced = useRef(false);
+  const resourceKind = useRef<SceneKind | null>(null);
+  const frameKind = useRef<SceneKind | null>(null);
+  const [slowChapter, setSlowChapter] = useState<SceneKind | null>(null);
+  const [checkedKind, setCheckedKind] = useState<SceneKind | null>(null);
+  const [readyKind, setReadyKind] = useState<SceneKind | null>(null);
+  const ready = readyKind === kind;
   const [limited, setLimited] = useState(false);
   const [interacted, setInteracted] = useState(false);
   const container = useRef<HTMLDivElement>(null);
   const failure = useCallback(() => {
     setAvailable(false);
-    setReady(false);
+    setReadyKind(null);
   }, []);
-  const loaded = useCallback(() => setReady(true), []);
+  const loaded = useCallback(
+    (phase?: "assets") => {
+      if (phase === "assets") resourceKind.current = kind;
+      else {
+        frameKind.current = kind;
+        setReadyKind(kind);
+      }
+    },
+    [kind],
+  );
   useEffect(() => {
     const reduced = matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setSystemReduced(reduced.matches);
@@ -84,6 +109,9 @@ export const SceneStage = memo(function SceneStage({
       navigator.hardwareConcurrency <= 4 ||
       !!device.connection?.saveData;
     setLimited(constrained);
+    try {
+      setStill(localStorage.getItem("hogwarts-motion") === "reduced");
+    } catch {}
     let probed = false;
     const observer = new IntersectionObserver(
       (entries) => {
@@ -102,12 +130,23 @@ export const SceneStage = memo(function SceneStage({
             const renderer = debug
               ? String(context.getParameter(debug.UNMASKED_RENDERER_WEBGL))
               : "";
+            if (/SwiftShader|llvmpipe|Software Rasterizer/i.test(renderer))
+              setLimited(true);
+            let saved: string | null = null;
+            try {
+              saved = localStorage.getItem("hogwarts-scene");
+            } catch {}
             setSimple(
-              constrained ||
-                /SwiftShader|llvmpipe|Software Rasterizer/i.test(renderer),
+              saved === "light" ||
+                (saved !== "3d" &&
+                  (constrained ||
+                    /SwiftShader|llvmpipe|Software Rasterizer/i.test(
+                      renderer,
+                    ))),
             );
             context.getExtension("WEBGL_lose_context")?.loseContext();
           }
+          setProbed(true);
         }
       },
       { rootMargin: "120px" },
@@ -120,9 +159,13 @@ export const SceneStage = memo(function SceneStage({
   }, []);
   const action = useCallback(() => {
     setInteracted(true);
+    if (immersive && kind === "VII" && onDocumentAction) {
+      onDocumentAction();
+      return;
+    }
     if (kind === "letter") onOpen?.();
     else setActive((a) => !a);
-  }, [kind, onOpen]);
+  }, [kind, onOpen, immersive, onDocumentAction]);
   const value = immersive
     ? !!(page % 2)
     : kind === "letter"
@@ -130,12 +173,88 @@ export const SceneStage = memo(function SceneStage({
       : kind === "I"
         ? active !== !!(page % 2)
         : active;
-  const render3d = available && visible && !simple;
-  const reduced = still || systemReduced;
+  const wants3d = available && visible && !simple && !timedOut;
+  const render3d =
+    wants3d &&
+    (!immersive ||
+      !chapterOrder.includes(kind as ChapterId) ||
+      readyKind !== null ||
+      checkedKind === kind);
+  useEffect(() => {
+    if (!wants3d || render3d) return;
+    const controller = new AbortController();
+    // Missing initial heroes should fail before allocating a renderer and compiling its lighting.
+    const path = chapterScenes[kind]?.criticalAssets[0];
+    if (!path) return;
+    void fetch(path, { method: "HEAD", signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error("Critical scene asset unavailable");
+        if (!controller.signal.aborted) setCheckedKind(kind);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) failure();
+      });
+    return () => controller.abort();
+  }, [wants3d, render3d, kind, failure]);
+  useEffect(() => {
+    if (!visible) return;
+    const announce = () => {
+      if (!announced.current) {
+        announced.current = true;
+        onPresentationReady?.(true);
+      }
+    };
+    if (ready || (probed && (!available || simple))) {
+      const frame = requestAnimationFrame(announce);
+      return () => cancelAnimationFrame(frame);
+    }
+    const limit = setTimeout(
+      () => {
+        // Frame callbacks precede React's commit: never tear down a frame already drawn.
+        if (frameKind.current === kind) {
+          announce();
+          return;
+        }
+        if (immersive && readyKind !== null && resourceKind.current === kind) {
+          // A live chapter has loaded its hero but a slow GPU is still crossing the cut.
+          // Settle the camera immediately, keeping this renderer and the owned resources.
+          setSlowChapter(kind);
+          setLimited(true);
+          return;
+        }
+        setTimedOut(true);
+        announce();
+      },
+      manualSelection ? 12000 : 4000,
+    );
+    return () => clearTimeout(limit);
+  }, [
+    ready,
+    visible,
+    probed,
+    available,
+    simple,
+    manualSelection,
+    onPresentationReady,
+    kind,
+    immersive,
+    readyKind,
+  ]);
+  useEffect(() => {
+    if (render3d) return;
+    container.current
+      ?.closest<HTMLElement>(".cinema")
+      ?.style.removeProperty("--document-left");
+    const frame = requestAnimationFrame(() => onJourney?.(false));
+    return () => cancelAnimationFrame(frame);
+  }, [kind, render3d, onJourney]);
+  const reduced = still || systemReduced || slowChapter === kind;
   return (
     <section
       className={`study-scene study-${kind} ${immersive ? "study-immersive" : ""} ${reduced ? "reduce-scene" : ""}`}
       aria-label={`Cena: ${config.title}`}
+      data-essential-assets-ready={ready || !render3d ? "true" : "false"}
+      data-first-frame-ready={ready || (!render3d && probed) ? "true" : "false"}
       data-scene={kind}
       data-renderer={render3d && ready ? "3d" : "2.5d"}
       data-motion={reduced ? "reduced" : "cinematic"}
@@ -181,6 +300,8 @@ export const SceneStage = memo(function SceneStage({
                 turnDirection={turnDirection}
                 turning={turning}
                 limited={limited}
+                opening={opening}
+                open={open}
                 onJourney={onJourney}
               />
             </SceneBoundary>
@@ -207,22 +328,54 @@ export const SceneStage = memo(function SceneStage({
           <button
             type="button"
             className="text-button scene-skip"
-            aria-pressed={reduced}
             onClick={() => {
               setStill(true);
               onSkip?.();
             }}
           >
-            Pular animação / reduzir movimento
+            Pular animações
+          </button>
+          <button
+            type="button"
+            className="text-button"
+            aria-pressed={still}
+            onClick={() => {
+              const next = !still;
+              setStill(next);
+              try {
+                localStorage.setItem(
+                  "hogwarts-motion",
+                  next ? "reduced" : "cinematic",
+                );
+              } catch {}
+            }}
+          >
+            Reduzir movimento
           </button>
           {available && (
             <button
               type="button"
               className="text-button"
-              aria-pressed={simple}
-              onClick={() => setSimple((s) => !s)}
+              aria-pressed={simple || timedOut}
+              onClick={() => {
+                const light = simple || timedOut;
+                frameKind.current = null;
+                resourceKind.current = null;
+                setReadyKind(null);
+                setCheckedKind(null);
+                setSlowChapter(null);
+                setManualSelection(true);
+                setTimedOut(false);
+                setSimple(!light);
+                try {
+                  localStorage.setItem(
+                    "hogwarts-scene",
+                    light ? "3d" : "light",
+                  );
+                } catch {}
+              }}
             >
-              {simple ? "Ativar cenário 3D" : "Usar cenário leve"}
+              {simple || timedOut ? "Ativar cenário 3D" : "Usar cenário leve"}
             </button>
           )}
         </div>

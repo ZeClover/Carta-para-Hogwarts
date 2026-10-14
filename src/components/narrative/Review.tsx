@@ -25,13 +25,21 @@ function statusText(value: unknown, status: string) {
 }
 import { SceneStage } from "../scenes/SceneStage";
 export function Review() {
-  const { player, change, saveNow } = usePlayer();
+  const { player, origin, status, change, saveNow } = usePlayer();
   const [sheet, setSheet] = useState(0);
   const [editing, setEditing] = useState<Hook | null>(null);
   const [error, setError] = useState("");
   const [complete, setComplete] = useState(false);
   const [noOpen, setNoOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  if (origin === "recovery-error")
+    return (
+      <section className="paper">
+        <h1>Recuperar sua história</h1>
+        <p role="alert">{status}</p>
+        <PlayerTools />
+      </section>
+    );
   if (!player)
     return (
       <p className="paper" role="status">

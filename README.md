@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Rotas: `/` (carta), `/experiencia` (criação cinematográfica fullscreen), `/criar/I` a `/criar/VII` (editores compatíveis), `/revisao` (revisão/exportação), `/mestre` (arquivo local do Mestre).
+Rotas: `/` (entrada automática e retomada), `/experiencia` (criação cinematográfica fullscreen), `/criar/I` a `/criar/VII` (editores compatíveis), `/revisao` (revisão/exportação), `/mestre` (arquivo local do Mestre).
 
 ```sh
 npm run lint
@@ -25,7 +25,7 @@ Neste ambiente, o Chromium já está instalado. Em outra máquina, use `npx play
 
 ## Funcionalidades
 
-- Carta com lacre, abertura por teclado, movimento reduzido e foco no próximo passo.
+- Carta com lacre, abertura automática silenciosa, opção de pular pelo teclado e movimento reduzido.
 - Experiência fullscreen com sete composições cinematográficas, campos HTML acessíveis, cartas, álbum, espelho, mapa celeste e arquivo pessoal; retomada da pergunta salva e navegação entre capítulos. Veja [experiência cinematográfica](docs/EXPERIENCIA.md).
 - 61 perguntas principais, seleção de família, extensões contextuais e cenas 3D procedurais com alternativa interativa 2.5D.
 - Perguntas opcionais, estados explícitos de resposta, relações e objetos reutilizáveis.
@@ -42,7 +42,7 @@ O JSON final contém as respostas e limites que você escolheu compartilhar com 
 
 `/mestre` não tem autenticação. Quem usar o mesmo perfil do navegador poderá acessar as importações; um visitante em outro dispositivo verá o arquivo vazio. Uma futura versão com dados em servidor exigirá autenticação e autorização reais.
 
-Emblema e objetos interativos são arte original em Three.js e SVG. O escritório inclui cinco modelos CC0 e uma fotografia de paisagem CC0 do Poly Haven, otimizados e servidos localmente, com fontes no manifesto; sem assets oficiais ou scraping. Veja [cenários e fontes](docs/CENARIOS.md). Animações respeitam `prefers-reduced-motion` e podem ser puladas. Som e WebGL não são necessários para usar o aplicativo.
+Emblema e objetos interativos são arte original em Three.js e SVG. O acervo inclui seis modelos CC0 e uma fotografia de paisagem CC0 do Poly Haven, além de sete protagonistas novos/reconstruídos por scripts Blender e pôsteres dos próprios cenários, otimizados e servidos localmente, com fontes no manifesto; sem assets oficiais ou scraping. Veja [cenários e fontes](docs/CENARIOS.md). Animações respeitam `prefers-reduced-motion` e podem ser puladas. Som e WebGL não são necessários para usar o aplicativo.
 
 A especificação integral contém referências reservadas e fica fora do checkout. Nunca copie essa fonte, fichas reais, backups privados ou valores de credenciais para `src`, `public`, fixtures, logs ou variáveis `NEXT_PUBLIC_`.
 

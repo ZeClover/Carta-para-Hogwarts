@@ -178,7 +178,7 @@ test("famílias não determinam criação e todos os capítulos têm as pergunta
     for (const question of chapters[id].questions)
       await expect(page.locator(`#${question.id}-title`)).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Pular animação / reduzir movimento" }),
+      page.getByRole("button", { name: "Pular animações" }),
     ).toBeVisible();
   }
   await page.goto("/criar/INVALID");
@@ -415,9 +415,7 @@ test("acessibilidade da carta, capítulo narrativo, revisão e arquivo vazio", a
   page,
 }) => {
   await page.goto("/");
-  await page
-    .getByRole("button", { name: "Pular animação / reduzir movimento" })
-    .click();
+  await page.getByRole("button", { name: "Pular animações" }).click();
   let result = await new AxeBuilder({ page }).analyze();
   expect(result.violations).toEqual([]);
   for (const path of [

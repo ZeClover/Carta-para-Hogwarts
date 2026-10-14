@@ -3,10 +3,9 @@ test("abre a carta, salva três folhas e recupera o registro após reload", asyn
   page,
 }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Abrir a carta de Hogwarts" }).click();
-  await expect(
-    page.getByRole("link", { name: "Preencher meu registro" }),
-  ).toHaveAttribute("href", "/experiencia");
+  await expect(page.getByLabel("Nome completo", { exact: true })).toBeVisible({
+    timeout: 10000,
+  });
   await page.goto("/criar/I");
   await page.getByLabel("Nome completo").fill("Eleanor Whitmore");
   await page.getByLabel("Data de nascimento").fill("1879-03-15");
@@ -44,12 +43,8 @@ test("abre a carta, salva três folhas e recupera o registro após reload", asyn
 test("validação, data excepcional e animação reduzida", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await page
-    .getByRole("button", { name: "Pular animação / reduzir movimento" })
-    .click();
-  await expect(
-    page.getByRole("link", { name: "Preencher meu registro" }),
-  ).toHaveAttribute("href", "/experiencia");
+  await page.getByRole("button", { name: "Pular animações" }).click();
+  await expect(page.getByLabel("Nome completo", { exact: true })).toBeVisible();
   await page.goto("/criar/I");
   await page.getByRole("button", { name: "Folha 3: Seu retrato" }).click();
   await page
@@ -114,7 +109,7 @@ test("restaura um backup legado e rejeita arquivo inválido sem apagar respostas
     "Registro restaurado",
   );
 });
-test("falha de armazenamento é explícita e ainda permite baixar uma cópia", async ({
+test("falha de armazenamento é explícita e oferece recuperação sem criar outro registro", async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -128,10 +123,8 @@ test("falha de armazenamento é explícita e ainda permite baixar uma cópia", a
   await expect(
     page.getByText(/Nenhum dado existente foi substituído/),
   ).toBeVisible();
-  await page.getByLabel("Nome completo").fill("Ainda posso preservar");
-  const download = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Baixar backup completo" }).click();
-  expect((await download).suggestedFilename()).toContain("backup.json");
+  await expect(page.getByLabel("Nome completo")).toHaveCount(0);
+  await expect(page.getByLabel("Restaurar backup completo")).toBeVisible();
 });
 test("abre pelo teclado, transfere foco e não depende de animações", async ({
   page,
@@ -141,9 +134,10 @@ test("abre pelo teclado, transfere foco e não depende de animações", async ({
   await expect(
     page.getByRole("link", { name: "Pular para o conteúdo" }),
   ).toBeFocused();
-  await page.getByRole("button", { name: "Abrir a carta de Hogwarts" }).focus();
+  await page.getByRole("button", { name: "Pular abertura" }).focus();
   await page.keyboard.press("Enter");
+  await expect(page.getByLabel("Nome completo", { exact: true })).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Preencher meu registro" }),
-  ).toBeFocused();
+    page.getByLabel("Nome completo", { exact: true }),
+  ).not.toBeFocused();
 });

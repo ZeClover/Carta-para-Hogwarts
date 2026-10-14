@@ -1,8 +1,10 @@
+import posters from "./redesign-posters.json";
+import rebuilt from "./redesign-assets.json";
 import memory from "./memory-asset.json";
 import imported from "./generated-assets.json";
 /** Sources of shipped CC0 assets and original interactive geometry. */
 export const assetsManifest = {
-  version: "2.0",
+  version: "3.0",
   author: "Carta para Hogwarts — projeto",
   source: "Geometria paramétrica Three.js e ilustração SVG criadas no projeto",
   license:
@@ -22,6 +24,8 @@ export const assetsManifest = {
     "Pergaminhos e baú procedurais",
     "Relógio de lareira CC0",
   ],
+  rebuilt,
+  posters,
   imported: [...imported, memory],
   externalSources: [
     {
@@ -31,7 +35,7 @@ export const assetsManifest = {
       apiTermsUrl:
         "https://github.com/Poly-Haven/Public-API/blob/master/ToS.md",
       status:
-        "Cinco modelos CC0 importados após liberação da rede; arquivos e checksums oficiais conferidos. Texturas até 1K (relógio 512px), GLBs locais.",
+        "Seis modelos CC0 importados após liberação da rede; arquivos e checksums oficiais conferidos. Texturas até 1K (relógio 512px), GLBs locais.",
     },
   ],
 } as const;

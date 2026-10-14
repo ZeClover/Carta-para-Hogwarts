@@ -14,6 +14,7 @@ import { loadStory, saveStory } from "@/lib/local-store";
 export type Player = { draft: Draft; story: Story };
 type PlayerContext = {
   player: Player | null;
+  origin: "loading" | "new" | "restored" | "recovery-error";
   status: string;
   storageError: boolean;
   change: (edit: (p: Player) => Player) => void;
@@ -25,6 +26,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [player, setPlayer] = useState<Player | null>(null);
   const [status, setStatus] = useState("Carregando sua história…");
   const [storageError, setStorageError] = useState(false);
+  const [origin, setOrigin] = useState<PlayerContext["origin"]>("loading");
+  const recoveryBlocked = useRef(false);
   const latest = useRef<Player | null>(null);
   const dirty = useRef(false);
   const change = useCallback((edit: (p: Player) => Player) => {
@@ -36,6 +39,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     setStatus("Mudanças pendentes de salvamento…");
   }, []);
   const replace = useCallback((next: Player) => {
+    recoveryBlocked.current = false;
+    setOrigin("restored");
     latest.current = next;
     dirty.current = true;
     setPlayer(next);
@@ -43,7 +48,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   }, []);
   const saveNow = useCallback(async () => {
     const current = latest.current;
-    if (!current) return false;
+    if (!current || recoveryBlocked.current) return false;
     try {
       await saveDraft(current.draft);
       await saveStory(current.story);
@@ -69,6 +74,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         const next = { draft, story };
         latest.current = next;
         setPlayer(next);
+        setOrigin(value ? "restored" : "new");
         setStatus(
           value
             ? "História recuperada deste navegador."
@@ -77,10 +83,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       })
       .catch(() => {
         if (!active) return;
-        const draft = createDraft();
-        const next = { draft, story: createStory(draft.id) };
-        latest.current = next;
-        setPlayer(next);
+        recoveryBlocked.current = true;
+        setOrigin("recovery-error");
         setStorageError(true);
         setStatus(
           "Não foi possível recuperar sua história. Nenhum dado existente foi substituído.",
@@ -121,7 +125,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   }, [saveNow, storageError]);
   return (
     <Context.Provider
-      value={{ player, status, storageError, change, saveNow, replace }}
+      value={{ player, origin, status, storageError, change, saveNow, replace }}
     >
       {children}
     </Context.Provider>

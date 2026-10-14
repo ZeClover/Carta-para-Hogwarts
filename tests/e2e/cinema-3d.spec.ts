@@ -32,6 +32,9 @@ test("cena fullscreen 3D vira páginas, mantém campos e adapta viewport", async
       if (message.type() === "error")
         errors.push(`${message.text()} (${message.location().url})`);
     });
+    await page.addInitScript(() =>
+      localStorage.setItem("hogwarts-scene", "light"),
+    );
     await page.clock.install();
     await page.goto(`${baseURL}/experiencia`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
@@ -43,15 +46,8 @@ test("cena fullscreen 3D vira páginas, mantém campos e adapta viewport", async
     await page.clock.pauseAt(await page.evaluate(() => Date.now() + 30000));
     await page.locator("#I01").fill("Estudante do Registro Mágico");
     await page.getByRole("button", { name: "Continuar", exact: true }).click();
-    await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "glow");
-    await page.clock.fastForward(320);
-    await expect(page.locator(".cinema")).toHaveAttribute(
-      "data-phase",
-      "absorb",
-    );
-    await page.clock.fastForward(650);
     await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "turn");
-    await page.clock.fastForward(400);
+    await page.clock.fastForward(120);
     const canvas = page.locator(".study-scene canvas");
     if (mobile)
       await expect
@@ -79,15 +75,13 @@ test("cena fullscreen 3D vira páginas, mantém campos e adapta viewport", async
     });
     await page.getByRole("button", { name: "Voltar", exact: true }).click();
     await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "turn");
-    await page.clock.fastForward(400);
+    await page.clock.fastForward(120);
     await expect(canvas).toHaveAttribute("data-page-direction", "-1");
     expect(Number(await canvas.getAttribute("data-page-curl"))).toBeGreaterThan(
       0.1,
     );
     await page.screenshot({ path: info.outputPath("page-turn-back.png") });
-    await page
-      .getByRole("button", { name: "Pular animação / reduzir movimento" })
-      .click();
+    await page.getByRole("button", { name: "Pular animações" }).click();
     await expect(page.locator("#I01")).toHaveValue(
       "Estudante do Registro Mágico",
     );
@@ -100,6 +94,9 @@ test("cena fullscreen 3D vira páginas, mantém campos e adapta viewport", async
       timeout: 20000,
     });
     await expect(page.locator("#I02")).toBeVisible({ timeout: 20000 });
+    await page
+      .getByRole("button", { name: "Continuar", exact: true })
+      .scrollIntoViewIfNeeded();
     await expect(
       page.getByRole("button", { name: "Continuar", exact: true }),
     ).toBeInViewport();

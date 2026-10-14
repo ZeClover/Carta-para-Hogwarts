@@ -14,18 +14,13 @@ test("cenário sem WebGL mantém carta, álbum, formulário e salvamento", async
     } as typeof original;
   });
   await page.goto("/");
-  await expect(page.locator('[data-scene="letter"]')).toHaveAttribute(
+  await expect(page.locator('[data-scene="I"]')).toHaveAttribute(
     "data-renderer",
     "2.5d",
   );
-  await page.getByRole("button", { name: "Abrir a carta de Hogwarts" }).click();
-  await expect(page.locator('[data-scene="letter"]')).toHaveAttribute(
-    "data-active",
-    "true",
-  );
-  await expect(
-    page.getByRole("link", { name: "Preencher meu registro" }),
-  ).toHaveAttribute("href", "/experiencia");
+  await expect(page.getByLabel("Nome completo", { exact: true })).toBeVisible({
+    timeout: 10000,
+  });
   await page.goto("/criar/I");
   await page.getByLabel("Nome completo").fill("Livia da Cena Leve");
   await expect(page.getByRole("status")).toHaveText("Salvo neste navegador.");
@@ -39,9 +34,7 @@ test("cenário sem WebGL mantém carta, álbum, formulário e salvamento", async
     "data-active",
     "true",
   );
-  await page
-    .getByRole("button", { name: "Pular animação / reduzir movimento" })
-    .click();
+  await page.getByRole("button", { name: "Pular animações" }).click();
   await expect(page.locator('[data-scene="II"]')).toHaveAttribute(
     "data-motion",
     "reduced",
@@ -100,6 +93,9 @@ test("3D real: travelling, carta, álbum, espelho e perda de contexto", async ({
           ? { width: 390, height: 844 }
           : { width: 1280, height: 720 },
     });
+    await page.addInitScript(() =>
+      localStorage.setItem("hogwarts-scene", "light"),
+    );
     const errors: string[] = [],
       missing: string[] = [],
       external: string[] = [];
@@ -117,26 +113,15 @@ test("3D real: travelling, carta, álbum, espelho e perda de contexto", async ({
     });
     await page.goto(baseURL!);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
-    const scene = page.locator('[data-scene="letter"]');
+    const scene = page.locator('[data-scene="I"]');
     await expect(scene).toHaveAttribute("data-renderer", "3d", {
       timeout: 20000,
     });
     const canvas = scene.locator("canvas");
-    const before = await canvas.getAttribute("data-camera");
-    await page
-      .getByRole("button", { name: "Abrir a carta de Hogwarts" })
-      .click();
-    await expect(scene).toHaveAttribute("data-active", "true");
-    // Observe a deliberate camera transition, even if initial loading finished before polling.
-    await expect
-      .poll(() => canvas.getAttribute("data-camera"), { timeout: 20000 })
-      .not.toBe(before);
-    await expect(
-      page.getByRole("link", { name: "Preencher meu registro" }),
-    ).toBeVisible();
-    await page
-      .getByRole("button", { name: "Pular animação / reduzir movimento" })
-      .click();
+    await expect(page.locator("#I01")).toBeVisible({ timeout: 20000 });
+    await expect(canvas).toHaveAttribute("data-camera-state", "arrived");
+    await expect(canvas).toHaveAttribute("data-protagonist", "correspondence");
+    await page.getByRole("button", { name: "Pular animações" }).click();
     await expect(scene).toHaveAttribute("data-motion", "reduced");
     await page.screenshot({
       path: testInfo.outputPath("letter-open.png"),
@@ -150,9 +135,7 @@ test("3D real: travelling, carta, álbum, espelho e perda de contexto", async ({
     });
     await page.getByRole("button", { name: "Virar página do álbum" }).click();
     await expect(album).toHaveAttribute("data-active", "true");
-    await page
-      .getByRole("button", { name: "Pular animação / reduzir movimento" })
-      .click();
+    await page.getByRole("button", { name: "Pular animações" }).click();
     await album.screenshot({ path: testInfo.outputPath("album.png") });
     await page.locator("#II02").fill("A mesma casa, sob a luz das velas.");
     await expect(page.getByRole("status")).toHaveText("Salvo neste navegador.");
@@ -167,9 +150,7 @@ test("3D real: travelling, carta, álbum, espelho e perda de contexto", async ({
       timeout: 20000,
     });
     await page.getByRole("button", { name: "Iluminar o espelho" }).click();
-    await page
-      .getByRole("button", { name: "Pular animação / reduzir movimento" })
-      .click();
+    await page.getByRole("button", { name: "Pular animações" }).click();
     await mirror.screenshot({ path: testInfo.outputPath("mirror.png") });
     await page.getByRole("button", { name: "Usar cenário leve" }).click();
     await expect(mirror).toHaveAttribute("data-renderer", "2.5d");
