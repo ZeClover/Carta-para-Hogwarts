@@ -32,6 +32,8 @@ type Props = {
   still: boolean;
   onAction: () => void;
   onJourney?: (moving: boolean) => void;
+  onPhotoSelect?: (id: string) => void;
+  selectedPhoto?: string;
   onFailure: () => void;
   onReady: (phase?: "assets") => void;
 };

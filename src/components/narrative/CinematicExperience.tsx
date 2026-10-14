@@ -17,6 +17,7 @@ import { QuestionField } from "./QuestionField";
 import { FamilySelector } from "./FamilySelector";
 import { HookEditor, HookCard } from "./HookEditor";
 import { PlayerStatus, PlayerTools } from "./PlayerTools";
+import { PhotoNavigation } from "./PhotoNavigation";
 
 export const experienceSteps = chapterIds.flatMap((chapter) => [
   ...(chapter === "I"
@@ -238,6 +239,7 @@ function Experience({
         }
       : original;
   const review = step.id.endsWith("-review");
+  const archiveLoading = chapter === "VII" && !presentationReady;
   function editStory(edit: (s: Story) => Story) {
     change((p) => ({
       ...p,
@@ -448,6 +450,22 @@ function Experience({
     transitionTimeline.current.to({}, { duration });
   }
   const family = families.find((f) => f.id === story.family.catalogId);
+  function selectPhoto(id: string) {
+    if (
+      busy.current ||
+      travelling ||
+      intro ||
+      archiveLoading ||
+      phase !== "idle"
+    )
+      return;
+    const target = experienceSteps.findIndex(
+      (s) => s.chapter === "VII" && s.id === id,
+    );
+    if (target < 0) return;
+    if (target === index) heading.current?.focus({ preventScroll: true });
+    else void move(target);
+  }
   return (
     <main
       ref={root}
@@ -456,14 +474,19 @@ function Experience({
       data-phase={phase}
       data-entry={intro ? "opening" : "reading"}
       data-storage-ready="true"
+      data-archive-loading={archiveLoading ? "true" : "false"}
       data-interaction-ready={
-        !intro && !travelling && phase === "idle" ? "true" : "false"
+        !intro && !travelling && !archiveLoading && phase === "idle"
+          ? "true"
+          : "false"
       }
       data-chapter={chapter}
       data-travelling={travelling ? "true" : "false"}
-      aria-busy={travelling || phase !== "idle"}
+      aria-busy={archiveLoading || travelling || phase !== "idle"}
     >
       <SceneStage
+        selectedPhoto={step.id}
+        onPhotoSelect={selectPhoto}
         onDocumentAction={() => {
           if (busy.current || travelling || intro) return;
           const editor = heading.current?.querySelector(
@@ -507,6 +530,19 @@ function Experience({
       )}
       <div className="chapter-cover" aria-hidden="true" />
       <div className="cinema-scrim" aria-hidden="true" />
+      {archiveLoading && (
+        <p className="entry-readiness" role="status">
+          Preparando a caixa de fotografias…
+        </p>
+      )}
+      {chapter === "VII" && (
+        <PhotoNavigation
+          overlay
+          selected={step.id}
+          disabled={archiveLoading || intro || travelling || phase !== "idle"}
+          onSelect={selectPhoto}
+        />
+      )}
       <header className="cinema-header">
         <div>
           <p className="eyebrow">Hogwarts · 1890 · Capítulo {chapter}</p>
@@ -519,7 +555,9 @@ function Experience({
           Sair e continuar depois
         </button>
       </header>
-      <DocumentSurface inactive={intro || travelling || phase !== "idle"}>
+      <DocumentSurface
+        inactive={archiveLoading || intro || travelling || phase !== "idle"}
+      >
         <div
           ref={heading}
           tabIndex={-1}
@@ -528,9 +566,16 @@ function Experience({
           aria-label={`Página ${step.id}`}
         >
           <fieldset
-            disabled={intro || travelling || phase !== "idle"}
+            disabled={archiveLoading || intro || travelling || phase !== "idle"}
             className="cinema-fields"
           >
+            {chapter === "VII" && (
+              <PhotoNavigation
+                selected={step.id}
+                disabled={intro || travelling || phase !== "idle"}
+                onSelect={selectPhoto}
+              />
+            )}
             {admission && (
               <section className="question-block">
                 <h2 id={`${step.id}-title`}>
@@ -771,14 +816,22 @@ function Experience({
           <div className="cinema-actions">
             <button
               className="button secondary"
-              disabled={intro || travelling || index === 0 || phase !== "idle"}
+              disabled={
+                archiveLoading ||
+                intro ||
+                travelling ||
+                index === 0 ||
+                phase !== "idle"
+              }
               onClick={() => void move(index - 1)}
             >
               Voltar
             </button>
             <button
               className="button"
-              disabled={intro || travelling || phase !== "idle"}
+              disabled={
+                archiveLoading || intro || travelling || phase !== "idle"
+              }
               onClick={() => void move(index + 1, true)}
             >
               {review

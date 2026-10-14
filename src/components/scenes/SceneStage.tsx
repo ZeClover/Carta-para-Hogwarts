@@ -46,7 +46,11 @@ export const SceneStage = memo(function SceneStage({
   opening = false,
   onPresentationReady,
   onDocumentAction,
+  onPhotoSelect,
+  selectedPhoto,
 }: {
+  onPhotoSelect?: (id: string) => void;
+  selectedPhoto?: string;
   onDocumentAction?: () => void;
   opening?: boolean;
   onPresentationReady?: (ready: boolean) => void;
@@ -62,7 +66,14 @@ export const SceneStage = memo(function SceneStage({
   page?: number;
   onSkip?: () => void;
 }) {
-  const config = sceneConfig[kind];
+  const config =
+    immersive && kind === "VII"
+      ? {
+          ...sceneConfig[kind],
+          title: "A caixa de fotografias",
+          caption: "Fotografias por preencher. Você escolhe o que guardar.",
+        }
+      : sceneConfig[kind];
   const [active, setActive] = useState(false),
     [still, setStill] = useState(false),
     [systemReduced, setSystemReduced] = useState(false);
@@ -303,6 +314,8 @@ export const SceneStage = memo(function SceneStage({
                 opening={opening}
                 open={open}
                 onJourney={onJourney}
+                onPhotoSelect={onPhotoSelect}
+                selectedPhoto={selectedPhoto}
               />
             </SceneBoundary>
           </div>
@@ -381,19 +394,27 @@ export const SceneStage = memo(function SceneStage({
         </div>
         <p className="scene-renderer-note">
           {render3d && ready ? "Cenário 3D interativo" : "Cenário leve 2.5D"} ·
-          Arte original e modelos CC0
+          {immersive && kind === "VII"
+            ? "Caixa de fotografias · modelo fornecido"
+            : "Arte original e modelos CC0"}
         </p>
         <p className="sr-only" aria-live="polite">
           {interacted ? config.result : ""}
         </p>
-        <a
-          className="scene-source-credit"
-          href="https://polyhaven.com"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by Poly Haven
-        </a>
+        {immersive && kind === "VII" ? (
+          <span className="scene-source-credit">
+            Modelo fornecido ao projeto
+          </span>
+        ) : (
+          <a
+            className="scene-source-credit"
+            href="https://polyhaven.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Powered by Poly Haven
+          </a>
+        )}
         {kind === "final" && label && (
           <p className="personal-book-label">Livro de {label}</p>
         )}

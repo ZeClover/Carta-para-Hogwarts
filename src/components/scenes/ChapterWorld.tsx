@@ -14,6 +14,8 @@ import { ChapterModel } from "./ChapterModel";
 import { LibraryModel } from "./LibraryModel";
 import { EnchantedBook } from "./EnchantedBook";
 import { createPageGeometry, deformPage } from "./pageGeometry";
+import { PhotoBox } from "./PhotoBox";
+import { PhotoBoxPlayback } from "./photoBoxMotion";
 
 type Props = {
   onReady?: (phase?: "assets") => void;
@@ -29,6 +31,9 @@ type Props = {
   limited?: boolean;
   onAction: () => void;
   onJourney?: (moving: boolean) => void;
+  onPhotoSelect?: (id: string) => void;
+  selectedPhoto?: string;
+  archivePlayback?: PhotoBoxPlayback;
 };
 function useSurface(kind: "wood" | "wall" | "letter" | "paper") {
   const map = useMemo(() => {
@@ -584,13 +589,11 @@ function Protagonist({ chapter, ...props }: Props & { chapter: ChapterId }) {
       </>
     );
   return (
-    <ReactiveHero
-      chapter="VII"
-      onAction={onAction}
+    <PhotoBox
+      playback={props.archivePlayback!}
       onReady={props.onReady}
-      turning={turning}
-      still={still}
-      scale={1.35}
+      onSelect={props.onPhotoSelect}
+      selected={props.selectedPhoto}
     />
   );
 }
@@ -641,6 +644,7 @@ function Bay({ chapter, props }: { chapter: ChapterId; props: Props }) {
   );
 }
 export function ChapterWorld(props: Props) {
+  const archivePlayback = useMemo(() => new PhotoBoxPlayback(), []);
   const { still } = props;
   const chapter = chapterOrder.includes(props.kind as ChapterId)
       ? (props.kind as ChapterId)
@@ -703,6 +707,7 @@ export function ChapterWorld(props: Props) {
           chapter={c}
           props={{
             ...props,
+            archivePlayback,
             onReady: c === chapter ? props.onReady : undefined,
             turning: c === chapter && props.turning,
             turnSerial: c === chapter ? props.turnSerial : 0,
@@ -720,6 +725,7 @@ export function ChapterWorld(props: Props) {
         still={props.still}
         turning={props.turning}
         onJourney={props.onJourney}
+        archivePlayback={archivePlayback}
       />
     </>
   );

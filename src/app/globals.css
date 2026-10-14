@@ -2768,6 +2768,85 @@ body:has(.cinema) > footer {
   position: absolute;
   inset: 0;
 }
+
+/* The archive opening stays visible; its document waits until the hinge settles. */
+.cinema[data-chapter="VII"][data-travelling="true"] .chapter-cover {
+  opacity: 0;
+}
+.cinema[data-archive-loading="true"] .cinema-document-layout {
+  opacity: 0;
+  pointer-events: none;
+}
+.photo-hotspots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  display: none;
+}
+.cinema:has(.study-scene[data-renderer="3d"]) .photo-hotspots {
+  display: block;
+}
+.photo-hotspots button {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #dacba288;
+  border-radius: 50%;
+  color: #fff2cf;
+  background: #3c302adc;
+  box-shadow: 0 2px 12px #201a1640;
+  cursor: pointer;
+  font-family: Georgia, serif;
+}
+.photo-hotspots button:is(:hover, [aria-current="step"]),
+.photo-index button:is(:hover, [aria-current="step"]) {
+  outline: 2px solid #9b743d;
+  outline-offset: 2px;
+}
+.photo-hotspots button:focus-visible,
+.photo-index button:focus-visible {
+  outline: 3px solid #6952c2;
+  outline-offset: 3px;
+}
+.photo-index {
+  margin: 0 0 22px;
+}
+.photo-index p {
+  font-size: 0.88rem;
+  color: var(--muted-ink);
+  margin: 0 0 10px;
+}
+.photo-index > div {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(44px, 1fr));
+  gap: 8px;
+}
+.photo-index button {
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid #a18c6a;
+  color: #493528;
+  background: #f2e8d1;
+  box-shadow: inset 0 0 0 4px #e4d6b7;
+  font-family: Georgia, serif;
+  cursor: pointer;
+}
+.photo-index button:disabled {
+  cursor: default;
+}
+@media (max-width: 350px) {
+  .photo-index > div {
+    grid-template-columns: repeat(4, minmax(44px, 1fr));
+  }
+}
+@media (max-width: 700px), (max-height: 500px) {
+  .cinema:has(.study-scene[data-renderer="3d"]) .photo-hotspots {
+    display: none;
+  }
+}
 .chapter-poster {
   background-position: center;
   background-size: cover;

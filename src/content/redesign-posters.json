@@ -36,15 +36,6 @@
     "license": "Same licenses as the chapter model and credited assets"
   },
   {
-    "chapter": "VII",
-    "device": "desktop",
-    "path": "/assets/redesign/poster-vii-desktop-4ef0b9551ab8.webp",
-    "bytes": 25734,
-    "sha256": "4ef0b9551ab8d92d9a27f469934100806e3fbb140155ee9515b8003190a7ae9b",
-    "source": "Local production scene capture; same chapter models and camera",
-    "license": "Same licenses as the chapter model and credited assets"
-  },
-  {
     "chapter": "II",
     "device": "mobile",
     "path": "/assets/redesign/poster-ii-mobile-fba389a0f838.webp",
@@ -81,15 +72,6 @@
     "license": "Same licenses as the chapter model and credited assets"
   },
   {
-    "chapter": "VII",
-    "device": "mobile",
-    "path": "/assets/redesign/poster-vii-mobile-5512062153bf.webp",
-    "bytes": 4376,
-    "sha256": "5512062153bf38cef91f73a57a6708ed79a412270f77e086298a0dca9567f8f9",
-    "source": "Local production scene capture; same chapter models and camera",
-    "license": "Same licenses as the chapter model and credited assets"
-  },
-  {
     "chapter": "I",
     "device": "desktop",
     "path": "/assets/redesign/poster-i-desktop-735dbf52042f.webp",
@@ -122,6 +104,24 @@
     "path": "/assets/redesign/poster-v-mobile-8a1b2845cb9b.webp",
     "bytes": 5390,
     "sha256": "8a1b2845cb9b14ff4ccaa8a49eacb537cdc60e603e7c7e22782e24beab143127",
+    "source": "Local production scene capture; same chapter models and camera",
+    "license": "Same licenses as the chapter model and credited assets"
+  },
+  {
+    "chapter": "VII",
+    "device": "desktop",
+    "path": "/assets/redesign/poster-vii-desktop-5347416816c4.webp",
+    "bytes": 33200,
+    "sha256": "5347416816c41e886f6dc73caef2af8ff8b6a14641ee1429c7a1bce3c4528bfa",
+    "source": "Local production scene capture; same chapter models and camera",
+    "license": "Same licenses as the chapter model and credited assets"
+  },
+  {
+    "chapter": "VII",
+    "device": "mobile",
+    "path": "/assets/redesign/poster-vii-mobile-f4edeceac83d.webp",
+    "bytes": 6644,
+    "sha256": "f4edeceac83dc2c49f85697c4776ba29d18d9803c1c8c38cf6860fdc47bb80f1",
     "source": "Local production scene capture; same chapter models and camera",
     "license": "Same licenses as the chapter model and credited assets"
   }

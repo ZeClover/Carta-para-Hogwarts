@@ -1,6 +1,7 @@
 import { chapterDirection, chapterOrder } from "./chapterDirection";
 import posters from "@/content/redesign-posters.json";
 import assets from "@/content/redesign-assets.json";
+import photoBox from "@/content/photo-box.json";
 /** Presentation-only manifest. It contains no questions, answers or narrative conditions. */
 export const chapterScenes = Object.fromEntries(
   chapterOrder.map((id) => {
@@ -9,7 +10,11 @@ export const chapterScenes = Object.fromEntries(
       id,
       {
         heroId: `chapter-${id.toLowerCase()}`,
-        criticalAssets: [assets.find((a) => a.chapter === id)!.path],
+        criticalAssets: [
+          id === "VII"
+            ? photoBox.path
+            : assets.find((a) => a.chapter === id)!.path,
+        ],
         optionalAssets:
           id === "II"
             ? [

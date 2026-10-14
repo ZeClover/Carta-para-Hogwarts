@@ -6,17 +6,17 @@ A abertura é silenciosa e automática para um registro novo: envelope, aba arti
 
 ## Objetos e composições
 
-| Capítulo | Novo trabalho tridimensional                                                                      | Documento                     |
-| -------- | ------------------------------------------------------------------------------------------------- | ----------------------------- |
-| I        | Envelope de papel com espessura, dobras, lacre irregular em relevo; aba e folha animadas          | Carta marfim                  |
-| II       | Pranchas de couro, tecido, lombada costurada e cantoneiras; preserva a folha deformável existente | Álbum; uma página no celular  |
-| III      | Tinteiro, pena e papel subdividido curvo; gesto abstrato curto                                    | Cartão de relato claro        |
-| IV       | Caixilho profundo, perfis, vidraças com chumbo e peitoril; correspondência em primeiro plano      | Correspondência               |
-| V        | Nova moldura Poly Haven 02 convertida em espelho, vidro prateado e base modelada                  | Pergaminho ao lado            |
-| VI       | Mapa circular de algodão com coordenadas e estrelas geométricas; suporte torneado e ampulheta     | Cartela marfim com tinta azul |
-| VII      | Gaveta rasa de nogueira, divisórias, inlay, puxador volumétrico e documentos empilhados           | Ficha de arquivo              |
+| Capítulo | Novo trabalho tridimensional                                                                      | Documento                      |
+| -------- | ------------------------------------------------------------------------------------------------- | ------------------------------ |
+| I        | Envelope de papel com espessura, dobras, lacre irregular em relevo; aba e folha animadas          | Carta marfim                   |
+| II       | Pranchas de couro, tecido, lombada costurada e cantoneiras; preserva a folha deformável existente | Álbum; uma página no celular   |
+| III      | Tinteiro, pena e papel subdividido curvo; gesto abstrato curto                                    | Cartão de relato claro         |
+| IV       | Caixilho profundo, perfis, vidraças com chumbo e peitoril; correspondência em primeiro plano      | Correspondência                |
+| V        | Nova moldura Poly Haven 02 convertida em espelho, vidro prateado e base modelada                  | Pergaminho ao lado             |
+| VI       | Mapa circular de algodão com coordenadas e estrelas geométricas; suporte torneado e ampulheta     | Cartela marfim com tinta azul  |
+| VII      | Caixa de fotografias enviada pelo proprietário, tampa animada original e fotografias interativas  | Ficha de arquivo e índice HTML |
 
-Os sete protagonistas são GLBs locais novos ou reconstruídos por scripts Blender; nenhum requer Blender no navegador. O espelho deriva da nova `fancy_picture_frame_02`, de Rob Tuytel e Rico Cilliers, CC0, com origem e checksums oficiais registrados. O acervo anterior permanece para as rotas compactas. Livro enciclopédico e gaveteiro Poly Haven também foram pesquisados e baixados com verificação, mas não integrados: o álbum articulado e a gaveta rasa exigem outras silhuetas/estruturas. Não há criaturas, rosto inventado, webcam, varinha, Expresso ou Seleção. A fotografia CC0 do álbum é ambientação anônima, sem determinar a infância.
+Os protagonistas da entrega 3.0 são GLBs locais novos ou reconstruídos por scripts Blender; o capítulo VII imersivo agora usa a caixa enviada pelo proprietário. Nenhum requer Blender no navegador. O espelho deriva da nova `fancy_picture_frame_02`, de Rob Tuytel e Rico Cilliers, CC0, com origem e checksums oficiais registrados. O acervo anterior permanece para as rotas compactas. Livro enciclopédico e gaveteiro Poly Haven também foram pesquisados e baixados com verificação, mas não integrados: o álbum articulado e a gaveta rasa exigem outras silhuetas/estruturas. Não há criaturas, rosto inventado, webcam, varinha, Expresso ou Seleção. A fotografia CC0 do álbum é ambientação anônima, sem determinar a infância.
 
 ## Direção e edição
 
@@ -26,7 +26,11 @@ Os sete protagonistas são GLBs locais novos ou reconstruídos por scripts Blend
 
 Continuar valida e salva resposta/cursor antes da timeline visual. Perguntas comuns têm transição de 300 ms; o álbum tem 700 ms, com curvatura de 650 ms. Trocar capítulo combina esse gesto com o corte/câmera de 1,1 s. O token e a conclusão idempotente impedem avanço duplo; pular não cancela uma gravação pendente. Voltar, revisão, entidades, famílias, hooks e exportações preservam os contratos anteriores. O progresso é por capítulo, com posição/total das etapas desse capítulo; não promete minutos. Estados de salvamento são os reais do provider.
 
-No capítulo VII, clicar nos documentos da gaveta abre o editor existente de pessoa/objeto ou ponta aberta da pergunta atual; os botões HTML correspondentes continuam disponíveis. Nenhum objeto cria fatos automaticamente.
+No capítulo VII imersivo, a caixa `Antique_Photo_Album.zip` substitui a gaveta como protagonista. A animação original “Open and Close” tem 3,967 s; somente a primeira metade (até 1,9835 s) é amostrada, mantendo a tampa aberta. Na entrada direta, esse relógio espera o primeiro desenho real da caixa fechada, preservando a abertura durante a compilação inicial de shaders. A câmera e o AnimationMixer compartilham o mesmo relógio de entrada: chegada à caixa, aproximação de 2,2 s e pose imóvel para leitura. Redução/pular aplica tampa e câmera finais imediatamente. O teclado e a mudança de pergunta não reiniciam a câmera. A gaveta anterior é preservada nas rotas compactas.
+
+Dez fotografias selecionam exclusivamente VII01–VII10, usando o mesmo caminho de navegação que salva resposta/cursor antes da transição. Oito peças já separadas e duas cópias do papel original fornecem os pontos; as imagens/UVs originais permanecem. Clique real no mesh, marcadores HTML projetados no desktop e índice HTML de alvos de 44 px compartilham a navegação. Marcadores cobertos pelo formulário são omitidos. A edição aberta exige salvar/cancelar, conforme o fluxo existente. As fotografias são papéis anônimos em branco; nenhum rosto, lembrança, relação, resposta ou permissão narrativa é criado pela cena.
+
+O GLB local otimizado tem 1.539 triângulos, quatro texturas originais comprimidas e 2,18 MB. `src/content/photo-box.json` registra origem, hash, transformações e ausência de autoria/licença no ZIP; não atribui CC0 ao modelo fornecido. O GLTF legado usava spec/gloss e um mapa AO como metal: materiais foram corrigidos para madeira/papel rugosos sem repintar as texturas. A orientação arbitrária de exportação foi removida, preservando articulação e todos os tempos/quaternions originais. `scripts/import-photo-box.mjs` reproduz a conversão a partir do GLTF extraído, sem depender do ZIP privado em runtime.
 
 Som de papel é próprio, breve e de baixo volume, sintetizado por Web Audio somente após opt-in no menu. Uma permissão recusada mantém a experiência silenciosa. Nenhuma preferência autoriza autoplay audível numa visita nova.
 

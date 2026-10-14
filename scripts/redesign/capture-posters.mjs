@@ -77,7 +77,7 @@ try {
       });
       await page.addStyleTag({
         content:
-          ".cinema-header,.cinema-document-layout,.study-controls,.cinema-ink,.intro-skip{display:none!important}",
+          ".cinema-header,.cinema-document-layout,.study-controls,.cinema-ink,.intro-skip,.photo-hotspots{display:none!important}",
       });
       await page.waitForTimeout(250);
       const png = await page.screenshot({

@@ -343,38 +343,58 @@ function ChapterVector({
         )}
         {chapter === "VII" && (
           <g>
-            <path
-              d="M-190-117h365v186h-365Z"
-              fill={url("wood")}
-              stroke="#af8c62"
-              strokeWidth="3"
-            />
-            <g className="archive-drawer">
-              <path d="m-174 3 328-17 48 119-332 30Z" fill="#33251f" />
+            <g transform="translate(92 -86) rotate(12)">
               <path
-                d="m-130 136 332-30v48l-332 36Z"
+                d="M-105-60h220v153h-220Z"
                 fill={url("wood")}
-                stroke="#a88760"
-                strokeWidth="3"
-              />
-              <ellipse
-                cx="42"
-                cy="145"
-                rx="18"
-                ry="8"
-                fill="none"
-                stroke={url("gold")}
+                stroke="#ac8a57"
                 strokeWidth="5"
               />
-              <path d="m-112 25 198-11 28 76-205 25Z" fill={url("paper")} />
-              <path d="m-94 47 147-8m-142 24 157-11" stroke="#a7916b" />
+              <path
+                d="M-91-44h192v119h-192Z"
+                fill="none"
+                stroke="#d3b478"
+                strokeWidth="2"
+              />
             </g>
-            <g transform="translate(-144 117) rotate(-23)">
-              <rect width="100" height="132" fill={url("paper")} />
-              <rect x="10" y="9" width="80" height="101" fill="#676f60" />
-              <path d="M19 108q0-42 30-43t33 43" fill="#414b43" />
-              <ellipse cx="50" cy="47" rx="16" ry="21" fill="#a09e87" />
-            </g>
+            <path
+              d="M-132-96 111-84 138 102-112 117Z"
+              fill="#644730"
+              stroke="#c1a072"
+              strokeWidth="7"
+            />
+            <path d="M-109-72 92-62 112 84-94 98Z" fill="#b18b58" />
+            {[-1, 0, 1].map((i) => (
+              <rect
+                key={i}
+                x={-80 + i * 12}
+                y={-42 + i * 18}
+                width="135"
+                height="90"
+                fill={url("paper")}
+                transform={`rotate(${i * 8})`}
+              />
+            ))}
+            <path
+              d="m-112 117 250-15v33l-250 18Z"
+              fill={url("wood")}
+              stroke="#ac8a57"
+              strokeWidth="4"
+            />
+            {[0, 1, 2, 3].map((i) => (
+              <g
+                key={i}
+                transform={`translate(${-242 + (i % 2) * 78} ${-65 + Math.floor(i / 2) * 120}) rotate(${i % 2 ? 9 : -8})`}
+              >
+                <rect
+                  width="62"
+                  height="88"
+                  fill={url("paper")}
+                  stroke="#af976d"
+                />
+                <rect x="7" y="7" width="48" height="65" fill="#e8dbc0" />
+              </g>
+            ))}
           </g>
         )}
       </g>

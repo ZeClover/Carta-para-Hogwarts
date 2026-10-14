@@ -43,6 +43,13 @@ test("cena fullscreen 3D vira páginas, mantém campos e adapta viewport", async
       "3d",
       { timeout: 20000 },
     );
+    // The first drawn mesh precedes the intro and its final camera cut. Let the
+    // real reading state settle before freezing timers for page-curl assertions.
+    await expect(page.locator(".cinema")).toHaveAttribute(
+      "data-interaction-ready",
+      "true",
+      { timeout: 20000 },
+    );
     await page.clock.pauseAt(await page.evaluate(() => Date.now() + 30000));
     await page.locator("#I01").fill("Estudante do Registro Mágico");
     await page.getByRole("button", { name: "Continuar", exact: true }).click();

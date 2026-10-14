@@ -1,0 +1,47 @@
+{
+  "id": "antique-photo-box",
+  "chapter": "VII",
+  "path": "/assets/photo-box/antique-photo-box-6da4c8acf067.glb",
+  "bytes": 2178860,
+  "sha256": "6da4c8acf067f678d0a78f3dbd3a68e7300b389c81dc4acc7e8b286ee23637ab",
+  "source": "Antique_Photo_Album.zip — supplied by the project owner",
+  "authors": [],
+  "license": "Not specified in the supplied archive",
+  "sourceSha256": "39779b3ee7e7018113208a02d020f1f79e71094f2e6d6e0c62b1cf09b2999bc7",
+  "triangles": 1539,
+  "textures": [
+    {
+      "name": "PhotoAlbumBox_albedo.png",
+      "bytes": 350129,
+      "dimensions": 1536
+    },
+    {
+      "name": "15240_PhotoAlbumBox_AO@channels=R.jpg",
+      "bytes": 47340,
+      "dimensions": 1024
+    },
+    {
+      "name": "77498_PhotoAlbumBox_normal.png",
+      "bytes": 1651668,
+      "dimensions": 1024
+    },
+    {
+      "name": "15236_Photo_albedo.jpg",
+      "bytes": 48948,
+      "dimensions": 1024
+    }
+  ],
+  "animation": {
+    "name": "Open and Close",
+    "openingEnd": 1.9835,
+    "duration": 3.9670000076293945,
+    "target": "Cover_2",
+    "use": "Original opening only; held open during reading"
+  },
+  "changes": [
+    "Authoring coordinates restored",
+    "Original textures compressed without repainting",
+    "Obsolete spec/gloss converted to rough paper and wood",
+    "Original hinge keyframes preserved"
+  ]
+}

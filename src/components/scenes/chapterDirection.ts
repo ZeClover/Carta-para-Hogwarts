@@ -119,10 +119,10 @@ export const chapterDirection: Record<ChapterId, Direction> = {
     key: "#ffe1bf",
     fill: "#d4ccc5",
     layout: "right",
-    camera: [-1.8, 3.7, 5.4],
-    target: [1.25, 0.6, 0],
-    mobileCamera: [0, 5.5, 10.8],
-    mobileTarget: [0, -2, 0],
+    camera: [-1.3, 4.0, 5.0],
+    target: [0.0, 0.15, 0],
+    mobileCamera: [-0.2, 4.8, 7.1],
+    mobileTarget: [-0.1, -1.65, 0],
   },
 };
 export function chapterPose(chapter: ChapterId, portrait: boolean) {

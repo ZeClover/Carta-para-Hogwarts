@@ -43,7 +43,15 @@ export function DocumentHandoff({
       if (!ref.current) return;
       const rect = sheet.getBoundingClientRect(),
         viewport = gl.domElement.getBoundingClientRect();
-      ref.current.visible = !opening && !turning && rect.height > 0;
+      ref.current.visible =
+        !opening &&
+        !turning &&
+        gl.domElement.getAttribute("data-camera-state") !== "travelling" &&
+        rect.height > 0;
+      gl.domElement.setAttribute(
+        "data-handoff-visible",
+        String(ref.current.visible),
+      );
       if (!ref.current.visible) {
         if (schedule) invalidate();
         return;
