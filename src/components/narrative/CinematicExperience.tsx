@@ -108,10 +108,10 @@ function Experience({
     ),
   );
   const [letterOpen, setLetterOpen] = useState(!introduce);
-  const introTimeline = useRef<gsap.core.Timeline | null>(null);
+  const cancelIntro = useRef<(() => void) | null>(null);
   const transitionTimeline = useRef<gsap.core.Timeline | null>(null);
   const completeIntro = () => {
-    introTimeline.current?.kill();
+    cancelIntro.current?.();
     setLetterOpen(true);
     setIntro(false);
   };
@@ -147,11 +147,24 @@ function Experience({
     }
     const mobile = window.innerWidth <= 700;
     const motion = matchMedia("(prefers-reduced-motion: reduce)");
-    const timeline = gsap.timeline();
-    introTimeline.current = timeline;
-    timeline.call(() => setLetterOpen(true), [], mobile ? 1 : 1.8);
-    timeline.call(
-      () => {
+    let frame = 0,
+      previous = performance.now(),
+      elapsed = 0,
+      opened = false;
+    const cancel = () => cancelAnimationFrame(frame);
+    cancelIntro.current = cancel;
+    const advance = () => {
+      const now = performance.now();
+      // Loading/GPU stalls are not time the player actually saw the letter.
+      if (!document.hidden)
+        elapsed += Math.min(Math.max((now - previous) / 1000, 0), 0.2);
+      previous = now;
+      root.current?.setAttribute("data-opening-elapsed", elapsed.toFixed(3));
+      if (!opened && elapsed >= (mobile ? 1 : 1.8)) {
+        opened = true;
+        setLetterOpen(true);
+      }
+      if (elapsed >= (mobile ? 3.4 : 4.6)) {
         if (
           root.current
             ?.querySelector(".study-scene")
@@ -159,15 +172,17 @@ function Experience({
         )
           setTravelling(true);
         setIntro(false);
-      },
-      [],
-      mobile ? 3.4 : 4.6,
-    );
-    const pause = () =>
-      document.hidden ? timeline.pause() : timeline.resume();
+        return;
+      }
+      frame = requestAnimationFrame(advance);
+    };
+    frame = requestAnimationFrame(advance);
+    const pause = () => {
+      previous = performance.now();
+    };
     const reduce = () => {
       if (motion.matches) {
-        timeline.kill();
+        cancel();
         setLetterOpen(true);
         setIntro(false);
       }
@@ -175,7 +190,8 @@ function Experience({
     document.addEventListener("visibilitychange", pause);
     motion.addEventListener("change", reduce);
     return () => {
-      timeline.kill();
+      cancel();
+      if (cancelIntro.current === cancel) cancelIntro.current = null;
       document.removeEventListener("visibilitychange", pause);
       motion.removeEventListener("change", reduce);
     };
@@ -551,6 +567,11 @@ function Experience({
       )}
       <div className="chapter-cover" aria-hidden="true" />
       <div className="cinema-scrim" aria-hidden="true" />
+      {intro && !presentationReady && (
+        <p className="entry-readiness" role="status">
+          Preparando a carta e o cenário…
+        </p>
+      )}
       {objectLoading && (
         <p className="entry-readiness" role="status">
           {chapter === "VII"

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLoader, useThree } from "@react-three/fiber";
 import { gsap } from "gsap";
 import * as THREE from "three";
@@ -22,11 +22,13 @@ import { AncientScroll } from "./AncientScroll";
 import { HallwayDelivery } from "./HallwayDelivery";
 import { VictorianBackdrop } from "./VictorianBackdrop";
 import { SceneEntrancePlayback } from "./sceneEntrancePlayback";
+import { useFrameTween } from "./useFrameTween";
 import { PhotoBox } from "./PhotoBox";
 import { PhotoBoxPlayback } from "./photoBoxMotion";
 
 type Props = {
-  onReady?: (phase?: "assets") => void;
+  onFailure?: () => void;
+  onReady?: (phase?: "assets" | "prepared") => void;
   opening?: boolean;
   open?: boolean;
   kind: SceneKind;
@@ -118,23 +120,20 @@ function Document({
   const { invalidate, gl } = useThree();
   const mesh = useRef<THREE.Mesh>(null);
   const emerging = useRef<THREE.Group>(null);
-  useEffect(() => {
+  const prepareEmergence = useCallback(() => {
     if (!emerging.current) return;
     const group = emerging.current;
     group.visible = !opening || !!open;
-    if (opening && !still) gsap.set(group.position, { z: -0.8, y: 0.05 });
-    const timeline = gsap.timeline();
-    timeline.to(group.position, {
-      z: 0,
-      y: 0,
-      duration: opening && !still ? 1.5 : 0,
-      ease: "power2.out",
-      onUpdate: invalidate,
-    });
-    return () => {
-      timeline.kill();
+    const start = opening
+      ? new THREE.Vector3(0, 0.05, -0.8)
+      : new THREE.Vector3();
+    const end = new THREE.Vector3();
+    return (progress: number) => {
+      group.position.lerpVectors(start, end, progress);
+      gl.domElement.setAttribute("data-letter-emergence", progress.toFixed(3));
     };
-  }, [opening, open, still, invalidate]);
+  }, [opening, open, gl]);
+  useFrameTween(prepareEmergence, 1.5, !!still || !opening || !open);
   useEffect(() => () => g.dispose(), [g]);
   useEffect(() => {
     const state = { p: 0 };
@@ -248,7 +247,7 @@ function Correspondence({
 }) {
   const paper = useSurface("paper"),
     flap = useRef<THREE.Group>(null),
-    { invalidate } = useThree();
+    { gl } = useThree();
   const shape = useMemo(() => {
     const s = new THREE.Shape();
     s.moveTo(-1.08, 0);
@@ -270,18 +269,20 @@ function Correspondence({
     }
     return s;
   }, []);
-  useEffect(() => {
+  const prepareFlap = useCallback(() => {
     if (!flap.current) return;
-    const t = gsap.to(flap.current.rotation, {
-      x: open ? -Math.PI * 0.94 : 0,
-      duration: still ? 0 : 0.9,
-      ease: "power2.inOut",
-      onUpdate: invalidate,
-    });
-    return () => {
-      t.kill();
+    const group = flap.current,
+      start = group.rotation.x;
+    const end = open ? -Math.PI * 0.94 : 0;
+    return (progress: number) => {
+      group.rotation.x = THREE.MathUtils.lerp(start, end, progress);
+      gl.domElement.setAttribute(
+        "data-envelope-flap",
+        group.rotation.x.toFixed(3),
+      );
     };
-  }, [open, still, invalidate]);
+  }, [open, gl]);
+  useFrameTween(prepareFlap, 0.9, still);
   return (
     <group
       position={[0, 0.065, 0]}
@@ -385,7 +386,7 @@ function Protagonist({ chapter, ...props }: Props & { chapter: ChapterId }) {
             onReady={props.onReady}
             rebuilt
             open={props.open ?? !turning}
-            still={still}
+            still={still || !props.opening}
             onAction={onAction}
           />
         </group>
@@ -498,11 +499,62 @@ export function ChapterWorld(props: Props) {
   const armillaryPlayback = useMemo(() => new SceneEntrancePlayback(), []);
   const inkPlayback = useMemo(() => new SceneEntrancePlayback(), []);
   const archivePlayback = useMemo(() => new PhotoBoxPlayback(), []);
-  const { still } = props;
+  const { still, onReady, onFailure } = props;
   const chapter = chapterOrder.includes(props.kind as ChapterId)
       ? (props.kind as ChapterId)
       : "I",
     d = chapterDirection[chapter];
+  const { playback: presentation } = useMemo(
+    () => ({ chapter, playback: new SceneEntrancePlayback() }),
+    [chapter],
+  );
+  const { gl, scene, camera } = useThree();
+  const preparation = useRef<{
+    presentation: SceneEntrancePlayback;
+    started: boolean;
+    active: boolean;
+  } | null>(null);
+  useEffect(() => {
+    const current = { presentation, started: false, active: true };
+    preparation.current = current;
+    return () => {
+      current.active = false;
+    };
+  }, [presentation]);
+  const sceneDrawn = useCallback(
+    (phase?: "assets" | "prepared") => {
+      onReady?.(phase);
+      const current = preparation.current;
+      if (
+        phase ||
+        !current ||
+        current.presentation !== presentation ||
+        current.started
+      )
+        return;
+      current.started = true;
+      // Prepare even the hidden letter/page materials before their first
+      // animation reveals them. Keep the first visible pose while this runs.
+      void (async () => {
+        scene.traverse((node) => {
+          if (!(node instanceof THREE.Mesh)) return;
+          for (const material of Array.isArray(node.material)
+            ? node.material
+            : [node.material]) {
+            for (const value of Object.values(material)) {
+              if (value instanceof THREE.Texture) gl.initTexture(value);
+            }
+          }
+        });
+        await gl.compileAsync(scene, camera);
+        if (current.active) presentation.markDrawn();
+      })().catch(() => {
+        if (current.active) onFailure?.();
+      });
+    },
+    [onReady, onFailure, presentation, gl, scene, camera],
+  );
+  const scenePrepared = useCallback(() => onReady?.("prepared"), [onReady]);
   const x = chapterOrder.indexOf(chapter) * 18;
   const keyTarget = useMemo(() => new THREE.Object3D(), []);
   const [journey, setJourney] = useState<{
@@ -569,7 +621,7 @@ export function ChapterWorld(props: Props) {
             deskPlayback,
             scrollPlayback,
             hallwayPlayback,
-            onReady: c === chapter ? props.onReady : undefined,
+            onReady: c === chapter ? sceneDrawn : undefined,
             turning: c === chapter && props.turning,
             turnSerial: c === chapter ? props.turnSerial : 0,
             active: c === chapter && props.active,
@@ -581,6 +633,8 @@ export function ChapterWorld(props: Props) {
       <DocumentHandoff opening={props.opening} turning={props.turning} />
       <SceneDiagnostics chapter={chapter} />
       <CameraDirector
+        presentation={presentation}
+        onPrepared={scenePrepared}
         opening={props.opening}
         chapter={chapter}
         still={props.still}

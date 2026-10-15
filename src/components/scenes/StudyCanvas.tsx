@@ -37,7 +37,7 @@ type Props = {
   onPhotoSelect?: (id: string) => void;
   selectedPhoto?: string;
   onFailure: () => void;
-  onReady: (phase?: "assets") => void;
+  onReady: (phase?: "assets" | "prepared") => void;
 };
 function CameraAndLife({
   kind,
@@ -301,10 +301,14 @@ export default function StudyCanvas(props: Props & { label?: string }) {
   return (
     <Canvas
       frameloop="demand"
-      dpr={[1, props.limited ? 1 : 1.5]}
-      shadows={{ type: THREE.PCFShadowMap }}
+      dpr={props.limited ? 0.75 : [1, 1.5]}
+      shadows={props.limited ? false : { type: THREE.PCFShadowMap }}
       camera={{ position: [4, 5, 6], fov: 43, near: 0.1, far: 200 }}
-      gl={{ antialias: true, alpha: false, powerPreference: "low-power" }}
+      gl={{
+        antialias: !props.limited,
+        alpha: false,
+        powerPreference: "low-power",
+      }}
       fallback={null}
     >
       <MemoStudy {...props} />

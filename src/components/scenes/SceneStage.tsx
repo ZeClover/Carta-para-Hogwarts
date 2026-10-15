@@ -126,6 +126,7 @@ export const SceneStage = memo(function SceneStage({
   const [slowChapter, setSlowChapter] = useState<SceneKind | null>(null);
   const [checkedKind, setCheckedKind] = useState<SceneKind | null>(null);
   const [readyKind, setReadyKind] = useState<SceneKind | null>(null);
+  const [preparedKind, setPreparedKind] = useState<SceneKind | null>(null);
   const ready = readyKind === kind;
   const [limited, setLimited] = useState(false);
   const [interacted, setInteracted] = useState(false);
@@ -135,8 +136,9 @@ export const SceneStage = memo(function SceneStage({
     setReadyKind(null);
   }, []);
   const loaded = useCallback(
-    (phase?: "assets") => {
+    (phase?: "assets" | "prepared") => {
       if (phase === "assets") resourceKind.current = kind;
+      else if (phase === "prepared") setPreparedKind(kind);
       else {
         frameKind.current = kind;
         setReadyKind(kind);
@@ -255,18 +257,21 @@ export const SceneStage = memo(function SceneStage({
         onPresentationReady?.(true);
       }
     };
-    if (ready || (probed && (!available || simple))) {
+    if (
+      (ready && (!immersive || preparedKind === kind)) ||
+      (probed && (!available || simple))
+    ) {
       const frame = requestAnimationFrame(announce);
       return () => cancelAnimationFrame(frame);
     }
     const limit = setTimeout(
       () => {
         // Frame callbacks precede React's commit: never tear down a frame already drawn.
-        if (frameKind.current === kind) {
+        if (frameKind.current === kind && preparedKind === kind) {
           announce();
           return;
         }
-        if (immersive && readyKind !== null && resourceKind.current === kind) {
+        if (immersive && resourceKind.current === kind) {
           // A live chapter has loaded its hero but a slow GPU is still crossing the cut.
           // Settle the camera immediately, keeping this renderer and the owned resources.
           setSlowChapter(kind);
@@ -276,7 +281,7 @@ export const SceneStage = memo(function SceneStage({
         setTimedOut(true);
         announce();
       },
-      manualSelection ? 12000 : 4000,
+      immersive ? 30000 : manualSelection ? 12000 : 8000,
     );
     return () => clearTimeout(limit);
   }, [
@@ -290,6 +295,7 @@ export const SceneStage = memo(function SceneStage({
     kind,
     immersive,
     readyKind,
+    preparedKind,
   ]);
   useEffect(() => {
     if (render3d) return;
@@ -301,15 +307,9 @@ export const SceneStage = memo(function SceneStage({
   }, [kind, render3d, onJourney]);
   const reduced = still || systemReduced || slowChapter === kind;
   useEffect(() => {
-    // Cold corridor/archive scenes suspend their 3D subtree. Gate while loading,
+    // Cold scenes suspend their 3D subtree. Gate while loading,
     // before the camera director can commit and announce the entrance.
-    if (
-      immersive &&
-      (kind === "IV" || kind === "VII") &&
-      render3d &&
-      readyKind !== kind
-    )
-      onJourney?.(true);
+    if (immersive && render3d && readyKind !== kind) onJourney?.(true);
   }, [immersive, kind, render3d, readyKind, onJourney]);
   return (
     <section
@@ -428,6 +428,7 @@ export const SceneStage = memo(function SceneStage({
                 frameKind.current = null;
                 resourceKind.current = null;
                 setReadyKind(null);
+                setPreparedKind(null);
                 setCheckedKind(null);
                 setSlowChapter(null);
                 setManualSelection(true);

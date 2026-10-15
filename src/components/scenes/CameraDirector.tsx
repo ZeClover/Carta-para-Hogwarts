@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { gsap } from "gsap";
 import * as THREE from "three";
 import inkQuill from "@/content/ink-quill.json";
@@ -26,7 +26,11 @@ export function CameraDirector({
   hallwayPlayback,
   presentationKey,
   hallwaySeenOnResume,
+  presentation,
+  onPrepared,
 }: {
+  presentation?: SceneEntrancePlayback;
+  onPrepared?: () => void;
   hallwayPlayback?: SceneEntrancePlayback;
   presentationKey?: string;
   hallwaySeenOnResume?: boolean;
@@ -45,6 +49,8 @@ export function CameraDirector({
   );
   const target = useRef(new THREE.Vector3());
   const animating = useRef(false);
+  const advanceFrame = useRef<((delta: number) => void) | null>(null);
+  useFrame((_, delta) => advanceFrame.current?.(delta));
   const portrait = size.width <= 700;
   useEffect(() => {
     const prior = previous.current;
@@ -72,18 +78,10 @@ export function CameraDirector({
       !still &&
       !hallwaySeen;
     const entrance = archiveEntrance || objectEntrance || hallwayEntrance;
-    // Recover shader stalls during the entrance, then restore wall time for
-    // short form transitions so a slow GPU cannot keep an answer disabled.
-    gsap.ticker.lagSmoothing(entrance ? 500 : 0, hallwayEntrance ? 200 : 33);
-    const entrancePlayback = hallwayEntrance
-      ? hallwayPlayback
-      : archiveEntrance
-        ? archivePlayback
-        : objectPlayback;
     // The archive entrance also starts in its own bay so its original lid clip
     // cannot be consumed while the new model compiles out of view.
     const archiveDuration = 2.2;
-    const moving = (changing || entrance) && !still;
+    const moving = (changing || entrance || opening) && !still;
     const report = changing || !prior || still || animating.current;
     animating.current = moving;
     if (report) onJourney?.(moving);
@@ -110,16 +108,15 @@ export function CameraDirector({
       .clone()
       .add(new THREE.Vector3(portrait ? 0 : -0.25, 0.35, 1.1));
     const objectTarget = endTarget.clone();
-    const objectArrival = prior && prior.chapter !== chapter ? 1.1 : 0;
     const gestureDuration =
       chapter === "II" || chapter === "V"
         ? 1.6
         : chapter === "VI"
           ? 2.1
           : inkQuill.animation.duration;
-    const objectDuration = objectArrival + gestureDuration;
+    const objectDuration = gestureDuration;
     const lens = chapterDirection[chapter].fov;
-    if (!prior) {
+    if (!prior || entrance) {
       camera.position.copy(end);
       target.current.copy(endTarget);
       if (archiveEntrance) {
@@ -183,22 +180,10 @@ export function CameraDirector({
       if (["II", "III", "V", "VI"].includes(chapter)) {
         let manifestation = 1;
         if (objectEntrance) {
-          const elapsed = state.p * objectDuration;
-          if (elapsed < objectArrival) {
-            const p = -(Math.cos((Math.PI * elapsed) / objectArrival) - 1) / 2;
-            camera.position.lerpVectors(start, objectStart, p);
-            target.current.lerpVectors(startTarget, objectTarget, p);
-            manifestation = 0;
-          } else {
-            manifestation = THREE.MathUtils.clamp(
-              (elapsed - objectArrival) / gestureDuration,
-              0,
-              1,
-            );
-            const p = -(Math.cos(Math.PI * manifestation) - 1) / 2;
-            camera.position.lerpVectors(objectStart, end, p);
-            target.current.lerpVectors(objectTarget, endTarget, p);
-          }
+          manifestation = state.p;
+          const p = -(Math.cos(Math.PI * manifestation) - 1) / 2;
+          camera.position.lerpVectors(objectStart, end, p);
+          target.current.lerpVectors(objectTarget, endTarget, p);
         }
         objectPlayback?.seek(manifestation * gestureDuration);
         gl.domElement.setAttribute(
@@ -264,7 +249,9 @@ export function CameraDirector({
     const complete = () => {
       if (finished) return;
       finished = true;
-      gsap.ticker.lagSmoothing(0);
+      advanceFrame.current = null;
+      onPrepared?.();
+      gl.domElement.setAttribute("data-entrance-phase", "complete");
       gl.domElement.setAttribute("data-camera-state", "arrived");
       animating.current = false;
       if (chapter === "IV" && hallwayKey) {
@@ -302,16 +289,19 @@ export function CameraDirector({
     let deadline: ReturnType<typeof setTimeout> | undefined;
     // Leave shader-stall recovery time on first entry; skipping is always
     // available and this upper bound still releases controls if RAF stops.
-    let remaining = entrance
-      ? Math.max(15000, duration * 5000)
-      : duration * 1000 + 250;
+    let remaining =
+      entrance || opening
+        ? Math.max(15000, duration * 5000)
+        : duration * 1000 + 250;
     let started = performance.now();
     // Shader compilation must not consume the entrance: draw the object in its
     // initial pose before starting the shared clock on direct chapter entry.
-    let waitingForDraw =
-      entrance &&
-      (hallwayEntrance || archiveEntrance || !prior) &&
-      !!entrancePlayback;
+    const frameDriven = (entrance || opening) && !!presentation;
+    let waitingForDraw = frameDriven;
+    gl.domElement.setAttribute(
+      "data-entrance-phase",
+      waitingForDraw ? "waiting" : "playing",
+    );
     if (waitingForDraw) update();
     const timeline = gsap.timeline({
       paused: waitingForDraw,
@@ -336,36 +326,61 @@ export function CameraDirector({
       started = performance.now();
       deadline = setTimeout(settle, Math.max(0, remaining));
     };
+    let clockStarted = false;
     const stopWaiting = waitingForDraw
-      ? entrancePlayback!.whenDrawn(() => {
-          if (hallwayEntrance && hallwayKey) {
-            try {
-              localStorage.setItem(hallwayKey, "seen");
-            } catch {}
-          }
+      ? presentation!.whenDrawn(() => {
           waitingForDraw = false;
-          if (!document.hidden && !finished) {
-            timeline.play();
-            arm();
-          }
+          let settling = 0,
+            elapsed = 0;
+          gl.domElement.setAttribute("data-entrance-phase", "settling");
+          // Give the visible scene a short rest after its first complete draw.
+          // Advance only on rendered frames: shader/upload stalls must never
+          // consume an entrance, even when GSAP's wall clock keeps running.
+          advanceFrame.current = (delta) => {
+            if (document.hidden || finished) return;
+            const step = Math.min(Math.max(delta, 0), 0.1);
+            if (settling < 0.8) {
+              settling += step;
+            } else {
+              if (!clockStarted) {
+                clockStarted = true;
+                onPrepared?.();
+                gl.domElement.setAttribute("data-entrance-phase", "playing");
+                if (hallwayEntrance && hallwayKey) {
+                  try {
+                    localStorage.setItem(hallwayKey, "seen");
+                  } catch {}
+                }
+                arm();
+              }
+              elapsed = Math.min(duration, elapsed + step);
+              timeline.totalTime(elapsed, false);
+            }
+            invalidate();
+          };
+          invalidate();
         })
       : () => {};
-    if (!waitingForDraw && !deadline && !finished) arm();
+    if (!frameDriven && !finished) {
+      clockStarted = true;
+      arm();
+    }
     // Bounded completion also protects input when RAF/ticker stalls; hidden time is excluded.
     const pause = () => {
       if (document.hidden) {
         timeline.pause();
         clearTimeout(deadline);
-        if (waitingForDraw) return;
+        if (!clockStarted) return;
         remaining = Math.max(0, remaining - (performance.now() - started));
       } else if (!finished && !waitingForDraw) {
-        timeline.resume();
-        arm();
+        if (!frameDriven) timeline.resume();
+        if (clockStarted) arm();
+        invalidate();
       }
     };
     document.addEventListener("visibilitychange", pause);
     return () => {
-      gsap.ticker.lagSmoothing(0);
+      advanceFrame.current = null;
       clearTimeout(deadline);
       timeline.kill();
       stopWaiting();
@@ -387,6 +402,8 @@ export function CameraDirector({
     hallwayPlayback,
     presentationKey,
     hallwaySeenOnResume,
+    presentation,
+    onPrepared,
   ]);
   return null;
 }

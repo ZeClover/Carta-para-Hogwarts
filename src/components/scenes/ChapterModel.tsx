@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useMemo, useRef } from "react";
-import { gsap } from "gsap";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useFrameTween } from "./useFrameTween";
 import { useLoader, useThree } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import * as THREE from "three";
@@ -124,9 +124,13 @@ export function ChapterModel({
       restore.forEach((fn) => fn());
     };
   }, [model, onReady, invalidate]);
-  useEffect(() => {
+  const prepareSeal = useCallback(() => {
     if (chapter !== "I") return;
-    const timeline = gsap.timeline();
+    const parts: {
+      node: THREE.Mesh;
+      start: THREE.Vector3;
+      end: THREE.Vector3;
+    }[] = [];
     model.traverse((node) => {
       if (!(node instanceof THREE.Mesh)) return;
       const material = Array.isArray(node.material)
@@ -134,22 +138,22 @@ export function ChapterModel({
         : node.material;
       if (!/Burgundy wax|^Aged brass/.test(material.name)) return;
       const rest = node.userData.restPosition as THREE.Vector3;
-      timeline.to(
-        node.position,
-        {
-          y: rest.y + (sealOpen ? 0.045 : 0),
-          z: rest.z - (sealOpen ? 0.7 : 0),
-          duration: still ? 0 : 0.65,
-          ease: "power2.out",
-          onUpdate: invalidate,
-        },
-        0,
-      );
+      parts.push({
+        node,
+        start: node.position.clone(),
+        end: new THREE.Vector3(
+          rest.x,
+          rest.y + (sealOpen ? 0.045 : 0),
+          rest.z - (sealOpen ? 0.7 : 0),
+        ),
+      });
     });
-    return () => {
-      timeline.kill();
+    return (progress: number) => {
+      for (const part of parts)
+        part.node.position.lerpVectors(part.start, part.end, progress);
     };
-  }, [chapter, model, sealOpen, still, invalidate]);
+  }, [chapter, model, sealOpen]);
+  useFrameTween(prepareSeal, 0.65, still);
   useEffect(
     () => () => {
       model.traverse((o) => {
