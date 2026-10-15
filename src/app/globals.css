@@ -1735,6 +1735,37 @@ body:has(.cinema) > footer {
   color: #e9d9b4;
   font-size: 11px;
 }
+.scene-support {
+  color: #fff2d4;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.scene-support summary {
+  cursor: pointer;
+  min-height: 32px;
+  padding: 5px 10px;
+  background: #222822f5;
+  border: 1px solid #a28e5d;
+  border-radius: 4px;
+}
+.scene-support summary:focus-visible {
+  outline: 2px solid #f3d492;
+  outline-offset: 3px;
+}
+.scene-support p {
+  margin: 0;
+  padding: 12px;
+  background: #222822fa;
+  max-height: 40dvh;
+  overflow-y: auto;
+}
+.cinema .scene-support {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  width: max-content;
+  max-width: min(440px, calc(100vw - 40px));
+}
 .cinema-scrim {
   position: absolute;
   inset: 0;

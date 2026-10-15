@@ -122,10 +122,12 @@ export const SceneStage = memo(function SceneStage({
   const [probed, setProbed] = useState(false);
   const [manualSelection, setManualSelection] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
+  const [fallbackReason, setFallbackReason] = useState<
+    "unavailable" | "error" | "timeout" | null
+  >(null);
   const announced = useRef(false);
-  const resourceKind = useRef<SceneKind | null>(null);
   const frameKind = useRef<SceneKind | null>(null);
-  const [slowChapter, setSlowChapter] = useState<SceneKind | null>(null);
+  const preparedFrameKind = useRef<SceneKind | null>(null);
   const [checkedKind, setCheckedKind] = useState<SceneKind | null>(null);
   const [readyKind, setReadyKind] = useState<SceneKind | null>(null);
   const [preparedKind, setPreparedKind] = useState<SceneKind | null>(null);
@@ -136,17 +138,19 @@ export const SceneStage = memo(function SceneStage({
   const container = useRef<HTMLDivElement>(null);
   const replayRequested = useRef(replay);
   const failure = useCallback(() => {
-    setAvailable(false);
+    setFallbackReason("error");
+    setTimedOut(true);
     setReadyKind(null);
   }, []);
   const loaded = useCallback(
     (phase?: "assets" | "prepared") => {
       if (phase === "assets") {
-        resourceKind.current = kind;
         replayRequested.current = false;
         setReplayPending(false);
-      } else if (phase === "prepared") setPreparedKind(kind);
-      else {
+      } else if (phase === "prepared") {
+        preparedFrameKind.current = kind;
+        setPreparedKind(kind);
+      } else {
         frameKind.current = kind;
         setReadyKind(kind);
       }
@@ -181,15 +185,26 @@ export const SceneStage = memo(function SceneStage({
         if (entering && !probed) {
           probed = true;
           const probe = document.createElement("canvas");
-          const context = probe.getContext("webgl2", {
-            failIfMajorPerformanceCaveat: true,
-          });
+          let context: WebGL2RenderingContext | null = null;
+          try {
+            context = probe.getContext("webgl2", {
+              failIfMajorPerformanceCaveat: true,
+            });
+          } catch {
+            // Browser policies and unavailable drivers can reject the probe.
+          }
           if (context) {
             setAvailable(true);
-            const debug = context.getExtension("WEBGL_debug_renderer_info");
-            const renderer = debug
-              ? String(context.getParameter(debug.UNMASKED_RENDERER_WEBGL))
-              : "";
+            let renderer = "";
+            try {
+              const debug = context.getExtension("WEBGL_debug_renderer_info");
+              if (debug)
+                renderer = String(
+                  context.getParameter(debug.UNMASKED_RENDERER_WEBGL),
+                );
+            } catch {
+              // Renderer identification is optional under privacy policies.
+            }
             if (/SwiftShader|llvmpipe|Software Rasterizer/i.test(renderer))
               setLimited(true);
             let saved: string | null = null;
@@ -205,8 +220,10 @@ export const SceneStage = memo(function SceneStage({
                         renderer,
                       )))),
             );
-            context.getExtension("WEBGL_lose_context")?.loseContext();
-          }
+            try {
+              context.getExtension("WEBGL_lose_context")?.loseContext();
+            } catch {}
+          } else setFallbackReason("unavailable");
           setProbed(true);
         }
       },
@@ -270,53 +287,97 @@ export const SceneStage = memo(function SceneStage({
     };
     if (
       (ready && (!immersive || preparedKind === kind)) ||
-      (probed && (!available || simple))
+      (probed && (!available || simple || timedOut))
     ) {
-      const frame = requestAnimationFrame(announce);
-      return () => cancelAnimationFrame(frame);
+      announce();
     }
+  }, [
+    ready,
+    immersive,
+    preparedKind,
+    kind,
+    probed,
+    available,
+    simple,
+    timedOut,
+    visible,
+    onPresentationReady,
+  ]);
+  useEffect(() => {
+    if (!visible || !probed || !available || simple || timedOut) return;
+    const fallback = () => {
+      setFallbackReason("timeout");
+      setTimedOut(true);
+    };
+    // One deadline per attempt, not a fresh deadline at every loading phase.
+    // Assets being decoded does not prove that the browser rendered a frame.
+    let recovery: ReturnType<typeof setTimeout> | undefined;
     const limit = setTimeout(
       () => {
-        // Frame callbacks precede React's commit: never tear down a frame already drawn.
-        if (frameKind.current === kind && preparedKind === kind) {
-          announce();
+        if (frameKind.current === kind && preparedFrameKind.current === kind)
           return;
-        }
-        if (immersive && resourceKind.current === kind) {
-          // A live chapter has loaded its hero but a slow GPU is still crossing the cut.
-          // Settle the camera immediately, keeping this renderer and the owned resources.
-          setSlowChapter(kind);
+        if (immersive && frameKind.current === kind) {
+          // Lower the render cost and give the visible scene a bounded grace
+          // period. Do not silently skip the animation the player requested.
           setLimited(true);
+          recovery = setTimeout(() => {
+            if (preparedFrameKind.current !== kind) fallback();
+          }, 5000);
           return;
         }
-        setTimedOut(true);
-        announce();
+        fallback();
       },
       immersive ? 30000 : manualSelection ? 12000 : 8000,
     );
-    return () => clearTimeout(limit);
+    return () => {
+      clearTimeout(limit);
+      clearTimeout(recovery);
+    };
   }, [
-    ready,
     visible,
     probed,
     available,
     simple,
     manualSelection,
-    onPresentationReady,
     kind,
     immersive,
-    readyKind,
-    preparedKind,
+    timedOut,
   ]);
   useEffect(() => {
     if (render3d) return;
     container.current
       ?.closest<HTMLElement>(".cinema")
       ?.style.removeProperty("--document-left");
-    const frame = requestAnimationFrame(() => onJourney?.(false));
-    return () => cancelAnimationFrame(frame);
+    onJourney?.(false);
   }, [kind, render3d, onJourney]);
-  const reduced = still || systemReduced || slowChapter === kind;
+  const reduced = still || systemReduced;
+  const support = fallbackReason
+    ? {
+        title:
+          fallbackReason === "unavailable"
+            ? "3D indisponível neste navegador"
+            : "Não foi possível iniciar o 3D",
+        text:
+          fallbackReason === "unavailable"
+            ? "O navegador não disponibilizou WebGL 2. Confira a aceleração gráfica nas configurações de sistema do navegador e reinicie-o. Você pode continuar no cenário leve sem perder respostas."
+            : "O carregamento ou a preparação gráfica não terminou. O cenário leve foi ativado e suas respostas continuam salvas. Use Ativar cenário 3D para tentar novamente. Se persistir, confira a aceleração gráfica e teste outro navegador atualizado.",
+      }
+    : systemReduced
+      ? {
+          title: "Movimento reduzido ativo no sistema",
+          text: "A preferência de acessibilidade do sistema ou do navegador apresenta as entradas sem movimento, inclusive ao usar Ver animação. Para assistir, desative essa preferência nas configurações do seu dispositivo.",
+        }
+      : simple
+        ? {
+            title: "Cenário leve ativo",
+            text: "Este modo usa uma imagem estática. Para assistir à entrada 3D, use Ver animação ou Ativar cenário 3D. Em aparelhos limitados, o modo leve pode ser escolhido automaticamente.",
+          }
+        : still
+          ? {
+              title: "Animações reduzidas",
+              text: "O movimento foi reduzido nos controles do cenário. Use Ver animação para repetir a entrada, respeitando a preferência de acessibilidade do sistema.",
+            }
+          : null;
   useEffect(() => {
     // Cold scenes suspend their 3D subtree. Gate while loading,
     // before the camera director can commit and announce the entrance.
@@ -331,6 +392,7 @@ export const SceneStage = memo(function SceneStage({
       data-scene={kind}
       data-renderer={render3d && ready ? "3d" : "2.5d"}
       data-motion={reduced ? "reduced" : "cinematic"}
+      data-fallback-reason={fallbackReason ?? "none"}
       data-active={value ? "true" : "false"}
     >
       <div className="study-viewport" ref={container}>
@@ -391,6 +453,14 @@ export const SceneStage = memo(function SceneStage({
         </span>
       </div>
       <div className="study-controls">
+        {support && (
+          <details className="scene-support">
+            <summary>
+              <span role="status">{support.title}</span>
+            </summary>
+            <p>{support.text}</p>
+          </details>
+        )}
         <p className="study-caption">{config.caption}</p>
         <div className="study-buttons">
           {!immersive && (kind !== "letter" || !open) && (
@@ -438,13 +508,13 @@ export const SceneStage = memo(function SceneStage({
               onClick={() => {
                 const light = simple || timedOut;
                 frameKind.current = null;
-                resourceKind.current = null;
+                preparedFrameKind.current = null;
                 setReadyKind(null);
                 setPreparedKind(null);
                 setCheckedKind(null);
-                setSlowChapter(null);
                 setManualSelection(true);
                 setTimedOut(false);
+                setFallbackReason(null);
                 setSimple(!light);
                 try {
                   localStorage.setItem(

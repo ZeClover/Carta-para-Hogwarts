@@ -536,7 +536,7 @@ export function ChapterWorld(props: Props) {
       current.started = true;
       // Prepare even the hidden letter/page materials before their first
       // animation reveals them. Keep the first visible pose while this runs.
-      void (async () => {
+      try {
         scene.traverse((node) => {
           if (!(node instanceof THREE.Mesh)) return;
           for (const material of Array.isArray(node.material)
@@ -547,11 +547,15 @@ export function ChapterWorld(props: Props) {
             }
           }
         });
-        await gl.compileAsync(scene, camera);
+        // The color pass has already proved this renderer can draw. Warm the
+        // hidden page materials without waiting for KHR_parallel_shader_compile:
+        // some drivers keep its completion flag pending indefinitely. The
+        // director's rendered-frame hold absorbs any synchronous warm-up stall.
+        gl.compile(scene, camera);
         if (current.active) presentation.markDrawn();
-      })().catch(() => {
+      } catch {
         if (current.active) onFailure?.();
-      });
+      }
     },
     [onReady, onFailure, presentation, gl, scene, camera],
   );
