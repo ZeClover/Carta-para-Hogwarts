@@ -594,7 +594,6 @@ function Experience({
           Pular abertura
         </button>
       )}
-      <div className="chapter-cover" aria-hidden="true" />
       <div className="cinema-scrim" aria-hidden="true" />
       {intro && !presentationReady && (
         <p className="entry-readiness" role="status">

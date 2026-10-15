@@ -76,6 +76,7 @@ for (const chapter of ["I", "IV", "VII"] as const) {
           "data-entry",
           "opening",
         );
+        await expect(page.locator(".chapter-cover")).toHaveCount(0);
         await expect
           .poll(
             async () =>

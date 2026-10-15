@@ -1,4 +1,5 @@
 import { chromium, expect, test } from "@playwright/test";
+import sharp from "sharp";
 
 const gpu = [
   "--enable-unsafe-swiftshader",
@@ -86,6 +87,33 @@ test("abertura aguarda download lento, exibe a aba abrindo e retoma a resposta s
       "data-renderer",
       "3d",
     );
+    // Advancing animation attributes alone cannot prove the player can see it.
+    // A chapter-cut overlay previously hid the entire opening behind beige.
+    const openingImage = await page.screenshot({
+      path: info.outputPath("letter-opening-visible.png"),
+      scale: "css",
+      timeout: 60000,
+    });
+    await expect(page.locator(".chapter-cover")).toHaveCount(0);
+    const { data, info: pixels } = await sharp(openingImage)
+      .extract({
+        left: mobile ? 39 : 144,
+        top: mobile ? 169 : 180,
+        width: mobile ? 312 : 1152,
+        height: mobile ? 506 : 540,
+      })
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    const colors = new Set<number>();
+    for (let i = 0; i < data.length; i += pixels.channels)
+      colors.add(
+        ((data[i] >> 3) << 10) | ((data[i + 1] >> 3) << 5) | (data[i + 2] >> 3),
+      );
+    expect(
+      colors.size,
+      "A abertura precisa mostrar a cena, sem tela lisa",
+    ).toBeGreaterThan(50);
     try {
       await expect(page.locator("#I01")).toBeVisible({ timeout: 30000 });
     } catch (error) {

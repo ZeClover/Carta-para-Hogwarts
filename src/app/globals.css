@@ -2590,7 +2590,7 @@ body:has(.cinema) > footer {
   transition: opacity 0.25s ease;
 }
 
-/* Direct scene entry and a covered cut: the document stays in one DOM tree. */
+/* Scene entrances remain visible while the document waits for the camera. */
 .intro-skip {
   position: absolute;
   top: 24px;
@@ -2604,18 +2604,6 @@ body:has(.cinema) > footer {
 .cinema[data-entry="opening"] :is(.cinema-header, .cinema-document-layout) {
   visibility: hidden;
   pointer-events: none;
-}
-.chapter-cover {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background: #e9dec7;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.16s ease;
-}
-.cinema[data-travelling="true"] .chapter-cover {
-  opacity: 1;
 }
 .cinema .question-necessity {
   color: var(--muted-ink);
@@ -2676,11 +2664,6 @@ body:has(.cinema) > footer {
   }
   .cinema[data-chapter] .cinema-header h1 {
     font-size: 18px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .chapter-cover {
-    transition: none;
   }
 }
 
@@ -2769,18 +2752,7 @@ body:has(.cinema) > footer {
   inset: 0;
 }
 
-/* Object entrances stay visible; documents wait until camera and object settle. */
-.cinema:is(
-    [data-chapter="II"],
-    [data-chapter="III"],
-    [data-chapter="IV"],
-    [data-chapter="V"],
-    [data-chapter="VI"],
-    [data-chapter="VII"]
-  )[data-travelling="true"]
-  .chapter-cover {
-  opacity: 0;
-}
+/* Documents wait until the camera and chapter object settle. */
 .cinema[data-object-loading="true"] .cinema-document-layout {
   opacity: 0;
   pointer-events: none;
