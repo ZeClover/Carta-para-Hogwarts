@@ -1,0 +1,48 @@
+{
+  "id": "desk",
+  "chapter": "VII",
+  "path": "/assets/desk/desk-c58b45fb20b4.glb",
+  "bytes": 1789060,
+  "sha256": "c58b45fb20b444df711ab1594eccb6c94a4941fecad94fffa4633d3305d23e13",
+  "sourceBytes": 3603612,
+  "sourceSha256": "12b4be94d91a3cf995133fa22e345dc1abbefa91f2bc433c04a77718e9e0c0e1",
+  "author": "Faheem Yusuf (https://sketchfab.com/FameProductions)",
+  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+  "source": "https://sketchfab.com/3d-models/victorian-desk-ac061b3de2b9480d8ca175e9fdc0c785",
+  "title": "Victorian Desk",
+  "textures": [
+    {
+      "slots": [["deskinitialShadingGroup1", "color"]],
+      "bytes": 233669,
+      "dimensions": 1024
+    },
+    {
+      "slots": [["deskinitialShadingGroup1", "roughness-metal"]],
+      "bytes": 312769,
+      "dimensions": 1024
+    },
+    {
+      "slots": [["deskinitialShadingGroup1", "normal"]],
+      "bytes": 1041361,
+      "dimensions": 1024
+    }
+  ],
+  "triangles": 4762,
+  "originalAnimations": [],
+  "changes": [
+    "All eight original pieces and 4,762 triangles retained",
+    "Original 1K texture artwork compressed, no procedural repaint",
+    "Original separate center drawer translated from closed to its authored open pose; no original animation clip exists",
+    "Other drawers and door keep source open positions"
+  ],
+  "drawer": {
+    "sourceNode": "desk:polySurface13",
+    "runtimeNode": "deskpolySurface13",
+    "distance": 23.633079528808594,
+    "duration": 2.2
+  },
+  "sourceProportions": {
+    "width": 215.36930938458963,
+    "height": 97.83962345123291
+  }
+}

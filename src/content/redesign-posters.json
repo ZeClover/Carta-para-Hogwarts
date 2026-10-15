@@ -18,15 +18,6 @@
     "license": "Same licenses as the chapter model and credited assets"
   },
   {
-    "chapter": "VI",
-    "device": "desktop",
-    "path": "/assets/redesign/poster-vi-desktop-031c02e6379d.webp",
-    "bytes": 45918,
-    "sha256": "031c02e6379df1da083133f13b6056fc53d247c10662bbd4873b86baaffb20d5",
-    "source": "Local production scene capture; same chapter models and camera",
-    "license": "Same licenses as the chapter model and credited assets"
-  },
-  {
     "chapter": "II",
     "device": "mobile",
     "path": "/assets/redesign/poster-ii-mobile-fba389a0f838.webp",
@@ -45,15 +36,6 @@
     "license": "Same licenses as the chapter model and credited assets"
   },
   {
-    "chapter": "VI",
-    "device": "mobile",
-    "path": "/assets/redesign/poster-vi-mobile-90ca1ba698d5.webp",
-    "bytes": 18466,
-    "sha256": "90ca1ba698d51a0c7db215e398bb5f5607df8ba7b51b081faa8772a93dea8e49",
-    "source": "Local production scene capture; same chapter models and camera",
-    "license": "Same licenses as the chapter model and credited assets"
-  },
-  {
     "chapter": "I",
     "device": "desktop",
     "path": "/assets/redesign/poster-i-desktop-735dbf52042f.webp",
@@ -63,47 +45,11 @@
     "license": "Same licenses as the chapter model and credited assets"
   },
   {
-    "chapter": "V",
-    "device": "desktop",
-    "path": "/assets/redesign/poster-v-desktop-65a694b024f5.webp",
-    "bytes": 45230,
-    "sha256": "65a694b024f555be9fb590eba3494b470c3ed549991eed8dca3aa8a5bd2390ec",
-    "source": "Local production scene capture; same chapter models and camera",
-    "license": "Same licenses as the chapter model and credited assets"
-  },
-  {
     "chapter": "I",
     "device": "mobile",
     "path": "/assets/redesign/poster-i-mobile-2f03de1f2a52.webp",
     "bytes": 5868,
     "sha256": "2f03de1f2a52fe545bb7f9fda8c7f81a7998b35b972ff798830584d07518ecb9",
-    "source": "Local production scene capture; same chapter models and camera",
-    "license": "Same licenses as the chapter model and credited assets"
-  },
-  {
-    "chapter": "V",
-    "device": "mobile",
-    "path": "/assets/redesign/poster-v-mobile-8a1b2845cb9b.webp",
-    "bytes": 5390,
-    "sha256": "8a1b2845cb9b14ff4ccaa8a49eacb537cdc60e603e7c7e22782e24beab143127",
-    "source": "Local production scene capture; same chapter models and camera",
-    "license": "Same licenses as the chapter model and credited assets"
-  },
-  {
-    "chapter": "VII",
-    "device": "desktop",
-    "path": "/assets/redesign/poster-vii-desktop-5347416816c4.webp",
-    "bytes": 33200,
-    "sha256": "5347416816c41e886f6dc73caef2af8ff8b6a14641ee1429c7a1bce3c4528bfa",
-    "source": "Local production scene capture; same chapter models and camera",
-    "license": "Same licenses as the chapter model and credited assets"
-  },
-  {
-    "chapter": "VII",
-    "device": "mobile",
-    "path": "/assets/redesign/poster-vii-mobile-f4edeceac83d.webp",
-    "bytes": 6644,
-    "sha256": "f4edeceac83dc2c49f85697c4776ba29d18d9803c1c8c38cf6860fdc47bb80f1",
     "source": "Local production scene capture; same chapter models and camera",
     "license": "Same licenses as the chapter model and credited assets"
   },
@@ -122,6 +68,60 @@
     "path": "/assets/redesign/poster-iii-mobile-9cb5485d48d5.webp",
     "bytes": 3436,
     "sha256": "9cb5485d48d545f2decd9b5f081269a65f13fb1f7bdc98a6c3160ce7cb32443c",
+    "source": "Local production scene capture; same chapter models and camera",
+    "license": "Same licenses as the chapter model and credited assets"
+  },
+  {
+    "chapter": "V",
+    "device": "desktop",
+    "path": "/assets/redesign/poster-v-desktop-8402ee8eaeab.webp",
+    "bytes": 42000,
+    "sha256": "8402ee8eaeab036c8b496747e06de816e8e49839c2e479c27fd08a19e0337ac1",
+    "source": "Local production scene capture; same chapter models and camera",
+    "license": "Same licenses as the chapter model and credited assets"
+  },
+  {
+    "chapter": "VI",
+    "device": "desktop",
+    "path": "/assets/redesign/poster-vi-desktop-b0e9dbd4e799.webp",
+    "bytes": 36836,
+    "sha256": "b0e9dbd4e799969a37d4e976e0794e892d7bcbdb210737fe1a66ed45f5e98076",
+    "source": "Local production scene capture; same chapter models and camera",
+    "license": "Same licenses as the chapter model and credited assets"
+  },
+  {
+    "chapter": "V",
+    "device": "mobile",
+    "path": "/assets/redesign/poster-v-mobile-d2e27fdb3c87.webp",
+    "bytes": 6466,
+    "sha256": "d2e27fdb3c8784deff1a271b826ea571c87da8d5a3c3c062f83b17d094b41bb4",
+    "source": "Local production scene capture; same chapter models and camera",
+    "license": "Same licenses as the chapter model and credited assets"
+  },
+  {
+    "chapter": "VI",
+    "device": "mobile",
+    "path": "/assets/redesign/poster-vi-mobile-883e8593ca97.webp",
+    "bytes": 7816,
+    "sha256": "883e8593ca9796a35e9fe6aabd21d127a848aa08c38d322ca90029a5b8bd8996",
+    "source": "Local production scene capture; same chapter models and camera",
+    "license": "Same licenses as the chapter model and credited assets"
+  },
+  {
+    "chapter": "VII",
+    "device": "desktop",
+    "path": "/assets/redesign/poster-vii-desktop-bcaa5ddc4eca.webp",
+    "bytes": 31774,
+    "sha256": "bcaa5ddc4ecab53f104b914a4a828fa5cb69f006b261f5892ac4a10eb7421004",
+    "source": "Local production scene capture; same chapter models and camera",
+    "license": "Same licenses as the chapter model and credited assets"
+  },
+  {
+    "chapter": "VII",
+    "device": "mobile",
+    "path": "/assets/redesign/poster-vii-mobile-247dafcd723c.webp",
+    "bytes": 7536,
+    "sha256": "247dafcd723cbcac39b50f946caa3314531a8a65b5ae42e1904814c9305e5ec5",
     "source": "Local production scene capture; same chapter models and camera",
     "license": "Same licenses as the chapter model and credited assets"
   }

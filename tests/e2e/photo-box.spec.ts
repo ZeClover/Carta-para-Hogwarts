@@ -101,6 +101,7 @@ test("caixa original abre, aproxima câmera, revela perguntas e preserva respost
       time: number;
       camera: string | null;
       lid: string | null;
+      drawer: string | null;
     }[] = [];
     Object.assign(window, { photoBoxSamples: samples });
     new MutationObserver((changes) => {
@@ -116,6 +117,7 @@ test("caixa original abre, aproxima câmera, revela perguntas e preserva respost
           time: Number(canvas.getAttribute("data-photo-box-time")),
           camera: canvas.getAttribute("data-camera"),
           lid: canvas.getAttribute("data-photo-box-lid"),
+          drawer: canvas.getAttribute("data-desk-drawer"),
         });
     }).observe(document, {
       subtree: true,
@@ -162,6 +164,7 @@ test("caixa original abre, aproxima câmera, revela perguntas e preserva respost
               time: number;
               camera: string | null;
               lid: string | null;
+              drawer: string | null;
             }[];
           }
         ).photoBoxSamples,
@@ -173,6 +176,11 @@ test("caixa original abre, aproxima câmera, revela perguntas e preserva respost
     expect(middle).toBeDefined();
     expect(middle!.camera).not.toBe(pose);
     expect(middle!.lid).not.toBe(lid);
+    await expect(canvas).toHaveAttribute("data-protagonist", "victorian-desk");
+    await expect(canvas).toHaveAttribute("data-desk-progress", "1.000");
+    expect(middle!.drawer).not.toBe(
+      await canvas.getAttribute("data-desk-drawer"),
+    );
     const points = JSON.parse(
       (await canvas.getAttribute("data-photo-anchors"))!,
     );
@@ -195,6 +203,37 @@ test("caixa original abre, aproxima câmera, revela perguntas e preserva respost
     });
     await expect(nativePhotos.locator("button")).toHaveCount(10);
     if (!mobile) {
+      await expect(canvas).toHaveAttribute("data-desk-drawer-anchor", /"x":/);
+      const drawerAnchor = JSON.parse(
+        (await canvas.getAttribute("data-desk-drawer-anchor"))!,
+      );
+      expect(
+        await page.evaluate(
+          ({ x, y }) => document.elementFromPoint(x, y)?.tagName,
+          drawerAnchor,
+        ),
+      ).toBe("CANVAS");
+      await page.mouse.click(drawerAnchor.x, drawerAnchor.y);
+      await expect(page.locator("#VII10-title")).toBeVisible();
+      const hotspotRects = await page
+        .getByRole("navigation", { name: "Fotografias na cena", exact: true })
+        .locator("button")
+        .evaluateAll((buttons) =>
+          buttons.map((button) => {
+            const { x, y, width, height } = button.getBoundingClientRect();
+            return { x, y, width, height };
+          }),
+        );
+      for (let i = 0; i < hotspotRects.length; i++)
+        for (const other of hotspotRects.slice(i + 1)) {
+          const rect = hotspotRects[i];
+          expect(
+            rect.x < other.x + other.width &&
+              rect.x + rect.width > other.x &&
+              rect.y < other.y + other.height &&
+              rect.y + rect.height > other.y,
+          ).toBe(false);
+        }
       // A real projected HTML hotspot, in the scene, selects the existing question.
       await page
         .getByRole("navigation", { name: "Fotografias na cena", exact: true })

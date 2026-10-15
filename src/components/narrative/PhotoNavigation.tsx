@@ -24,10 +24,10 @@ export function PhotoNavigation({
       const documentBox = document
         .querySelector(".cinema-document-layout")
         ?.getBoundingClientRect();
+      const placed: PhotoAnchor[] = [];
       setPoints(
-        anchors.map((p) => ({
-          ...p,
-          visible:
+        anchors.map((p) => {
+          const visible =
             p.visible &&
             !(
               documentBox &&
@@ -35,8 +35,16 @@ export function PhotoNavigation({
               p.x - 22 < documentBox.right &&
               p.y + 22 > documentBox.top &&
               p.y - 22 < documentBox.bottom
-            ),
-        })),
+            ) &&
+            !placed.some(
+              (other) =>
+                Math.abs(other.x - p.x) < 48 && Math.abs(other.y - p.y) < 48,
+            );
+          // At narrower desktop widths, retain the full HTML index rather than
+          // let projected controls intercept each other's pointer or focus.
+          if (visible) placed.push(p);
+          return { ...p, visible };
+        }),
       );
     };
     const receive = (event: Event) =>

@@ -264,6 +264,18 @@ function ChapterVector({
           <g>
             <ellipse cy="-10" rx="163" ry="237" fill={url("gold")} />
             <ellipse cy="-10" rx="140" ry="211" fill={url("glass")} />
+            <clipPath id={`${id}-mirror-window`}>
+              <ellipse cy="-10" rx="140" ry="211" />
+            </clipPath>
+            <g clipPath={`url(#${id}-mirror-window)`}>
+              <rect x="-110" y="-180" width="170" height="285" fill="#afc6cc" />
+              <path
+                d="M-112-180v285M-25-180v285M62-180v285M-110-38H60"
+                fill="none"
+                stroke="#6c5540"
+                strokeWidth="9"
+              />
+            </g>
             <ellipse
               cy="-10"
               rx="153"
@@ -292,38 +304,48 @@ function ChapterVector({
         )}
         {chapter === "VI" && (
           <g>
-            <g transform="rotate(-14)">
-              <rect
-                x="-215"
-                y="-123"
-                width="420"
-                height="302"
-                fill="#294661"
+            <g transform="translate(-50 -35)">
+              <ellipse
+                cy="-35"
+                rx="142"
+                ry="154"
+                fill="none"
+                stroke={url("gold")}
+                strokeWidth="12"
+              />
+              <ellipse
+                cy="-35"
+                rx="142"
+                ry="54"
+                transform="rotate(-24)"
+                fill="none"
+                stroke={url("gold")}
+                strokeWidth="8"
+              />
+              <ellipse
+                cy="-35"
+                rx="48"
+                ry="154"
+                transform="rotate(20)"
+                fill="none"
+                stroke={url("gold")}
+                strokeWidth="8"
+              />
+              <circle
+                cy="-35"
+                r="32"
+                fill="#68828a"
+                stroke="#c7ac75"
+                strokeWidth="3"
+              />
+              <path d="M0 123v47" stroke={url("gold")} strokeWidth="15" />
+              <ellipse
+                cy="178"
+                rx="90"
+                ry="20"
+                fill={url("wood")}
                 stroke={url("gold")}
                 strokeWidth="5"
-              />
-              {[38, 76, 112].map((r) => (
-                <circle
-                  key={r}
-                  r={r}
-                  fill="none"
-                  stroke="#c2aa7e"
-                  strokeOpacity=".6"
-                />
-              ))}
-              {Array.from({ length: 30 }, (_, i) => (
-                <circle
-                  key={i}
-                  cx={-184 + ((i * 97) % 372)}
-                  cy={-99 + ((i * 53) % 244)}
-                  r={i % 4 ? 2 : 4}
-                  fill="#f3deb0"
-                />
-              ))}
-              <path
-                d="M-133-55-58 29 25-33 84 62 149 32"
-                fill="none"
-                stroke="#a0b6c9"
               />
             </g>
             <g className="celestial-hourglass" transform="translate(117 -75)">
@@ -344,6 +366,27 @@ function ChapterVector({
         )}
         {chapter === "VII" && (
           <g>
+            <g>
+              <path
+                d="M-250 85 190 60 260 105-235 130Z"
+                fill={url("wood")}
+                stroke="#ad7f4b"
+                strokeWidth="4"
+              />
+              <path
+                d="M-235 130v135h45V143M195 118v135h45V113"
+                fill={url("wood")}
+                stroke="#5d3d2c"
+                strokeWidth="4"
+              />
+              <path
+                d="M-180 131H150v45h-330Z"
+                fill={url("wood")}
+                stroke="#b88953"
+                strokeWidth="3"
+              />
+              <circle cx="-15" cy="153" r="7" fill={url("gold")} />
+            </g>
             <g transform="translate(92 -86) rotate(12)">
               <path
                 d="M-105-60h220v153h-220Z"

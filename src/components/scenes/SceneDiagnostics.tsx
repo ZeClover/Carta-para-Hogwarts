@@ -13,9 +13,27 @@ export function SceneDiagnostics({ chapter }: { chapter: ChapterId }) {
     canvas.setAttribute("data-triangles", String(gl.info.render.triangles));
     canvas.setAttribute("data-geometries", String(gl.info.memory.geometries));
     canvas.setAttribute("data-textures", String(gl.info.memory.textures));
-    const hero = scene.getObjectByName(`hero-${chapter}`);
-    if (hero) {
+    for (const [name, attribute] of [
+      [`hero-${chapter}`, "data-hero-bounds"],
+      ["secondary-hourglass", "data-secondary-bounds"],
+      ["mirror-surface", "data-mirror-bounds"],
+      ["deskpolySurface13", "data-desk-drawer-bounds"],
+    ]) {
+      const hero = scene.getObjectByName(name);
+      if (!hero) continue;
       const bounds = new THREE.Box3().setFromObject(hero);
+      if (name === "deskpolySurface13") {
+        const center = bounds.getCenter(new THREE.Vector3());
+        center.z = bounds.max.z;
+        center.project(camera);
+        canvas.setAttribute(
+          "data-desk-drawer-anchor",
+          JSON.stringify({
+            x: Math.round(((center.x + 1) * size.width) / 2),
+            y: Math.round(((1 - center.y) * size.height) / 2),
+          }),
+        );
+      }
       const points: THREE.Vector3[] = [];
       for (const x of [bounds.min.x, bounds.max.x])
         for (const y of [bounds.min.y, bounds.max.y])
@@ -24,7 +42,7 @@ export function SceneDiagnostics({ chapter }: { chapter: ChapterId }) {
       const xs = points.map((p) => ((p.x + 1) * size.width) / 2),
         ys = points.map((p) => ((1 - p.y) * size.height) / 2);
       canvas.setAttribute(
-        "data-hero-bounds",
+        attribute,
         JSON.stringify({
           x: Math.min(...xs),
           y: Math.min(...ys),

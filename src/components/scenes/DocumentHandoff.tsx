@@ -94,7 +94,13 @@ export function DocumentHandoff({
     };
   }, [camera, gl, invalidate, opening, turning]);
   return (
-    <mesh ref={ref} geometry={geometry} visible={false} renderOrder={1}>
+    <mesh
+      name="document-handoff"
+      ref={ref}
+      geometry={geometry}
+      visible={false}
+      renderOrder={1}
+    >
       <meshStandardMaterial color="#f0dfbb" roughness={0.96} />
     </mesh>
   );

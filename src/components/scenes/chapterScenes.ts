@@ -1,6 +1,10 @@
 import { chapterDirection, chapterOrder } from "./chapterDirection";
 import posters from "@/content/redesign-posters.json";
 import assets from "@/content/redesign-assets.json";
+import desk from "@/content/desk.json";
+import hourglass from "@/content/hourglass.json";
+import mirror from "@/content/mirror.json";
+import armillary from "@/content/armillary.json";
 import inkQuill from "@/content/ink-quill.json";
 import photoBox from "@/content/photo-box.json";
 /** Presentation-only manifest. It contains no questions, answers or narrative conditions. */
@@ -13,10 +17,19 @@ export const chapterScenes = Object.fromEntries(
         heroId: `chapter-${id.toLowerCase()}`,
         criticalAssets: [
           id === "VII"
-            ? photoBox.path
+            ? desk.path
             : id === "III"
               ? inkQuill.path
-              : assets.find((a) => a.chapter === id)!.path,
+              : id === "V"
+                ? mirror.path
+                : id === "VI"
+                  ? armillary.path
+                  : assets.find((a) => a.chapter === id)!.path,
+          ...(id === "VI"
+            ? [hourglass.path]
+            : id === "VII"
+              ? [photoBox.path]
+              : []),
         ],
         optionalAssets:
           id === "II"

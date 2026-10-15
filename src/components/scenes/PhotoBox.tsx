@@ -4,6 +4,7 @@ import { useFrame, useLoader, useThree } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import * as THREE from "three";
 import asset from "@/content/photo-box.json";
+import desk from "@/content/desk.json";
 import { retainChapterAsset } from "./AssetRegistry";
 import {
   PHOTO_ANCHORS_EVENT,
@@ -18,14 +19,17 @@ export function PhotoBox({
   onReady,
   onSelect,
   selected,
+  secondary = false,
 }: {
   playback: PhotoBoxPlayback;
   onReady?: (phase?: "assets") => void;
   onSelect?: (id: string) => void;
   selected?: string;
+  secondary?: boolean;
 }) {
   const gltf = useLoader(GLTFLoader, asset.path);
   const { gl, invalidate, camera, size } = useThree();
+  const mobile = size.width <= 700;
   useEffect(() => retainChapterAsset(asset.path, gltf), [gltf]);
   const instance = useMemo(() => {
     const model = gltf.scene.clone(true);
@@ -63,12 +67,21 @@ export function PhotoBox({
       const bounds = new THREE.Box3().setFromObject(photo);
       const center = bounds.getCenter(new THREE.Vector3());
       const inBox = i >= 8;
-      const x = inBox ? 0.33 + (i - 8) * 0.53 : -1.85 + (i % 2) * 0.7;
+      // The smaller box sits on a desk: spread desktop prints in two rows,
+      // keeping their projected 44px controls apart instead of stacking them.
+      const deskLayout = secondary && !mobile;
+      const x = inBox
+        ? 0.33 + (i - 8) * 0.53
+        : deskLayout
+          ? -3 + (i % 4) * 0.85
+          : -1.85 + (i % 2) * 0.7;
       const z = inBox
         ? i === 8
           ? -0.29
           : 0.29
-        : -0.9 + Math.floor(i / 2) * 0.6;
+        : deskLayout
+          ? -1.2 + Math.floor(i / 4) * 1.8
+          : -0.9 + Math.floor(i / 2) * 0.6;
       photo.position.add(
         new THREE.Vector3(
           (x - 0.6) / 4.8 - 0.108382 - center.x,
@@ -88,7 +101,7 @@ export function PhotoBox({
     action.play();
     mixer.setTime(0);
     return { model, photos, mixer };
-  }, [gltf]);
+  }, [gltf, secondary, mobile]);
   const group = useRef<THREE.Group>(null);
   const lastAnchors = useRef("");
   useEffect(() => {
@@ -194,14 +207,28 @@ export function PhotoBox({
     },
     [instance],
   );
+  const ratio = Math.min(1, size.width / (mobile ? 390 : 1440));
+  const deskX = mobile ? 0 : -0.7 * ratio + 0.6 * (1 - ratio);
+  const surfaceY =
+    (mobile ? -0.7 : -1.1) +
+    ((mobile ? 2.8 : 5) * ratio * desk.sourceProportions.height) /
+      desk.sourceProportions.width;
   return (
     <group
       ref={group}
-      position={[size.width <= 700 ? 0.05 : 0, 0.025, 0]}
+      position={
+        secondary
+          ? [
+              deskX + (mobile ? 0.25 : 0.55) * ratio,
+              surfaceY + 0.025,
+              (mobile ? -0.35 : -0.45) * ratio,
+            ]
+          : [mobile ? 0.05 : 0, 0.025, 0]
+      }
       scale={
         size.width <= 700
-          ? 2.3 * Math.min(1, size.width / 390)
-          : 4.8 * Math.min(1, size.width / 1440)
+          ? (secondary ? 1.45 : 2.3) * Math.min(1, size.width / 390)
+          : (secondary ? 2.9 : 4.8) * Math.min(1, size.width / 1440)
       }
       userData={{ heroId: asset.id, chapter: "VII" }}
     >

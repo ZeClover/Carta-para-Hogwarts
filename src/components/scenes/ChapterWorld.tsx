@@ -14,6 +14,10 @@ import { ChapterModel } from "./ChapterModel";
 import { LibraryModel } from "./LibraryModel";
 import { EnchantedBook } from "./EnchantedBook";
 import { createPageGeometry, deformPage } from "./pageGeometry";
+import { VictorianDesk } from "./VictorianDesk";
+import { OrnateHourglass } from "./OrnateHourglass";
+import { OrnateMirror } from "./OrnateMirror";
+import { ArmillarySphere } from "./ArmillarySphere";
 import { InkQuill } from "./InkQuill";
 import { SceneEntrancePlayback } from "./sceneEntrancePlayback";
 import { PhotoBox } from "./PhotoBox";
@@ -37,6 +41,9 @@ type Props = {
   selectedPhoto?: string;
   archivePlayback?: PhotoBoxPlayback;
   inkPlayback?: SceneEntrancePlayback;
+  mirrorPlayback?: SceneEntrancePlayback;
+  armillaryPlayback?: SceneEntrancePlayback;
+  deskPlayback?: SceneEntrancePlayback;
 };
 function useSurface(kind: "wood" | "wall" | "letter" | "paper") {
   const map = useMemo(() => {
@@ -358,116 +365,6 @@ function Correspondence({
     </group>
   );
 }
-function GlassHourglass({
-  turning,
-  still,
-}: {
-  turning?: boolean;
-  still: boolean;
-}) {
-  const ref = useRef<THREE.Group>(null),
-    { invalidate } = useThree();
-  const glass = useMemo(
-    () =>
-      new THREE.SplineCurve(
-        [
-          [-0.68, 0.25],
-          [-0.52, 0.31],
-          [-0.3, 0.22],
-          [-0.08, 0.055],
-          [0, 0.022],
-          [0.08, 0.055],
-          [0.3, 0.22],
-          [0.52, 0.31],
-          [0.68, 0.25],
-        ].map(([y, r]) => new THREE.Vector2(r, y)),
-      ).getPoints(48),
-    [],
-  );
-  const rim = useMemo(
-    () => [
-      new THREE.Vector2(0.43, -0.045),
-      new THREE.Vector2(0.46, -0.02),
-      new THREE.Vector2(0.46, 0.02),
-      new THREE.Vector2(0.43, 0.045),
-    ],
-    [],
-  );
-  useEffect(() => {
-    if (!ref.current) return;
-    const t = gsap.to(ref.current.rotation, {
-      z: turning ? Math.PI : 0,
-      duration: still ? 0 : 0.28,
-      ease: "power2.inOut",
-      onUpdate: invalidate,
-    });
-    return () => {
-      t.kill();
-    };
-  }, [turning, still, invalidate]);
-  return (
-    <group position={[0, 0.9, 0]}>
-      <group ref={ref}>
-        {[-0.77, 0.77].map((y) => (
-          <mesh key={y} position={[0, y, 0]} castShadow>
-            <latheGeometry args={[rim, 48]} />
-            <meshStandardMaterial
-              color="#b59355"
-              roughness={0.28}
-              metalness={0.8}
-            />
-          </mesh>
-        ))}
-        {[-0.34, 0.34].flatMap((x) =>
-          [-0.24, 0.24].map((z) => (
-            <group key={`${x},${z}`} position={[x, 0, z]}>
-              <mesh castShadow>
-                <cylinderGeometry args={[0.023, 0.023, 1.48, 16]} />
-                <meshStandardMaterial
-                  color="#bd9b62"
-                  metalness={0.8}
-                  roughness={0.28}
-                />
-              </mesh>
-              {[-0.6, 0.6].map((y) => (
-                <mesh key={y} position={[0, y, 0]}>
-                  <sphereGeometry args={[0.04, 16, 12]} />
-                  <meshStandardMaterial
-                    color="#bd9b62"
-                    metalness={0.8}
-                    roughness={0.28}
-                  />
-                </mesh>
-              ))}
-            </group>
-          )),
-        )}
-        <mesh>
-          <latheGeometry args={[glass, 48]} />
-          <meshPhysicalMaterial
-            color="#bfd4d0"
-            transparent
-            opacity={0.33}
-            roughness={0.12}
-            metalness={0.05}
-            side={THREE.DoubleSide}
-            depthWrite={false}
-          />
-        </mesh>
-        {[-1, 1].map((s) => (
-          <mesh key={s} position={[0, s * 0.5, 0]} scale={[1, 0.5, 1]}>
-            <sphereGeometry args={[0.23, 32, 20]} />
-            <meshStandardMaterial color="#d9c398" roughness={1} />
-          </mesh>
-        ))}
-        <mesh position={[0, -0.19, 0]}>
-          <cylinderGeometry args={[0.005, 0.008, 0.38, 8]} />
-          <meshStandardMaterial color="#d9c398" roughness={1} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
 function WindowDelivery({ turning, still, onAction, onReady }: Props) {
   return (
     <group>
@@ -519,31 +416,33 @@ function Protagonist({ chapter, ...props }: Props & { chapter: ChapterId }) {
   if (chapter === "IV") return <WindowDelivery {...props} />;
   if (chapter === "V")
     return (
-      <group scale={1.15}>
-        <ChapterModel chapter="V" onReady={props.onReady} />
-      </group>
+      <OrnateMirror playback={props.mirrorPlayback!} onReady={props.onReady} />
     );
   if (chapter === "VI")
     return (
-      <>
-        <group scale={1.2}>
-          <ChapterModel chapter="VI" onReady={props.onReady} />
-        </group>
-        <group position={[2.4, 0, 0]} scale={0.82}>
-          <GlassHourglass turning={turning} still={still} />
-        </group>
-      </>
+      <ArmillarySphere
+        playback={props.armillaryPlayback!}
+        onReady={props.onReady}
+      />
     );
   return (
-    <PhotoBox
-      playback={props.archivePlayback!}
-      onReady={props.onReady}
-      onSelect={props.onPhotoSelect}
-      selected={props.selectedPhoto}
-    />
+    <>
+      <VictorianDesk
+        playback={props.deskPlayback!}
+        onSelect={props.onPhotoSelect}
+      />
+      <PhotoBox
+        secondary
+        playback={props.archivePlayback!}
+        onReady={props.onReady}
+        onSelect={props.onPhotoSelect}
+        selected={props.selectedPhoto}
+      />
+    </>
   );
 }
 function Bay({ chapter, props }: { chapter: ChapterId; props: Props }) {
+  const mobile = useThree((state) => state.size.width <= 700);
   const d = chapterDirection[chapter],
     wood = useSurface("wood");
   return (
@@ -556,20 +455,21 @@ function Bay({ chapter, props }: { chapter: ChapterId; props: Props }) {
         <meshStandardMaterial color={d.wall} roughness={0.95} />
       </mesh>
       <mesh
-        position={[0, -1.1, 0]}
+        position={[0, chapter === "VII" && mobile ? -0.7 : -1.1, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
         receiveShadow
       >
         <planeGeometry args={[13, 10]} />
         <meshStandardMaterial map={wood} color="#74523e" roughness={0.86} />
       </mesh>
-      {chapter === "II" ? (
+      {chapter === "VII" ? null : chapter === "II" ? (
         <Beveled at={[0, -0.08, 0]} size={[5.3, 0.15, 3.2]} color="#9a8c71" />
       ) : chapter === "V" ? (
         <Beveled at={[0, -0.1, 0]} size={[3.2, 0.2, 1]} color="#584333" />
       ) : (
         <Beveled at={[0, -0.1, 0]} size={[5, 0.2, 3.5]} map={wood} />
       )}
+      {chapter === "VI" && <OrnateHourglass />}
       <group name={`hero-${chapter}`}>
         <Protagonist {...props} chapter={chapter} />
       </group>
@@ -590,6 +490,9 @@ function Bay({ chapter, props }: { chapter: ChapterId; props: Props }) {
   );
 }
 export function ChapterWorld(props: Props) {
+  const deskPlayback = useMemo(() => new SceneEntrancePlayback(), []);
+  const mirrorPlayback = useMemo(() => new SceneEntrancePlayback(), []);
+  const armillaryPlayback = useMemo(() => new SceneEntrancePlayback(), []);
   const inkPlayback = useMemo(() => new SceneEntrancePlayback(), []);
   const archivePlayback = useMemo(() => new PhotoBoxPlayback(), []);
   const { still } = props;
@@ -656,6 +559,9 @@ export function ChapterWorld(props: Props) {
             ...props,
             archivePlayback,
             inkPlayback,
+            mirrorPlayback,
+            armillaryPlayback,
+            deskPlayback,
             onReady: c === chapter ? props.onReady : undefined,
             turning: c === chapter && props.turning,
             turnSerial: c === chapter ? props.turnSerial : 0,
@@ -674,7 +580,14 @@ export function ChapterWorld(props: Props) {
         turning={props.turning}
         onJourney={props.onJourney}
         archivePlayback={archivePlayback}
-        inkPlayback={inkPlayback}
+        deskPlayback={deskPlayback}
+        objectPlayback={
+          chapter === "V"
+            ? mirrorPlayback
+            : chapter === "VI"
+              ? armillaryPlayback
+              : inkPlayback
+        }
       />
     </>
   );

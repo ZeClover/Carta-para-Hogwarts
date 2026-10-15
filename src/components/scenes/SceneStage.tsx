@@ -70,8 +70,9 @@ export const SceneStage = memo(function SceneStage({
     immersive && kind === "VII"
       ? {
           ...sceneConfig[kind],
-          title: "A caixa de fotografias",
-          caption: "Fotografias por preencher. Você escolhe o que guardar.",
+          title: "A mesa de documentos",
+          caption:
+            "Cartas e fotografias por preencher, sobre a escrivaninha. Você escolhe o que guardar.",
         }
       : immersive && kind === "III"
         ? {
@@ -80,7 +81,21 @@ export const SceneStage = memo(function SceneStage({
             caption:
               "A pena se move por um instante. Sua história ainda está por escrever.",
           }
-        : sceneConfig[kind];
+        : immersive && kind === "V"
+          ? {
+              ...sceneConfig[kind],
+              title: "O espelho ornamentado",
+              caption:
+                "A moldura guarda a luz do quarto. Você decide como se descrever.",
+            }
+          : immersive && kind === "VI"
+            ? {
+                ...sceneConfig[kind],
+                title: "A esfera armilar",
+                caption:
+                  "Entre os anéis de metal e a areia, há espaço para o que você escolher contar.",
+              }
+            : sceneConfig[kind];
   const [active, setActive] = useState(false),
     [still, setStill] = useState(false),
     [systemReduced, setSystemReduced] = useState(false);
@@ -402,17 +417,28 @@ export const SceneStage = memo(function SceneStage({
         <p className="scene-renderer-note">
           {render3d && ready ? "Cenário 3D interativo" : "Cenário leve 2.5D"} ·
           {immersive && kind === "VII"
-            ? "Caixa de fotografias · modelo fornecido"
+            ? "Mesa: Faheem Yusuf · CC BY 4.0 · Caixa fornecida"
             : immersive && kind === "III"
               ? "Tinteiro com pena · Matthew Collings · CC BY 4.0"
-              : "Arte original e modelos CC0"}
+              : immersive && kind === "V"
+                ? "Ornate Mirror · Arnold Konrad · Sketchfab Standard"
+                : immersive && kind === "VI"
+                  ? "Esfera: Stellarator · Ampulheta: Inknot · CC BY 4.0"
+                  : "Arte original e modelos CC0"}
         </p>
         <p className="sr-only" aria-live="polite">
           {interacted ? config.result : ""}
         </p>
         {immersive && kind === "VII" ? (
           <span className="scene-source-credit">
-            Modelo fornecido ao projeto
+            <a
+              href="https://sketchfab.com/3d-models/victorian-desk-ac061b3de2b9480d8ca175e9fdc0c785"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Mesa — Faheem Yusuf · CC BY 4.0
+            </a>{" "}
+            · Caixa fornecida ao projeto
           </span>
         ) : immersive && kind === "III" ? (
           <a
@@ -423,6 +449,34 @@ export const SceneStage = memo(function SceneStage({
           >
             Ink Bottle with Quill — Matthew Collings · CC BY 4.0
           </a>
+        ) : immersive && kind === "V" ? (
+          <a
+            className="scene-source-credit"
+            href="https://sketchfab.com/3d-models/ornate-mirror-68a8a9f27f6f4fb3b9d568bbb5db1086"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Ornate Mirror — Arnold Konrad · Sketchfab Standard
+          </a>
+        ) : immersive && kind === "VI" ? (
+          <span className="scene-source-credit">
+            <a
+              href="https://sketchfab.com/3d-models/armillary-sphere-astrolabe-d9c7e19aeef940fcac65efc964534a9c"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Esfera — Stellarator
+            </a>{" "}
+            ·{" "}
+            <a
+              href="https://sketchfab.com/3d-models/hourglass-6cdbe313e61a48c584a1a77b0925aac6"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ampulheta — Inknot
+            </a>{" "}
+            · CC BY 4.0
+          </span>
         ) : (
           <a
             className="scene-source-credit"

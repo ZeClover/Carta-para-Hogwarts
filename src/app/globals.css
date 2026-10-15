@@ -2770,12 +2770,16 @@ body:has(.cinema) > footer {
 }
 
 /* Object entrances stay visible; documents wait until camera and object settle. */
-.cinema:is([data-chapter="III"], [data-chapter="VII"])[data-travelling="true"]
+.cinema:is(
+    [data-chapter="III"],
+    [data-chapter="V"],
+    [data-chapter="VI"],
+    [data-chapter="VII"]
+  )[data-travelling="true"]
   .chapter-cover {
   opacity: 0;
 }
-.cinema:is([data-archive-loading="true"], [data-ink-loading="true"])
-  .cinema-document-layout {
+.cinema[data-object-loading="true"] .cinema-document-layout {
   opacity: 0;
   pointer-events: none;
 }

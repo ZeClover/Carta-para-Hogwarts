@@ -1,0 +1,38 @@
+{
+  "id": "hourglass",
+  "chapter": "VI",
+  "path": "/assets/hourglass/hourglass-adb80a216926.glb",
+  "bytes": 2715584,
+  "sha256": "adb80a216926bad954d23dc28d60e45205c9557eb26a806d8ba9d56e8f48b3ed",
+  "sourceBytes": 8328648,
+  "sourceSha256": "d0417cf677537569e569c3ce71abdcd62b9fb02ed821689e7949c7fa16277633",
+  "author": "Inknot (https://sketchfab.com/Inknot)",
+  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+  "source": "https://sketchfab.com/3d-models/hourglass-6cdbe313e61a48c584a1a77b0925aac6",
+  "title": "Hourglass",
+  "textures": [
+    {
+      "slots": [["Material.043", "color"]],
+      "bytes": 128872,
+      "dimensions": 512
+    },
+    {
+      "slots": [["Material.043", "roughness-metal"]],
+      "bytes": 145992,
+      "dimensions": 512
+    },
+    {
+      "slots": [["Material.043", "normal"]],
+      "bytes": 645624,
+      "dimensions": 512
+    }
+  ],
+  "triangles": 28364,
+  "originalAnimations": [],
+  "changes": [
+    "Original ornate metal maps compressed to 512 without repainting",
+    "Geometry simplified with max source-space error .001; 28,364 triangles retained",
+    "Black glass tint corrected to clear pale glass; expensive transmission disabled; alpha .20 and front-side depth sorting",
+    "Original sand geometry colored aged beige, secondary object remains still"
+  ]
+}

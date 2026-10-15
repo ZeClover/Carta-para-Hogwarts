@@ -1,0 +1,162 @@
+{
+  "id": "armillary",
+  "chapter": "VI",
+  "path": "/assets/armillary/armillary-ed819236bca6.glb",
+  "bytes": 4666320,
+  "sha256": "ed819236bca616c138c3af5b3ba95f328d36542f95b49e75ab6d67d47bcfb52b",
+  "sourceBytes": 20819112,
+  "sourceSha256": "15b2a89ed890cf10b1b47276a8a22cd79054b3883808cbea0421d17e24298a47",
+  "author": "Stellarator (https://sketchfab.com/Stellarator)",
+  "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+  "source": "https://sketchfab.com/3d-models/armillary-sphere-astrolabe-d9c7e19aeef940fcac65efc964534a9c",
+  "title": "Armillary sphere (astrolabe)",
+  "textures": [
+    {
+      "slots": [
+        [
+          "brass",
+          "color"
+        ]
+      ],
+      "bytes": 309312,
+      "dimensions": 1024
+    },
+    {
+      "slots": [
+        [
+          "brass",
+          "roughness-metal"
+        ]
+      ],
+      "bytes": 281412,
+      "dimensions": 1024
+    },
+    {
+      "slots": [
+        [
+          "brass",
+          "normal"
+        ]
+      ],
+      "bytes": 1386093,
+      "dimensions": 1024
+    },
+    {
+      "slots": [
+        [
+          "moon",
+          "color"
+        ]
+      ],
+      "bytes": 23976,
+      "dimensions": 256
+    },
+    {
+      "slots": [
+        [
+          "moon",
+          "roughness-metal"
+        ]
+      ],
+      "bytes": 16246,
+      "dimensions": 256
+    },
+    {
+      "slots": [
+        [
+          "moon",
+          "normal"
+        ]
+      ],
+      "bytes": 129843,
+      "dimensions": 256
+    },
+    {
+      "slots": [
+        [
+          "earth",
+          "color"
+        ]
+      ],
+      "bytes": 93308,
+      "dimensions": 512
+    },
+    {
+      "slots": [
+        [
+          "earth",
+          "normal"
+        ]
+      ],
+      "bytes": 183612,
+      "dimensions": 512
+    },
+    {
+      "slots": [
+        [
+          "material",
+          "color"
+        ]
+      ],
+      "bytes": 107580,
+      "dimensions": 512
+    },
+    {
+      "slots": [
+        [
+          "material",
+          "roughness-metal"
+        ]
+      ],
+      "bytes": 18387,
+      "dimensions": 512
+    },
+    {
+      "slots": [
+        [
+          "material",
+          "normal"
+        ]
+      ],
+      "bytes": 116309,
+      "dimensions": 512
+    },
+    {
+      "slots": [
+        [
+          "base_wood",
+          "color"
+        ]
+      ],
+      "bytes": 61677,
+      "dimensions": 512
+    },
+    {
+      "slots": [
+        [
+          "base_wood",
+          "roughness-metal"
+        ]
+      ],
+      "bytes": 91476,
+      "dimensions": 512
+    },
+    {
+      "slots": [
+        [
+          "base_wood",
+          "normal"
+        ]
+      ],
+      "bytes": 429661,
+      "dimensions": 512
+    }
+  ],
+  "triangles": 42168,
+  "originalAnimations": [],
+  "changes": [
+    "Separate nodes and original pivots retained",
+    "Geometry simplified with max source-space error .001",
+    "Original maps compressed; brass at 1K, small planets at 256/512"
+  ]
+}

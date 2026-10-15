@@ -21,7 +21,8 @@ export function CameraDirector({
   opening = false,
   onJourney,
   archivePlayback,
-  inkPlayback,
+  deskPlayback,
+  objectPlayback,
 }: {
   chapter: ChapterId;
   still: boolean;
@@ -29,7 +30,8 @@ export function CameraDirector({
   turning?: boolean;
   onJourney?: (moving: boolean) => void;
   archivePlayback?: PhotoBoxPlayback;
-  inkPlayback?: SceneEntrancePlayback;
+  deskPlayback?: SceneEntrancePlayback;
+  objectPlayback?: SceneEntrancePlayback;
 }) {
   const { camera, size, gl, invalidate } = useThree();
   const previous = useRef<{ chapter: ChapterId; opening: boolean } | null>(
@@ -46,10 +48,12 @@ export function CameraDirector({
       !!prior && (prior.chapter !== chapter || prior.opening !== opening);
     const archiveEntrance =
       chapter === "VII" && (!prior || prior.chapter !== "VII") && !still;
-    const inkEntrance =
-      chapter === "III" && (!prior || prior.chapter !== "III") && !still;
-    const entrance = archiveEntrance || inkEntrance;
-    const entrancePlayback = archiveEntrance ? archivePlayback : inkPlayback;
+    const objectEntrance =
+      ["III", "V", "VI"].includes(chapter) &&
+      (!prior || prior.chapter !== chapter) &&
+      !still;
+    const entrance = archiveEntrance || objectEntrance;
+    const entrancePlayback = archiveEntrance ? archivePlayback : objectPlayback;
     const arrivalDuration = prior && prior.chapter !== "VII" ? 1.1 : 0;
     const archiveDuration = arrivalDuration + 2.2;
     const moving = (changing || entrance) && !still;
@@ -62,16 +66,22 @@ export function CameraDirector({
     const stageX = chapterOrder.indexOf(chapter) * 18;
     const archiveStart = new THREE.Vector3(
       ...(portrait
-        ? ([stageX - 0.1, 5.6, 8.4] as const)
-        : ([stageX - 1.1, 4.8, 6.5] as const)),
+        ? ([stageX - 0.1, 5.3, 12.2] as const)
+        : ([stageX - 1.3, 5.8, 10.5] as const)),
     );
-    const archiveTarget = new THREE.Vector3(stageX, portrait ? -1.15 : 0.3, 0);
-    const inkStart = end
+    const archiveTarget = new THREE.Vector3(stageX, portrait ? -1.1 : 0.75, 0);
+    const objectStart = end
       .clone()
       .add(new THREE.Vector3(portrait ? 0 : -0.25, 0.35, 1.1));
-    const inkTarget = endTarget.clone();
-    const inkArrival = prior && prior.chapter !== "III" ? 1.1 : 0;
-    const inkDuration = inkArrival + inkQuill.animation.duration;
+    const objectTarget = endTarget.clone();
+    const objectArrival = prior && prior.chapter !== chapter ? 1.1 : 0;
+    const gestureDuration =
+      chapter === "V"
+        ? 1.6
+        : chapter === "VI"
+          ? 2.1
+          : inkQuill.animation.duration;
+    const objectDuration = objectArrival + gestureDuration;
     const lens = chapterDirection[chapter].fov;
     if (!prior) {
       camera.position.copy(end);
@@ -80,9 +90,9 @@ export function CameraDirector({
         camera.position.copy(archiveStart);
         target.current.copy(archiveTarget);
       }
-      if (inkEntrance) {
-        camera.position.copy(inkStart);
-        target.current.copy(inkTarget);
+      if (objectEntrance) {
+        camera.position.copy(objectStart);
+        target.current.copy(objectTarget);
       }
       if (opening && !still)
         camera.position.add(new THREE.Vector3(0.6, 0.5, 1.0));
@@ -118,34 +128,39 @@ export function CameraDirector({
           }
         }
         archivePlayback?.seek(openingProgress * photoBox.animation.openingEnd);
+        deskPlayback?.seek(openingProgress * 2.2);
         gl.domElement.setAttribute(
           "data-photo-box-state",
           openingProgress < 1 ? "opening" : "open",
         );
       }
-      if (chapter === "III") {
+      if (["III", "V", "VI"].includes(chapter)) {
         let manifestation = 1;
-        if (inkEntrance) {
-          const elapsed = state.p * inkDuration;
-          if (elapsed < inkArrival) {
-            const p = -(Math.cos((Math.PI * elapsed) / inkArrival) - 1) / 2;
-            camera.position.lerpVectors(start, inkStart, p);
-            target.current.lerpVectors(startTarget, inkTarget, p);
+        if (objectEntrance) {
+          const elapsed = state.p * objectDuration;
+          if (elapsed < objectArrival) {
+            const p = -(Math.cos((Math.PI * elapsed) / objectArrival) - 1) / 2;
+            camera.position.lerpVectors(start, objectStart, p);
+            target.current.lerpVectors(startTarget, objectTarget, p);
             manifestation = 0;
           } else {
             manifestation = THREE.MathUtils.clamp(
-              (elapsed - inkArrival) / inkQuill.animation.duration,
+              (elapsed - objectArrival) / gestureDuration,
               0,
               1,
             );
             const p = -(Math.cos(Math.PI * manifestation) - 1) / 2;
-            camera.position.lerpVectors(inkStart, end, p);
-            target.current.lerpVectors(inkTarget, endTarget, p);
+            camera.position.lerpVectors(objectStart, end, p);
+            target.current.lerpVectors(objectTarget, endTarget, p);
           }
         }
-        inkPlayback?.seek(manifestation * inkQuill.animation.duration);
+        objectPlayback?.seek(manifestation * gestureDuration);
         gl.domElement.setAttribute(
-          "data-ink-state",
+          chapter === "III"
+            ? "data-ink-state"
+            : chapter === "V"
+              ? "data-mirror-state"
+              : "data-armillary-state",
           manifestation < 1 ? "manifesting" : "settled",
         );
       }
@@ -217,8 +232,8 @@ export function CameraDirector({
     }
     const duration = archiveEntrance
       ? archiveDuration
-      : inkEntrance
-        ? inkDuration
+      : objectEntrance
+        ? objectDuration
         : opening
           ? portrait
             ? 1
@@ -298,7 +313,8 @@ export function CameraDirector({
     invalidate,
     onJourney,
     archivePlayback,
-    inkPlayback,
+    deskPlayback,
+    objectPlayback,
   ]);
   return null;
 }

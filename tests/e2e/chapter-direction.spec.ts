@@ -36,8 +36,8 @@ test("sete composições reconhecíveis, leitura acessível e viagem real de câ
       "ink-quill",
       "window-letter",
       "mirror",
-      "celestial-map",
-      "personal-archive",
+      "armillary-sphere",
+      "victorian-desk",
     ];
     const poses: string[] = [];
     for (const [i, chapter] of [

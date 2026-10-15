@@ -241,7 +241,9 @@ function Experience({
   const review = step.id.endsWith("-review");
   const archiveLoading = chapter === "VII" && !presentationReady;
   const inkLoading = chapter === "III" && !presentationReady;
-  const objectLoading = archiveLoading || inkLoading;
+  const sceneObjectLoading =
+    (chapter === "V" || chapter === "VI") && !presentationReady;
+  const objectLoading = archiveLoading || inkLoading || sceneObjectLoading;
   function editStory(edit: (s: Story) => Story) {
     change((p) => ({
       ...p,
@@ -476,6 +478,7 @@ function Experience({
       data-phase={phase}
       data-entry={intro ? "opening" : "reading"}
       data-storage-ready="true"
+      data-object-loading={objectLoading ? "true" : "false"}
       data-ink-loading={inkLoading ? "true" : "false"}
       data-archive-loading={archiveLoading ? "true" : "false"}
       data-interaction-ready={
@@ -536,8 +539,12 @@ function Experience({
       {objectLoading && (
         <p className="entry-readiness" role="status">
           {chapter === "VII"
-            ? "Preparando a caixa de fotografias…"
-            : "Preparando o tinteiro…"}
+            ? "Preparando a mesa de documentos…"
+            : chapter === "III"
+              ? "Preparando o tinteiro…"
+              : chapter === "V"
+                ? "Preparando o espelho…"
+                : "Preparando a esfera armilar…"}
         </p>
       )}
       {chapter === "VII" && (

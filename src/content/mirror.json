@@ -1,0 +1,59 @@
+{
+  "id": "mirror",
+  "chapter": "V",
+  "path": "/assets/mirror/mirror-7defde152493.glb",
+  "bytes": 3615468,
+  "sha256": "7defde15249368426a0cf4f5e9ef87fc8575798c2165ba58492f09b5bffe1e7c",
+  "sourceBytes": 5031032,
+  "sourceSha256": "129b4260d6b73535b3b487c71939ffaa5a9de81f4092032798a7ebec48bea544",
+  "author": "Arnold Konrad (https://sketchfab.com/akonrad)",
+  "license": "SKETCHFAB Standard (https://sketchfab.com/licenses)",
+  "source": "https://sketchfab.com/3d-models/ornate-mirror-68a8a9f27f6f4fb3b9d568bbb5db1086",
+  "title": "Ornate Mirror",
+  "textures": [
+    {
+      "slots": [["Mirror_material", "color"]],
+      "bytes": 218574,
+      "dimensions": 1024
+    },
+    {
+      "slots": [["Mirror_material", "roughness-metal"]],
+      "bytes": 358305,
+      "dimensions": 1024
+    },
+    {
+      "slots": [["Mirror_material", "normal"]],
+      "bytes": 2301989,
+      "dimensions": 1024
+    },
+    {
+      "slots": [["Glass_material", "color"]],
+      "bytes": 8866,
+      "dimensions": 1024
+    },
+    {
+      "slots": [["Glass_material", "roughness-metal"]],
+      "bytes": 22060,
+      "dimensions": 1024
+    },
+    {
+      "slots": [["Glass_material", "normal"]],
+      "bytes": 361739,
+      "dimensions": 1024
+    }
+  ],
+  "triangles": 9675,
+  "originalAnimations": [],
+  "changes": [
+    "Frame consolidated without changing silhouette/UVs; glass retained separately",
+    "Original artwork compressed; procedural artwork never replaces frame"
+  ],
+  "reflection": {
+    "type": "Planar architectural reflection proxy",
+    "desktopResolution": 512,
+    "mobileResolution": 256,
+    "cache": "Refresh only when camera/projection/model matrix changes; no reading animation",
+    "content": "Neutral 3D wall, window, candle; no face, webcam or generated character",
+    "entranceDuration": 1.6
+  }
+}
