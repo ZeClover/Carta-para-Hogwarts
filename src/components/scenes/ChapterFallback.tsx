@@ -8,7 +8,6 @@ function ChapterVector({
   chapter,
   turning,
   still,
-  turnDirection = 1,
 }: {
   chapter: ChapterId;
   turning?: boolean;
@@ -144,53 +143,48 @@ function ChapterVector({
           </g>
         )}
         {chapter === "II" && (
-          <g transform="rotate(-8)">
+          <g transform="rotate(-6)">
             <path
-              d="M-221-111Q-102-148 0-104Q109-145 222-110V170Q90 141 0 176Q-112 144-221 174Z"
-              fill="#634737"
-              stroke={url("gold")}
-              strokeWidth="9"
-            />
-            <path
-              d="M-209-107Q-94-139-5-96V162Q-113 135-209 159ZM5-96Q112-135 208-104V159Q112 134 5 162Z"
+              d="M-180-110Q0-125 180-110V125Q0 110-180 125Z"
               fill={url("paper")}
+              stroke="#ac936a"
+              strokeWidth="3"
             />
-            <path d="M0-105v278" stroke="#a28a61" strokeWidth="7" />
-            {[-165, 45].map((x, i) => (
-              <g
-                key={x}
-                transform={`translate(${x} -58) rotate(${i ? 8 : -6})`}
-              >
-                <rect width="115" height="148" fill="#f0dfbb" />
-                <image
-                  href="/assets/memory-forest.jpg"
-                  x="10"
-                  y="10"
-                  width="95"
-                  height="120"
-                  preserveAspectRatio="xMidYMid slice"
+            {[-190, 190].map((x) => (
+              <g key={x} transform={`translate(${x} 0)`}>
+                <rect
+                  x="-19"
+                  y="-130"
+                  width="38"
+                  height="275"
+                  rx="18"
+                  fill={url("paper")}
+                  stroke="#a28a61"
+                  strokeWidth="3"
+                />
+                <rect
+                  x="-23"
+                  y="-142"
+                  width="46"
+                  height="23"
+                  rx="10"
+                  fill={url("gold")}
+                />
+                <rect
+                  x="-23"
+                  y="133"
+                  width="46"
+                  height="23"
+                  rx="10"
+                  fill={url("gold")}
+                />
+                <path
+                  d="M0-158v16M0 157v16"
+                  stroke="#8e7654"
+                  strokeWidth="10"
                 />
               </g>
             ))}
-            {turning && !still && (
-              <g transform={turnDirection < 0 ? "scale(-1 1)" : undefined}>
-                <path
-                  fill={url("paper")}
-                  stroke="#ab936d"
-                  d="M5 -96Q112 -135 208 -104V159Q112 134 5 162Z"
-                >
-                  <animate
-                    attributeName="d"
-                    dur="1.55s"
-                    fill="freeze"
-                    values="M5 -96Q112 -135 208 -104V159Q112 134 5 162Z;M5 -96Q135 -220 144 -175L5 162Q112 23 5 -96Z;M5 -96Q-112 -221 -172 -149L5 162Q-152 23 5 -96Z;M5 -96Q-112 -135 -208 -104V159Q-112 134 5 162Z"
-                    keyTimes="0;.32;.68;1"
-                    calcMode="spline"
-                    keySplines=".4 0 .6 1;.4 0 .6 1;.4 0 .6 1"
-                  />
-                </path>
-              </g>
-            )}
           </g>
         )}
         {chapter === "III" && (
@@ -239,7 +233,10 @@ function ChapterVector({
               stroke={url("gold")}
               strokeWidth="14"
             />
-            <circle cx="83" cy="-133" r="27" fill="#eae7cb" />
+            <path
+              d="M-154 58q60-42 108-8t95-5q70-40 105-15v78h-308Z"
+              fill="#586e7c"
+            />
             <path
               d="M0-208V110M-157-63h314M-157 23h314"
               stroke="#b4a281"

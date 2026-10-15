@@ -12,13 +12,14 @@ import { SceneDiagnostics } from "./SceneDiagnostics";
 import { CameraDirector } from "./CameraDirector";
 import { ChapterModel } from "./ChapterModel";
 import { LibraryModel } from "./LibraryModel";
-import { EnchantedBook } from "./EnchantedBook";
 import { createPageGeometry, deformPage } from "./pageGeometry";
 import { VictorianDesk } from "./VictorianDesk";
 import { OrnateHourglass } from "./OrnateHourglass";
 import { OrnateMirror } from "./OrnateMirror";
 import { ArmillarySphere } from "./ArmillarySphere";
 import { InkQuill } from "./InkQuill";
+import { AncientScroll } from "./AncientScroll";
+import { HallwayDelivery } from "./HallwayDelivery";
 import { SceneEntrancePlayback } from "./sceneEntrancePlayback";
 import { PhotoBox } from "./PhotoBox";
 import { PhotoBoxPlayback } from "./photoBoxMotion";
@@ -44,6 +45,10 @@ type Props = {
   mirrorPlayback?: SceneEntrancePlayback;
   armillaryPlayback?: SceneEntrancePlayback;
   deskPlayback?: SceneEntrancePlayback;
+  scrollPlayback?: SceneEntrancePlayback;
+  hallwayPlayback?: SceneEntrancePlayback;
+  presentationKey?: string;
+  hallwaySeenOnResume?: boolean;
 };
 function useSurface(kind: "wood" | "wall" | "letter" | "paper") {
   const map = useMemo(() => {
@@ -365,20 +370,7 @@ function Correspondence({
     </group>
   );
 }
-function WindowDelivery({ turning, still, onAction, onReady }: Props) {
-  return (
-    <group>
-      <group position={[0, 0, -0.7]}>
-        <ChapterModel chapter="IV" onReady={onReady} />
-      </group>
-      <group position={[0, 0.16, 0.7]} scale={1.2}>
-        <Correspondence open={!turning} still={still} onAction={onAction} />
-      </group>
-    </group>
-  );
-}
 function Protagonist({ chapter, ...props }: Props & { chapter: ChapterId }) {
-  const singlePage = useThree((state) => state.size.width <= 700);
   const { turning, still, onAction } = props;
   if (chapter === "I")
     return (
@@ -401,19 +393,18 @@ function Protagonist({ chapter, ...props }: Props & { chapter: ChapterId }) {
     );
   if (chapter === "II")
     return (
-      <group scale={1.25} rotation={[0, -0.18, 0]}>
-        <EnchantedBook
-          {...props}
-          registration
-          album
-          rebuilt
-          singlePage={singlePage}
-        />
-      </group>
+      <AncientScroll playback={props.scrollPlayback!} onReady={props.onReady} />
     );
   if (chapter === "III")
     return <InkQuill playback={props.inkPlayback!} onReady={props.onReady} />;
-  if (chapter === "IV") return <WindowDelivery {...props} />;
+  if (chapter === "IV")
+    return (
+      <HallwayDelivery
+        playback={props.hallwayPlayback!}
+        onReady={props.onReady}
+        onAction={onAction}
+      />
+    );
   if (chapter === "V")
     return (
       <OrnateMirror playback={props.mirrorPlayback!} onReady={props.onReady} />
@@ -445,6 +436,14 @@ function Bay({ chapter, props }: { chapter: ChapterId; props: Props }) {
   const mobile = useThree((state) => state.size.width <= 700);
   const d = chapterDirection[chapter],
     wood = useSurface("wood");
+  if (chapter === "IV")
+    return (
+      <group position={[54, 0, 0]} name="chapter-IV">
+        <group name="hero-IV">
+          <Protagonist {...props} chapter="IV" />
+        </group>
+      </group>
+    );
   return (
     <group
       position={[chapterOrder.indexOf(chapter) * 18, 0, 0]}
@@ -473,7 +472,7 @@ function Bay({ chapter, props }: { chapter: ChapterId; props: Props }) {
       <group name={`hero-${chapter}`}>
         <Protagonist {...props} chapter={chapter} />
       </group>
-      {chapter === "II" && (
+      {chapter === "II" && !mobile && (
         <>
           <group position={[-2, 0.08, -0.4]} rotation={[-Math.PI / 2, 0, -0.3]}>
             <LibraryModel
@@ -490,6 +489,8 @@ function Bay({ chapter, props }: { chapter: ChapterId; props: Props }) {
   );
 }
 export function ChapterWorld(props: Props) {
+  const scrollPlayback = useMemo(() => new SceneEntrancePlayback(), []);
+  const hallwayPlayback = useMemo(() => new SceneEntrancePlayback(), []);
   const deskPlayback = useMemo(() => new SceneEntrancePlayback(), []);
   const mirrorPlayback = useMemo(() => new SceneEntrancePlayback(), []);
   const armillaryPlayback = useMemo(() => new SceneEntrancePlayback(), []);
@@ -529,12 +530,14 @@ export function ChapterWorld(props: Props) {
     <>
       <color attach="background" args={[d.wall]} />
       <fog attach="fog" args={[d.wall, 14, 32]} />
-      <hemisphereLight args={[d.fill, "#816248", 1.7]} />
+      <hemisphereLight
+        args={[d.fill, "#816248", chapter === "IV" ? 1.2 : 1.7]}
+      />
       <primitive object={keyTarget} position={[x, 0, 0]} />
       <directionalLight
         target={keyTarget}
         position={[x + 2, 7, 5]}
-        intensity={3.6}
+        intensity={chapter === "IV" ? 2.2 : 3.6}
         color={d.key}
         castShadow
         shadow-mapSize={[512, 512]}
@@ -547,7 +550,7 @@ export function ChapterWorld(props: Props) {
       />
       <pointLight
         position={[x - 3, 2, 2]}
-        intensity={18}
+        intensity={chapter === "IV" ? 6 : 18}
         distance={12}
         color={d.fill}
       />
@@ -562,6 +565,8 @@ export function ChapterWorld(props: Props) {
             mirrorPlayback,
             armillaryPlayback,
             deskPlayback,
+            scrollPlayback,
+            hallwayPlayback,
             onReady: c === chapter ? props.onReady : undefined,
             turning: c === chapter && props.turning,
             turnSerial: c === chapter ? props.turnSerial : 0,
@@ -581,12 +586,17 @@ export function ChapterWorld(props: Props) {
         onJourney={props.onJourney}
         archivePlayback={archivePlayback}
         deskPlayback={deskPlayback}
+        hallwayPlayback={hallwayPlayback}
+        presentationKey={props.presentationKey}
+        hallwaySeenOnResume={props.hallwaySeenOnResume}
         objectPlayback={
-          chapter === "V"
-            ? mirrorPlayback
-            : chapter === "VI"
-              ? armillaryPlayback
-              : inkPlayback
+          chapter === "II"
+            ? scrollPlayback
+            : chapter === "V"
+              ? mirrorPlayback
+              : chapter === "VI"
+                ? armillaryPlayback
+                : inkPlayback
         }
       />
     </>

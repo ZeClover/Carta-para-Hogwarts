@@ -2771,7 +2771,9 @@ body:has(.cinema) > footer {
 
 /* Object entrances stay visible; documents wait until camera and object settle. */
 .cinema:is(
+    [data-chapter="II"],
     [data-chapter="III"],
+    [data-chapter="IV"],
     [data-chapter="V"],
     [data-chapter="VI"],
     [data-chapter="VII"]

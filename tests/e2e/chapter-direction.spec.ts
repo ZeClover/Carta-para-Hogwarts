@@ -32,9 +32,9 @@ test("sete composições reconhecíveis, leitura acessível e viagem real de câ
   try {
     const objects = [
       "correspondence",
-      "album",
+      "ancient-scroll",
       "ink-quill",
-      "window-letter",
+      "victorian-hallway",
       "mirror",
       "armillary-sphere",
       "victorian-desk",
@@ -112,7 +112,7 @@ test("sete composições reconhecíveis, leitura acessível e viagem real de câ
     );
     await expect(page.locator("canvas")).toHaveAttribute(
       "data-protagonist",
-      "album",
+      "ancient-scroll",
     );
     // A live menu transition retains the canvas instead of replacing it or reloading.
     const from = (await page.locator("canvas").getAttribute("data-camera"))!

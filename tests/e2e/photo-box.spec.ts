@@ -153,6 +153,7 @@ test("caixa original abre, aproxima câmera, revela perguntas e preserva respost
       "true",
     );
     await expect(canvas).toHaveAttribute("data-photo-box-time", "1.984");
+    await expect(canvas).toHaveAttribute("data-camera-state", "arrived");
     const pose = await canvas.getAttribute("data-camera"),
       lid = await canvas.getAttribute("data-photo-box-lid");
     expect(Math.abs(Number(lid!.split(",")[2]))).toBeGreaterThan(0.98);
@@ -181,11 +182,15 @@ test("caixa original abre, aproxima câmera, revela perguntas e preserva respost
     expect(middle!.drawer).not.toBe(
       await canvas.getAttribute("data-desk-drawer"),
     );
+    await expect(canvas).toHaveAttribute("data-photo-anchor-camera", pose!);
+    await expect(page.locator(".cinema-document-layout")).toHaveCSS(
+      "opacity",
+      "1",
+    );
     const points = JSON.parse(
       (await canvas.getAttribute("data-photo-anchors"))!,
     );
     expect(points.every((p: { visible: boolean }) => p.visible)).toBe(true);
-    await page.waitForTimeout(350);
     await page.screenshot({
       path: info.outputPath("photo-box-open.png"),
       timeout: 60000,

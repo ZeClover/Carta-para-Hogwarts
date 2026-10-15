@@ -15,6 +15,7 @@ import { chapterScenes } from "./chapterScenes";
 import type { ChapterId } from "@/content/chapters";
 import { SceneFallback } from "./SceneFallback";
 import { sceneConfig, type SceneKind } from "./config";
+import hallway from "@/content/hallway.json";
 const StudyCanvas = dynamic(() => import("./StudyCanvas"), { ssr: false });
 class SceneBoundary extends Component<
   { children: ReactNode; onFailure: () => void },
@@ -48,7 +49,11 @@ export const SceneStage = memo(function SceneStage({
   onDocumentAction,
   onPhotoSelect,
   selectedPhoto,
+  presentationKey,
+  hallwaySeenOnResume,
 }: {
+  presentationKey?: string;
+  hallwaySeenOnResume?: boolean;
   onPhotoSelect?: (id: string) => void;
   selectedPhoto?: string;
   onDocumentAction?: () => void;
@@ -67,35 +72,45 @@ export const SceneStage = memo(function SceneStage({
   onSkip?: () => void;
 }) {
   const config =
-    immersive && kind === "VII"
+    immersive && (kind === "II" || kind === "IV")
       ? {
           ...sceneConfig[kind],
-          title: "A mesa de documentos",
+          title:
+            kind === "II" ? "O pergaminho das origens" : "O corredor vitoriano",
           caption:
-            "Cartas e fotografias por preencher, sobre a escrivaninha. Você escolhe o que guardar.",
+            kind === "II"
+              ? "Você escolhe o que contar sobre infância e família."
+              : "A correspondência repousa à luz da janela. Você escolhe como narrar o chamado.",
         }
-      : immersive && kind === "III"
+      : immersive && kind === "VII"
         ? {
             ...sceneConfig[kind],
-            title: "O tinteiro e a pena",
+            title: "A mesa de documentos",
             caption:
-              "A pena se move por um instante. Sua história ainda está por escrever.",
+              "Cartas e fotografias por preencher, sobre a escrivaninha. Você escolhe o que guardar.",
           }
-        : immersive && kind === "V"
+        : immersive && kind === "III"
           ? {
               ...sceneConfig[kind],
-              title: "O espelho ornamentado",
+              title: "O tinteiro e a pena",
               caption:
-                "A moldura guarda a luz do quarto. Você decide como se descrever.",
+                "A pena se move por um instante. Sua história ainda está por escrever.",
             }
-          : immersive && kind === "VI"
+          : immersive && kind === "V"
             ? {
                 ...sceneConfig[kind],
-                title: "A esfera armilar",
+                title: "O espelho ornamentado",
                 caption:
-                  "Entre os anéis de metal e a areia, há espaço para o que você escolher contar.",
+                  "A moldura guarda a luz do quarto. Você decide como se descrever.",
               }
-            : sceneConfig[kind];
+            : immersive && kind === "VI"
+              ? {
+                  ...sceneConfig[kind],
+                  title: "A esfera armilar",
+                  caption:
+                    "Entre os anéis de metal e a areia, há espaço para o que você escolher contar.",
+                }
+              : sceneConfig[kind];
   const [active, setActive] = useState(false),
     [still, setStill] = useState(false),
     [systemReduced, setSystemReduced] = useState(false);
@@ -217,7 +232,10 @@ export const SceneStage = memo(function SceneStage({
     if (!wants3d || render3d) return;
     const controller = new AbortController();
     // Missing initial heroes should fail before allocating a renderer and compiling its lighting.
-    const path = chapterScenes[kind]?.criticalAssets[0];
+    const path =
+      kind === "IV" && window.matchMedia("(max-width:700px)").matches
+        ? hallway.mobile.path
+        : chapterScenes[kind]?.criticalAssets[0];
     if (!path) return;
     void fetch(path, { method: "HEAD", signal: controller.signal })
       .then((response) => {
@@ -282,6 +300,17 @@ export const SceneStage = memo(function SceneStage({
     return () => cancelAnimationFrame(frame);
   }, [kind, render3d, onJourney]);
   const reduced = still || systemReduced || slowChapter === kind;
+  useEffect(() => {
+    // Cold corridor/archive scenes suspend their 3D subtree. Gate while loading,
+    // before the camera director can commit and announce the entrance.
+    if (
+      immersive &&
+      (kind === "IV" || kind === "VII") &&
+      render3d &&
+      readyKind !== kind
+    )
+      onJourney?.(true);
+  }, [immersive, kind, render3d, readyKind, onJourney]);
   return (
     <section
       className={`study-scene study-${kind} ${immersive ? "study-immersive" : ""} ${reduced ? "reduce-scene" : ""}`}
@@ -338,6 +367,8 @@ export const SceneStage = memo(function SceneStage({
                 onJourney={onJourney}
                 onPhotoSelect={onPhotoSelect}
                 selectedPhoto={selectedPhoto}
+                presentationKey={presentationKey}
+                hallwaySeenOnResume={hallwaySeenOnResume}
               />
             </SceneBoundary>
           </div>
@@ -424,12 +455,19 @@ export const SceneStage = memo(function SceneStage({
                 ? "Ornate Mirror · Arnold Konrad · Sketchfab Standard"
                 : immersive && kind === "VI"
                   ? "Esfera: Stellarator · Ampulheta: Inknot · CC BY 4.0"
-                  : "Arte original e modelos CC0"}
+                  : immersive && (kind === "II" || kind === "IV")
+                    ? "Modelo fornecido ao projeto"
+                    : "Arte original e modelos CC0"}
         </p>
         <p className="sr-only" aria-live="polite">
           {interacted ? config.result : ""}
         </p>
-        {immersive && kind === "VII" ? (
+        {immersive && (kind === "II" || kind === "IV") ? (
+          <span className="scene-source-credit">
+            {kind === "II" ? "Pergaminho" : "Victorian Hallway"} — modelo
+            fornecido ao projeto
+          </span>
+        ) : immersive && kind === "VII" ? (
           <span className="scene-source-credit">
             <a
               href="https://sketchfab.com/3d-models/victorian-desk-ac061b3de2b9480d8ca175e9fdc0c785"

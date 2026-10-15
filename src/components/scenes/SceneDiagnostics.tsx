@@ -18,6 +18,7 @@ export function SceneDiagnostics({ chapter }: { chapter: ChapterId }) {
       ["secondary-hourglass", "data-secondary-bounds"],
       ["mirror-surface", "data-mirror-bounds"],
       ["deskpolySurface13", "data-desk-drawer-bounds"],
+      ["hallway-letter", "data-delivery-bounds"],
     ]) {
       const hero = scene.getObjectByName(name);
       if (!hero) continue;

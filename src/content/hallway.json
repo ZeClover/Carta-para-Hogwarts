@@ -1,0 +1,462 @@
+{
+  "id": "hallway",
+  "chapter": "IV",
+  "path": "/assets/hallway/hallway-0b523ffcfabd.glb",
+  "sha256": "0b523ffcfabd25d320a2deec32525bce02467246433ba8702472bdf9f22f6d03",
+  "bytes": 9192536,
+  "triangles": 98101,
+  "textures": [
+    {
+      "name": "Leather_Sofa_BaseColor.png",
+      "maxSize": 512,
+      "bytes": 31540
+    },
+    {
+      "name": "Leather_Sofa_Metallic.png",
+      "maxSize": 512,
+      "bytes": 70448
+    },
+    {
+      "name": "Leather_Sofa_Normal.png",
+      "maxSize": 512,
+      "bytes": 161534
+    },
+    {
+      "name": "Wooden_Furniture_BaseColor.png",
+      "maxSize": 1024,
+      "bytes": 158721
+    },
+    {
+      "name": "Wooden_Furniture_Metallic.png",
+      "maxSize": 1024,
+      "bytes": 125263
+    },
+    {
+      "name": "Wooden_Furniture_Normal.png",
+      "maxSize": 1024,
+      "bytes": 193496
+    },
+    {
+      "name": "Books_BaseColor.png",
+      "maxSize": 512,
+      "bytes": 73596
+    },
+    {
+      "name": "Books_Metallic.png",
+      "maxSize": 512,
+      "bytes": 66812
+    },
+    {
+      "name": "Books_Normal.png",
+      "maxSize": 512,
+      "bytes": 123795
+    },
+    {
+      "name": "Victorian_Lighting_BaseColor.png_rgba",
+      "maxSize": 512,
+      "bytes": 598356
+    },
+    {
+      "name": "Victorian_Lighting_Metallic.png",
+      "maxSize": 512,
+      "bytes": 96177
+    },
+    {
+      "name": "Victorian_Lighting_Normal.png",
+      "maxSize": 512,
+      "bytes": 74044
+    },
+    {
+      "name": "Victorian_Lighting_Emission.png",
+      "maxSize": 512,
+      "bytes": 1978
+    },
+    {
+      "name": "Grand_Victorian_Desk_BaseColor_sRGB.png",
+      "maxSize": 1024,
+      "bytes": 165553
+    },
+    {
+      "name": "Grand_Victorian_Desk_Metallic_Raw.png",
+      "maxSize": 1024,
+      "bytes": 168046
+    },
+    {
+      "name": "Grand_Victorian_Desk_Normal_Raw.png",
+      "maxSize": 1024,
+      "bytes": 261119
+    },
+    {
+      "name": "Victorian_Paintings_BaseColor.png",
+      "maxSize": 512,
+      "bytes": 74164
+    },
+    {
+      "name": "Victorian_Paintings_Metallic.png",
+      "maxSize": 512,
+      "bytes": 52092
+    },
+    {
+      "name": "Victorian_Paintings_Normal.png",
+      "maxSize": 512,
+      "bytes": 86860
+    },
+    {
+      "name": "Chair_BaseColor.png",
+      "maxSize": 512,
+      "bytes": 52668
+    },
+    {
+      "name": "Chair_Metallic.png",
+      "maxSize": 512,
+      "bytes": 48452
+    },
+    {
+      "name": "Chair_Normal.png",
+      "maxSize": 512,
+      "bytes": 105668
+    },
+    {
+      "name": "Desk_Props_BaseColor_sRGB.png_rgba",
+      "maxSize": 512,
+      "bytes": 429119
+    },
+    {
+      "name": "Desk_Props_Metallic_Raw.png",
+      "maxSize": 512,
+      "bytes": 83025
+    },
+    {
+      "name": "Desk_Props_Normal_Raw.png",
+      "maxSize": 512,
+      "bytes": 66344
+    },
+    {
+      "name": "Interior_BaseColor.png_rgba",
+      "maxSize": 1024,
+      "bytes": 1604359
+    },
+    {
+      "name": "Interior_Metallic.png",
+      "maxSize": 1024,
+      "bytes": 198448
+    },
+    {
+      "name": "Interior_Normal.png",
+      "maxSize": 1024,
+      "bytes": 208373
+    },
+    {
+      "name": "Interior_Emission.png",
+      "maxSize": 1024,
+      "bytes": 8479
+    }
+  ],
+  "bounds": {
+    "min": [
+      -3.6149130394701707,
+      -2.1997866370623774e-05,
+      -2.541876508545345
+    ],
+    "max": [
+      4.4371971473724265,
+      5.225111688032201,
+      2.6327595291143004
+    ]
+  },
+  "features": {
+    "Side_Table_1_Wooden_Furniture_0": {
+      "min": [
+        -3.522970973186842,
+        2.0533393052308187e-06,
+        1.747630310590755
+      ],
+      "max": [
+        -3.01040835208278,
+        0.6680590384087258,
+        2.5273899105229405
+      ]
+    },
+    "Floor_Interior_0": {
+      "min": [
+        -3.5231028150818595,
+        0.0003172539296010172,
+        -1.3986262056538563
+      ],
+      "max": [
+        4.3348822673809,
+        0.0003178940439891276,
+        2.5303600174853194
+      ]
+    },
+    "Glass_1_Interior_0": {
+      "min": [
+        -3.5776600713484417,
+        0.8229198256147949,
+        1.2112674909898962
+      ],
+      "max": [
+        -3.5776598350717443,
+        2.985907704051267,
+        1.8160291323397337
+      ]
+    },
+    "Glass_2_Interior_0": {
+      "min": [
+        -3.5776600713484417,
+        0.8229198256147945,
+        0.26387352260281355
+      ],
+      "max": [
+        -3.5776598350717443,
+        2.9859077040512667,
+        0.8686351639526513
+      ]
+    },
+    "Glass_3_Interior_0": {
+      "min": [
+        -3.5776600713484417,
+        0.822919825614794,
+        -0.6835384893019321
+      ],
+      "max": [
+        -3.5776598350717443,
+        2.9859077040512663,
+        -0.07877684795209444
+      ]
+    },
+    "Window_Interior_0": {
+      "min": [
+        -3.5953574591422632,
+        0.7494298264110437,
+        -0.8549211258387422
+      ],
+      "max": [
+        -3.497173438284393,
+        3.157745638219338,
+        1.9872952599421891
+      ]
+    }
+  },
+  "mobile": {
+    "path": "/assets/hallway/hallway-mobile-1f6106cb0eff.glb",
+    "sha256": "1f6106cb0eff8c3939d5f3b161ed1fcc45e03c91c30a59426946dc5c89063a33",
+    "bytes": 5720496,
+    "triangles": 79466,
+    "textures": [
+      {
+        "name": "Leather_Sofa_BaseColor.png",
+        "maxSize": 512,
+        "bytes": 31540
+      },
+      {
+        "name": "Leather_Sofa_Metallic.png",
+        "maxSize": 512,
+        "bytes": 70448
+      },
+      {
+        "name": "Leather_Sofa_Normal.png",
+        "maxSize": 512,
+        "bytes": 161534
+      },
+      {
+        "name": "Wooden_Furniture_BaseColor.png",
+        "maxSize": 512,
+        "bytes": 41821
+      },
+      {
+        "name": "Wooden_Furniture_Metallic.png",
+        "maxSize": 512,
+        "bytes": 35951
+      },
+      {
+        "name": "Wooden_Furniture_Normal.png",
+        "maxSize": 512,
+        "bytes": 56013
+      },
+      {
+        "name": "Victorian_Lighting_BaseColor.png_rgba",
+        "maxSize": 512,
+        "bytes": 598356
+      },
+      {
+        "name": "Victorian_Lighting_Metallic.png",
+        "maxSize": 512,
+        "bytes": 96177
+      },
+      {
+        "name": "Victorian_Lighting_Normal.png",
+        "maxSize": 512,
+        "bytes": 74044
+      },
+      {
+        "name": "Victorian_Lighting_Emission.png",
+        "maxSize": 512,
+        "bytes": 1978
+      },
+      {
+        "name": "Grand_Victorian_Desk_BaseColor_sRGB.png",
+        "maxSize": 512,
+        "bytes": 45999
+      },
+      {
+        "name": "Grand_Victorian_Desk_Metallic_Raw.png",
+        "maxSize": 512,
+        "bytes": 50238
+      },
+      {
+        "name": "Grand_Victorian_Desk_Normal_Raw.png",
+        "maxSize": 512,
+        "bytes": 80047
+      },
+      {
+        "name": "Chair_BaseColor.png",
+        "maxSize": 512,
+        "bytes": 52668
+      },
+      {
+        "name": "Chair_Metallic.png",
+        "maxSize": 512,
+        "bytes": 48452
+      },
+      {
+        "name": "Chair_Normal.png",
+        "maxSize": 512,
+        "bytes": 105668
+      },
+      {
+        "name": "Desk_Props_BaseColor_sRGB.png_rgba",
+        "maxSize": 512,
+        "bytes": 429119
+      },
+      {
+        "name": "Desk_Props_Metallic_Raw.png",
+        "maxSize": 512,
+        "bytes": 83025
+      },
+      {
+        "name": "Desk_Props_Normal_Raw.png",
+        "maxSize": 512,
+        "bytes": 66344
+      },
+      {
+        "name": "Interior_BaseColor.png_rgba",
+        "maxSize": 512,
+        "bytes": 407739
+      },
+      {
+        "name": "Interior_Metallic.png",
+        "maxSize": 512,
+        "bytes": 55232
+      },
+      {
+        "name": "Interior_Normal.png",
+        "maxSize": 512,
+        "bytes": 49814
+      },
+      {
+        "name": "Interior_Emission.png",
+        "maxSize": 512,
+        "bytes": 2876
+      }
+    ],
+    "bounds": {
+      "min": [
+        -3.6149130394701707,
+        -2.1997866370623774e-05,
+        -2.541876508545345
+      ],
+      "max": [
+        4.4371971473724265,
+        5.225111688032201,
+        2.6327595291143004
+      ]
+    },
+    "features": {
+      "Side_Table_1_Wooden_Furniture_0": {
+        "min": [
+          -3.522970973186842,
+          2.0533393052308187e-06,
+          1.747630310590755
+        ],
+        "max": [
+          -3.01040835208278,
+          0.6680590384087258,
+          2.5273899105229405
+        ]
+      },
+      "Floor_Interior_0": {
+        "min": [
+          -3.5231028150818595,
+          0.0003172539296010172,
+          -1.3986262056538563
+        ],
+        "max": [
+          4.3348822673809,
+          0.0003178940439891276,
+          2.5303600174853194
+        ]
+      },
+      "Glass_1_Interior_0": {
+        "min": [
+          -3.5776600713484417,
+          0.8229198256147949,
+          1.2112674909898962
+        ],
+        "max": [
+          -3.5776598350717443,
+          2.985907704051267,
+          1.8160291323397337
+        ]
+      },
+      "Glass_2_Interior_0": {
+        "min": [
+          -3.5776600713484417,
+          0.8229198256147945,
+          0.26387352260281355
+        ],
+        "max": [
+          -3.5776598350717443,
+          2.9859077040512667,
+          0.8686351639526513
+        ]
+      },
+      "Glass_3_Interior_0": {
+        "min": [
+          -3.5776600713484417,
+          0.822919825614794,
+          -0.6835384893019321
+        ],
+        "max": [
+          -3.5776598350717443,
+          2.9859077040512663,
+          -0.07877684795209444
+        ]
+      },
+      "Window_Interior_0": {
+        "min": [
+          -3.5953574591422632,
+          0.7494298264110437,
+          -0.8549211258387422
+        ],
+        "max": [
+          -3.497173438284393,
+          3.157745638219338,
+          1.9872952599421891
+        ]
+      }
+    }
+  },
+  "sourceSha256": "94a4f636eb685b2b736868c476ad7e3295ffb10383763ccd081019401dfedd0a",
+  "originalAnimations": [],
+  "author": null,
+  "license": null,
+  "source": "User-supplied original ZIP, preserved privately",
+  "changes": [
+    "Original UVs and texture artwork retained; textures resized/compressed",
+    "Presentation root levelled to authored Z-up, then converted to Y-up",
+    "Fixed original window geometry; clear neutral exterior replaces white panes; foreground plants removed; mobile omits background decor"
+  ],
+  "sourceArchiveSha256": "42f735a6a977747b6260a9e14018920f399bee9da20111d299a12cfdfa580c92",
+  "sourceArchiveBytes": 177612151
+}

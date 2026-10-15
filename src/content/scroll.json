@@ -1,0 +1,76 @@
+{
+  "id": "scroll",
+  "chapter": "II",
+  "path": "/assets/scroll/scroll-04437368c32b.glb",
+  "sha256": "04437368c32b759a3a39aa06dd4950e5976f888b2fe850e99935533b7e635142",
+  "bytes": 1644492,
+  "triangles": 28480,
+  "textures": [
+    {
+      "name": "scrollrods02_scroll_Mat_Diffuse.jpg",
+      "maxSize": 1024,
+      "bytes": 129407
+    },
+    {
+      "name": "scrollrods02_scroll_Mat_Normal.jpg",
+      "maxSize": 1024,
+      "bytes": 101928
+    },
+    {
+      "name": "scrollrods02_rod_Mat_Diffuse.jpg",
+      "maxSize": 1024,
+      "bytes": 137656
+    },
+    {
+      "name": "scrollrods02_rod_Mat_Normal.jpg",
+      "maxSize": 1024,
+      "bytes": 78183
+    },
+    {
+      "name": "",
+      "maxSize": 1024,
+      "bytes": 16796
+    },
+    {
+      "name": "",
+      "maxSize": 1024,
+      "bytes": 87617
+    },
+    {
+      "name": "",
+      "maxSize": 1024,
+      "bytes": 161826
+    },
+    {
+      "name": "",
+      "maxSize": 1024,
+      "bytes": 186812
+    }
+  ],
+  "bounds": {
+    "min": [
+      -0.2116725993527635,
+      -2.0816681711721685e-17,
+      -0.1435100666396343
+    ],
+    "max": [
+      0.21167254451649153,
+      0.047757574444467404,
+      0.14350913203882512
+    ]
+  },
+  "features": {},
+  "mobile": null,
+  "sourceSha256": "1dc3c8c4f4c378799492783ce4fda27fbd13bd55ab519e1128fe80424db3956b",
+  "originalAnimations": [],
+  "author": null,
+  "license": null,
+  "source": "User-supplied original ZIP, preserved privately",
+  "changes": [
+    "Original UVs and texture artwork retained; textures resized/compressed",
+    "Presentation root levelled to authored Z-up, then converted to Y-up",
+    "Legacy specular-glossiness converted to supported metallic-roughness"
+  ],
+  "sourceArchiveSha256": "05b580aabb84723a6dff925698a1f887aee1b0cd2a36032d9a83fdd4a02376ed",
+  "sourceArchiveBytes": 51736613
+}

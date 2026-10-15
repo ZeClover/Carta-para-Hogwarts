@@ -26,7 +26,7 @@ Neste ambiente, o Chromium já está instalado. Em outra máquina, use `npx play
 ## Funcionalidades
 
 - Carta com lacre, abertura automática silenciosa, opção de pular pelo teclado e movimento reduzido.
-- Experiência fullscreen com sete composições cinematográficas, campos HTML acessíveis, cartas, álbum, espelho, mapa celeste e arquivo pessoal; retomada da pergunta salva e navegação entre capítulos. Veja [experiência cinematográfica](docs/EXPERIENCIA.md).
+- Experiência fullscreen com sete composições cinematográficas, campos HTML acessíveis, carta, pergaminho, tinteiro, corredor vitoriano, espelho, esfera armilar e mesa com fotografias; retomada da pergunta salva e navegação entre capítulos. Veja [experiência cinematográfica](docs/EXPERIENCIA.md).
 - 61 perguntas principais, seleção de família, extensões contextuais e cenas 3D procedurais com alternativa interativa 2.5D.
 - Perguntas opcionais, estados explícitos de resposta, relações e objetos reutilizáveis.
 - Fatos, crenças, lacunas, restrições e autorização por oportunidade; nenhuma hipótese automática vira cânone.
@@ -42,7 +42,7 @@ O JSON final contém as respostas e limites que você escolheu compartilhar com 
 
 `/mestre` não tem autenticação. Quem usar o mesmo perfil do navegador poderá acessar as importações; um visitante em outro dispositivo verá o arquivo vazio. Uma futura versão com dados em servidor exigirá autenticação e autorização reais.
 
-Emblema e objetos interativos são arte original em Three.js e SVG. O acervo inclui seis modelos CC0 e uma fotografia de paisagem CC0 do Poly Haven, além de sete protagonistas novos/reconstruídos por scripts Blender e pôsteres dos próprios cenários, otimizados e servidos localmente, com fontes no manifesto. No capítulo VII imersivo, a caixa Antique Photo Album fornecida pelo proprietário usa suas texturas e abertura original, com fotografias que navegam pelas perguntas existentes; sua proveniência consta em `src/content/photo-box.json`. Sem assets oficiais ou scraping. Veja [cenários e fontes](docs/CENARIOS.md). Animações respeitam `prefers-reduced-motion` e podem ser puladas. Som e WebGL não são necessários para usar o aplicativo.
+O acervo reúne objetos procedurais próprios, modelos CC0 do Poly Haven e os modelos fornecidos pelo proprietário. Na experiência fullscreen, II usa o pergaminho original; III, tinteiro com pena; IV, o corredor exclusivo com chegada animada da carta; V, Ornate Mirror; VI, esfera armilar com ampulheta secundária; VII, mesa vitoriana com a caixa Antique Photo Album e dez fotografias interativas. A caixa conserva seu clipe original; os demais movimentos usam somente as peças identificadas e não são apresentados como clipes incluídos. UVs e texturas originais são preservados nas versões otimizadas, com fontes, licenças declaradas e hashes nos manifestos. Autoria/licença ausentes nos arquivos fornecidos são registradas como desconhecidas, sem atribuição de CC0. O acervo anterior permanece nas rotas compactas. Veja [cenários e fontes](docs/CENARIOS.md). Animações respeitam `prefers-reduced-motion` e podem ser puladas. Som e WebGL não são necessários para usar o aplicativo.
 
 A especificação integral contém referências reservadas e fica fora do checkout. Nunca copie essa fonte, fichas reais, backups privados ou valores de credenciais para `src`, `public`, fixtures, logs ou variáveis `NEXT_PUBLIC_`.
 

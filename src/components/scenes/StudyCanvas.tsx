@@ -19,6 +19,8 @@ import { EnchantedBook } from "./EnchantedBook";
 import { AtmosphericDetails, ChapterProps } from "./StudyDetails";
 
 type Props = {
+  presentationKey?: string;
+  hallwaySeenOnResume?: boolean;
   opening?: boolean;
   open?: boolean;
   immersive?: boolean;

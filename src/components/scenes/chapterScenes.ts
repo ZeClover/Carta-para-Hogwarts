@@ -7,6 +7,8 @@ import mirror from "@/content/mirror.json";
 import armillary from "@/content/armillary.json";
 import inkQuill from "@/content/ink-quill.json";
 import photoBox from "@/content/photo-box.json";
+import scroll from "@/content/scroll.json";
+import hallway from "@/content/hallway.json";
 /** Presentation-only manifest. It contains no questions, answers or narrative conditions. */
 export const chapterScenes = Object.fromEntries(
   chapterOrder.map((id) => {
@@ -24,7 +26,11 @@ export const chapterScenes = Object.fromEntries(
                 ? mirror.path
                 : id === "VI"
                   ? armillary.path
-                  : assets.find((a) => a.chapter === id)!.path,
+                  : id === "II"
+                    ? scroll.path
+                    : id === "IV"
+                      ? hallway.path
+                      : assets.find((a) => a.chapter === id)!.path,
           ...(id === "VI"
             ? [hourglass.path]
             : id === "VII"

@@ -98,6 +98,15 @@ function Experience({
   );
   const [intro, setIntro] = useState(introduce);
   const [presentationReady, setPresentationReady] = useState(false);
+  const [hallwaySeenOnResume] = useState(() =>
+    Boolean(
+      player?.story.experienceStep?.startsWith("IV") ||
+      player?.story.chaptersReviewed.includes("IV") ||
+      Object.keys(player?.story.answers ?? {}).some((id) =>
+        id.startsWith("IV"),
+      ),
+    ),
+  );
   const [letterOpen, setLetterOpen] = useState(!introduce);
   const introTimeline = useRef<gsap.core.Timeline | null>(null);
   const transitionTimeline = useRef<gsap.core.Timeline | null>(null);
@@ -242,7 +251,11 @@ function Experience({
   const archiveLoading = chapter === "VII" && !presentationReady;
   const inkLoading = chapter === "III" && !presentationReady;
   const sceneObjectLoading =
-    (chapter === "V" || chapter === "VI") && !presentationReady;
+    (chapter === "II" ||
+      chapter === "IV" ||
+      chapter === "V" ||
+      chapter === "VI") &&
+    !presentationReady;
   const objectLoading = archiveLoading || inkLoading || sceneObjectLoading;
   function editStory(edit: (s: Story) => Story) {
     change((p) => ({
@@ -491,6 +504,8 @@ function Experience({
       aria-busy={objectLoading || travelling || phase !== "idle"}
     >
       <SceneStage
+        presentationKey={draft.id}
+        hallwaySeenOnResume={hallwaySeenOnResume}
         selectedPhoto={step.id}
         onPhotoSelect={selectPhoto}
         onDocumentAction={() => {
@@ -544,7 +559,11 @@ function Experience({
               ? "Preparando o tinteiro…"
               : chapter === "V"
                 ? "Preparando o espelho…"
-                : "Preparando a esfera armilar…"}
+                : chapter === "II"
+                  ? "Preparando o pergaminho…"
+                  : chapter === "IV"
+                    ? "Preparando o corredor…"
+                    : "Preparando a esfera armilar…"}
         </p>
       )}
       {chapter === "VII" && (

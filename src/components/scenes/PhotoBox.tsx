@@ -187,6 +187,13 @@ export function PhotoBox({
       };
     });
     const value = JSON.stringify(points);
+    gl.domElement.setAttribute(
+      "data-photo-anchor-camera",
+      camera.position
+        .toArray()
+        .map((v) => v.toFixed(3))
+        .join(","),
+    );
     if (value === lastAnchors.current) return;
     lastAnchors.current = value;
     gl.domElement.setAttribute("data-photo-anchors", value);
