@@ -9,6 +9,7 @@ import inkQuill from "@/content/ink-quill.json";
 import photoBox from "@/content/photo-box.json";
 import scroll from "@/content/scroll.json";
 import hallway from "@/content/hallway.json";
+import architecture from "@/content/hallway-backdrop.json";
 /** Presentation-only manifest. It contains no questions, answers or narrative conditions. */
 export const chapterScenes = Object.fromEntries(
   chapterOrder.map((id) => {
@@ -17,6 +18,13 @@ export const chapterScenes = Object.fromEntries(
       id,
       {
         heroId: `chapter-${id.toLowerCase()}`,
+        environment:
+          id === "IV"
+            ? null
+            : {
+                desktop: architecture.desktop.path,
+                mobile: architecture.mobile.path,
+              },
         criticalAssets: [
           id === "VII"
             ? desk.path

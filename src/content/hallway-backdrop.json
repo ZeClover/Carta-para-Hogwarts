@@ -1,0 +1,26 @@
+{
+  "id": "victorian-architecture",
+  "desktop": {
+    "path": "/assets/hallway-backdrop/architecture-desktop-4c3ce0797382.glb",
+    "sha256": "4c3ce079738266c855caafdc13c32bf496616b6eb1325f471eddf1012b7d1ec6",
+    "bytes": 2214100,
+    "triangles": 6335,
+    "textureLimit": 1024
+  },
+  "mobile": {
+    "path": "/assets/hallway-backdrop/architecture-mobile-ddc1e4897854.glb",
+    "sha256": "ddc1e4897854c774d66cfbbfd56d378cbf7dc8cf629c41844f331cc35dc755a6",
+    "bytes": 759376,
+    "triangles": 6335,
+    "textureLimit": 512
+  },
+  "sourceArchiveSha256": "42f735a6a977747b6260a9e14018920f399bee9da20111d299a12cfdfa580c92",
+  "author": null,
+  "license": null,
+  "source": "Architectural sections of the user-supplied Victorian Hallway",
+  "changes": [
+    "Two original adjoining walls, window, door and floor; other geometry removed",
+    "Original UVs and texture artwork retained, resized for desktop/mobile",
+    "No photographs, paintings, personal objects or narrative content"
+  ]
+}

@@ -445,6 +445,12 @@ export const SceneStage = memo(function SceneStage({
             </button>
           )}
         </div>
+        {immersive && kind !== "IV" && (
+          <span className="sr-only">
+            Arquitetura: Victorian Hallway fornecido ao projeto, com
+            enquadramento próprio por capítulo.
+          </span>
+        )}
         <p className="scene-renderer-note">
           {render3d && ready ? "Cenário 3D interativo" : "Cenário leve 2.5D"} ·
           {immersive && kind === "VII"

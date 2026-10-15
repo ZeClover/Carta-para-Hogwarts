@@ -20,6 +20,7 @@ import { ArmillarySphere } from "./ArmillarySphere";
 import { InkQuill } from "./InkQuill";
 import { AncientScroll } from "./AncientScroll";
 import { HallwayDelivery } from "./HallwayDelivery";
+import { VictorianBackdrop } from "./VictorianBackdrop";
 import { SceneEntrancePlayback } from "./sceneEntrancePlayback";
 import { PhotoBox } from "./PhotoBox";
 import { PhotoBoxPlayback } from "./photoBoxMotion";
@@ -434,8 +435,7 @@ function Protagonist({ chapter, ...props }: Props & { chapter: ChapterId }) {
 }
 function Bay({ chapter, props }: { chapter: ChapterId; props: Props }) {
   const mobile = useThree((state) => state.size.width <= 700);
-  const d = chapterDirection[chapter],
-    wood = useSurface("wood");
+  const wood = useSurface("wood");
   if (chapter === "IV")
     return (
       <group position={[54, 0, 0]} name="chapter-IV">
@@ -449,10 +449,7 @@ function Bay({ chapter, props }: { chapter: ChapterId; props: Props }) {
       position={[chapterOrder.indexOf(chapter) * 18, 0, 0]}
       name={`chapter-${chapter}`}
     >
-      <mesh position={[0, 1, -2.3]} receiveShadow>
-        <planeGeometry args={[13, 10]} />
-        <meshStandardMaterial color={d.wall} roughness={0.95} />
-      </mesh>
+      <VictorianBackdrop chapter={chapter} />
       <mesh
         position={[0, chapter === "VII" && mobile ? -0.7 : -1.1, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
@@ -462,7 +459,12 @@ function Bay({ chapter, props }: { chapter: ChapterId; props: Props }) {
         <meshStandardMaterial map={wood} color="#74523e" roughness={0.86} />
       </mesh>
       {chapter === "VII" ? null : chapter === "II" ? (
-        <Beveled at={[0, -0.08, 0]} size={[5.3, 0.15, 3.2]} color="#9a8c71" />
+        <Beveled
+          at={[0, -0.08, 0]}
+          size={[5.3, 0.15, 3.2]}
+          map={wood}
+          color="#b89572"
+        />
       ) : chapter === "V" ? (
         <Beveled at={[0, -0.1, 0]} size={[3.2, 0.2, 1]} color="#584333" />
       ) : (

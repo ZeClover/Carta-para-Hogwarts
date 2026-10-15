@@ -1,5 +1,6 @@
 import { chromium, expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import architecture from "../../src/content/hallway-backdrop.json" with { type: "json" };
 
 test("sete composições reconhecíveis, leitura acessível e viagem real de câmera", async ({
   baseURL,
@@ -25,6 +26,11 @@ test("sete composições reconhecíveis, leitura acessível e viagem real de câ
   );
   let page = await context.newPage();
   const errors: string[] = [];
+  const modelRequests: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().endsWith(".glb"))
+      modelRequests.push(new URL(request.url()).pathname);
+  });
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("console", (m) => {
     if (m.type() === "error") errors.push(m.text());
@@ -49,6 +55,7 @@ test("sete composições reconhecíveis, leitura acessível e viagem real de câ
       "VI",
       "VII",
     ].entries()) {
+      const requestStart = modelRequests.length;
       await page.goto(`${baseURL}/experiencia?capitulo=${chapter}`);
       await expect(page.locator(".cinema")).toHaveAttribute(
         "data-chapter",
@@ -65,6 +72,23 @@ test("sete composições reconhecíveis, leitura acessível e viagem real de câ
       );
       const canvas = page.locator("canvas");
       await expect(canvas).toHaveAttribute("data-protagonist", objects[i]);
+      if (chapter !== "IV") {
+        await expect(canvas).toHaveAttribute("data-backdrop-view", chapter);
+        await expect(canvas).toHaveAttribute(
+          "data-backdrop-asset",
+          (mobile ? architecture.mobile : architecture.desktop).sha256,
+        );
+        const requests = modelRequests.slice(requestStart);
+        expect(requests).toContain(
+          (mobile ? architecture.mobile : architecture.desktop).path,
+        );
+        expect(
+          requests.some((path) => path.startsWith("/assets/hallway/")),
+        ).toBe(false);
+        expect(requests).not.toContain(
+          (mobile ? architecture.desktop : architecture.mobile).path,
+        );
+      }
       await page.waitForLoadState("networkidle");
       await page.screenshot({
         path: info.outputPath(`chapter-${chapter}.png`),

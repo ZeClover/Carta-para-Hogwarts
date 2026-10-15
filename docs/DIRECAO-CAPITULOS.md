@@ -11,7 +11,7 @@ A abertura é silenciosa e automática para um registro novo: envelope, aba arti
 | I        | Envelope de papel com espessura, dobras, lacre irregular em relevo; aba e folha animadas          | Carta marfim                   |
 | II       | Pergaminho original fornecido, hastes metálicas e papel texturizado; aproximação de 1,6 s | Registro de origens em HTML   |
 | III      | GLB original de tinteiro com pena de Matthew Collings; gesto abstrato curto                                    | Cartão de relato claro         |
-| IV       | Victorian Hallway exclusivo; janela fixa, exterior neutro e correspondência em voo real | Correspondência                |
+| IV       | Victorian Hallway completo; janela fixa, exterior neutro e correspondência em voo real | Correspondência                |
 | V        | Ornate Mirror de Arnold Konrad, moldura original e reflexo arquitetônico planar                  | Pergaminho ao lado             |
 | VI       | Esfera armilar de Stellarator como protagonista; ampulheta de Inknot como objeto secundário     | Cartela marfim com tinta azul  |
 | VII      | Mesa vitoriana de Faheem Yusuf, gaveta móvel e caixa com fotografias interativas  | Ficha de arquivo e índice HTML |
@@ -66,3 +66,11 @@ Reexportar pode alterar bytes/hash conforme versão do exportador; o manifesto �
 Testes cobrem início automático, retomada, redução/pular, edição/seleção em 320 px, armazenamento em falha, áudio recusado, modelo 404, WebGL perdido, curva de página e navegação reversa, famílias/condicionais, backups legados, revisão/exportação e Mestre. Capturas e comparação anterior/novo ficam no registro privado da entrega, fora de `public`.
 
 Limitações: mobile é emulação Chromium/SwiftShader, sem Safari/aparelho físico, benchmark térmico ou entrevistas com jogadores. Bounds são a projeção do volume envolvente; os triângulos/chamadas de `gl.info` incluem passes de sombra e não equivalem apenas à geometria visível. O espelho de V usa uma reflexão planar de uma cena arquitetônica simplificada; representa janela, parede e vela, sem refletir pessoas ou o formulário. Os demais metais usam o ambiente estático existente. As medições e a publicação exatas ficam na documentação da entrega; não confundir metas de FPS/INP com resultados comprovados.
+
+## Arquitetura compartilhada — revisão de 15/10/2026
+
+A solicitação posterior do proprietário permite reutilizar partes do corredor nos outros capítulos. I, II, III, V, VI e VII agora usam paredes, piso, janela e porta originais como arquitetura tridimensional de fundo, em seis composições próprias. O corredor completo e a chegada da carta permanecem em IV. Os protagonistas, poses de leitura, clipes, interações, perguntas e contratos de dados são preservados. O tampo de II recebe madeira para acompanhar o ambiente.
+
+`VictorianBackdrop` substitui a parede plana anterior. A câmera e os objetos continuam nos seus enquadramentos; os recortes são posicionados no espaço, com profundidade real, sem imagem de fundo ou novo movimento durante a leitura. Nenhum retrato, mobiliário ou objeto pessoal do corredor foi acrescentado aos outros capítulos. Os mapas originais de madeira/piso e UVs permanecem. Os pôsteres do modo leve são novas capturas das mesmas cenas.
+
+`scripts/build-hallway-backdrop.mjs` extrai a arquitetura a partir do glTF original; `hallway-backdrop.json` registra origem, ausência de autoria/licença na fonte, hashes e variantes. São 6.335 triângulos, 2.214.100 bytes/1K no desktop e 759.376 bytes/512 no celular, ambos sem erros ou avisos Khronos. O mesmo recurso é compartilhado pelo cache durante navegação; nunca é necessário carregar o corredor completo de IV para esses fundos. Raycast dos fundos é desativado para preservar a interação com as fotografias. Clones descartam somente materiais próprios e a textura do céu; a geometria/texturas de origem usam a contagem de referências existente.

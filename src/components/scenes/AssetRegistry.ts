@@ -8,7 +8,7 @@ const registry = new Map<
   string,
   { users: number; asset: GLTF; timer?: ReturnType<typeof setTimeout> }
 >();
-/** Exclusive chapter GLBs, bounded to mounted scenes. Grace protects StrictMode and overlapping exits. */
+/** Reference-counted GLBs, bounded to mounted scenes. Grace protects StrictMode and overlapping exits. */
 export function retainChapterAsset(path: string, asset: GLTF) {
   const entry = registry.get(path) ?? { users: 0, asset };
   if (entry.timer) clearTimeout(entry.timer);
