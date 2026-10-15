@@ -1,6 +1,6 @@
 "use client";
 import { Canvas, useThree } from "@react-three/fiber";
-import { memo, Suspense, useEffect, useRef } from "react";
+import { memo, Suspense, useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import * as THREE from "three";
 import type { SceneKind } from "./config";
@@ -19,6 +19,7 @@ import { EnchantedBook } from "./EnchantedBook";
 import { AtmosphericDetails, ChapterProps } from "./StudyDetails";
 
 type Props = {
+  replay?: boolean;
   presentationKey?: string;
   hallwaySeenOnResume?: boolean;
   opening?: boolean;
@@ -298,6 +299,7 @@ function Study(props: Props & { label?: string }) {
 }
 const MemoStudy = memo(Study);
 export default function StudyCanvas(props: Props & { label?: string }) {
+  const [replay] = useState(props.replay);
   return (
     <Canvas
       frameloop="demand"
@@ -311,7 +313,7 @@ export default function StudyCanvas(props: Props & { label?: string }) {
       }}
       fallback={null}
     >
-      <MemoStudy {...props} />
+      <MemoStudy {...props} replay={replay} />
     </Canvas>
   );
 }

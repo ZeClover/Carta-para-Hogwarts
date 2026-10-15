@@ -51,7 +51,9 @@ export const SceneStage = memo(function SceneStage({
   selectedPhoto,
   presentationKey,
   hallwaySeenOnResume,
+  replay = false,
 }: {
+  replay?: boolean;
   presentationKey?: string;
   hallwaySeenOnResume?: boolean;
   onPhotoSelect?: (id: string) => void;
@@ -130,15 +132,20 @@ export const SceneStage = memo(function SceneStage({
   const ready = readyKind === kind;
   const [limited, setLimited] = useState(false);
   const [interacted, setInteracted] = useState(false);
+  const [replayPending, setReplayPending] = useState(replay);
   const container = useRef<HTMLDivElement>(null);
+  const replayRequested = useRef(replay);
   const failure = useCallback(() => {
     setAvailable(false);
     setReadyKind(null);
   }, []);
   const loaded = useCallback(
     (phase?: "assets" | "prepared") => {
-      if (phase === "assets") resourceKind.current = kind;
-      else if (phase === "prepared") setPreparedKind(kind);
+      if (phase === "assets") {
+        resourceKind.current = kind;
+        replayRequested.current = false;
+        setReplayPending(false);
+      } else if (phase === "prepared") setPreparedKind(kind);
       else {
         frameKind.current = kind;
         setReadyKind(kind);
@@ -160,7 +167,10 @@ export const SceneStage = memo(function SceneStage({
       !!device.connection?.saveData;
     setLimited(constrained);
     try {
-      setStill(localStorage.getItem("hogwarts-motion") === "reduced");
+      setStill(
+        !replayRequested.current &&
+          localStorage.getItem("hogwarts-motion") === "reduced",
+      );
     } catch {}
     let probed = false;
     const observer = new IntersectionObserver(
@@ -187,12 +197,13 @@ export const SceneStage = memo(function SceneStage({
               saved = localStorage.getItem("hogwarts-scene");
             } catch {}
             setSimple(
-              saved === "light" ||
-                (saved !== "3d" &&
-                  (constrained ||
-                    /SwiftShader|llvmpipe|Software Rasterizer/i.test(
-                      renderer,
-                    ))),
+              !replayRequested.current &&
+                (saved === "light" ||
+                  (saved !== "3d" &&
+                    (constrained ||
+                      /SwiftShader|llvmpipe|Software Rasterizer/i.test(
+                        renderer,
+                      )))),
             );
             context.getExtension("WEBGL_lose_context")?.loseContext();
           }
@@ -349,6 +360,7 @@ export const SceneStage = memo(function SceneStage({
           >
             <SceneBoundary onFailure={failure}>
               <StudyCanvas
+                replay={replayPending}
                 kind={kind}
                 active={value}
                 still={reduced}

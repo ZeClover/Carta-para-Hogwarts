@@ -97,6 +97,7 @@ function Experience({
     ),
   );
   const [intro, setIntro] = useState(introduce);
+  const [replayVersion, setReplayVersion] = useState(0);
   const [presentationReady, setPresentationReady] = useState(false);
   const [hallwaySeenOnResume] = useState(() =>
     Boolean(
@@ -339,6 +340,31 @@ function Experience({
     editor.querySelector<HTMLElement>(".button:not(.secondary)")?.focus();
     return true;
   }
+  async function replayAnimation() {
+    if (busy.current || intro || travelling || objectLoading || editingOpen())
+      return;
+    const token = ++operation.current;
+    busy.current = true;
+    setPhase("saving");
+    const saved = await saveNow();
+    if (token !== operation.current) return;
+    busy.current = false;
+    setPhase("idle");
+    if (!saved) {
+      setError(
+        "Não foi possível salvar. Preserve um backup antes de rever a animação.",
+      );
+      return;
+    }
+    setError("");
+    setSkip(false);
+    skipRequested.current = false;
+    setPresentationReady(false);
+    setLetterOpen(chapter !== "I");
+    setIntro(chapter === "I");
+    setTravelling(true);
+    setReplayVersion((version) => version + 1);
+  }
   function cancelTransition() {
     operation.current += 1;
     transitionTimeline.current?.kill();
@@ -506,6 +532,7 @@ function Experience({
       className={`cinema ${skip ? "cinema-still" : ""}`}
       data-phase={phase}
       data-entry={intro ? "opening" : "reading"}
+      data-replay-version={replayVersion}
       data-storage-ready="true"
       data-object-loading={objectLoading ? "true" : "false"}
       data-ink-loading={inkLoading ? "true" : "false"}
@@ -520,6 +547,8 @@ function Experience({
       aria-busy={objectLoading || travelling || phase !== "idle"}
     >
       <SceneStage
+        key={replayVersion}
+        replay={replayVersion > 0}
         presentationKey={draft.id}
         hallwaySeenOnResume={hallwaySeenOnResume}
         selectedPhoto={step.id}
@@ -602,6 +631,14 @@ function Experience({
         </div>
         <button className="text-button" onClick={() => setMenu(true)}>
           Capítulos e opções
+        </button>
+        <button
+          type="button"
+          className="text-button"
+          disabled={intro || travelling || objectLoading || phase !== "idle"}
+          onClick={() => void replayAnimation()}
+        >
+          Ver animação
         </button>
         <button className="text-button" onClick={() => void leave("/revisao")}>
           Sair e continuar depois

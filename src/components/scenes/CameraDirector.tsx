@@ -28,7 +28,9 @@ export function CameraDirector({
   hallwaySeenOnResume,
   presentation,
   onPrepared,
+  replay = false,
 }: {
+  replay?: boolean;
   presentation?: SceneEntrancePlayback;
   onPrepared?: () => void;
   hallwayPlayback?: SceneEntrancePlayback;
@@ -66,11 +68,12 @@ export function CameraDirector({
     const hallwayKey = presentationKey
       ? `hogwarts-hallway-entry:${presentationKey}`
       : null;
-    let hallwaySeen = Boolean(hallwaySeenOnResume);
+    const manualReplay = replay && !prior;
+    let hallwaySeen = !manualReplay && Boolean(hallwaySeenOnResume);
     try {
-      hallwaySeen ||= Boolean(
-        hallwayKey && localStorage.getItem(hallwayKey) === "seen",
-      );
+      hallwaySeen ||=
+        !manualReplay &&
+        Boolean(hallwayKey && localStorage.getItem(hallwayKey) === "seen");
     } catch {}
     const hallwayEntrance =
       chapter === "IV" &&
@@ -404,6 +407,7 @@ export function CameraDirector({
     hallwaySeenOnResume,
     presentation,
     onPrepared,
+    replay,
   ]);
   return null;
 }
