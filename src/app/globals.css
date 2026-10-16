@@ -2803,6 +2803,15 @@ body:has(.cinema) > footer {
   background: linear-gradient(#071116c9, #071116e8);
   pointer-events: none;
 }
+.cinema[data-entry="waiting"] :is(.cinema-header, .cinema-document-layout, .study-controls, .photo-hotspots) {
+  display: none !important;
+}
+.experience-entry .experience-invitation {
+  z-index: 6;
+}
+.experience-entry::after {
+  z-index: 5;
+}
 .experience-invitation {
   position: relative;
   z-index: 1;

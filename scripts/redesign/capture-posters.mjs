@@ -51,6 +51,11 @@ try {
       (a) => !selected || selected.includes(a.chapter),
     )) {
       await page.goto(`${base}/experiencia?capitulo=${chapter}`);
+      await page
+        .getByRole("button", {
+          name: /^(Iniciar experiência|Continuar minha história)$/,
+        })
+        .click();
       await page.locator(".cinema-writing").waitFor({ state: "visible" });
       await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
       await page.waitForFunction(

@@ -281,6 +281,9 @@ test("VI: anel separado, base fixa, ampulheta clara e respostas preservadas", as
     await expect(page.locator("#VI01")).toHaveValue(
       "Este sonho fictício é meu, não um símbolo imposto.",
     );
+    // Evaluate reading contrast after the question's entrance fade has settled.
+    await expect(page.locator("#VI01")).toBeEnabled();
+    await expect(page.locator(".cinema-writing")).toHaveCSS("opacity", "1");
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     expect(errors).toEqual([]);
   } finally {

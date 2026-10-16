@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Rotas: `/` (entrada automática e retomada), `/experiencia` (criação cinematográfica fullscreen), `/criar/I` a `/criar/VII` (editores compatíveis), `/revisao` (revisão/exportação), `/mestre` (arquivo local do Mestre).
+Rotas: `/` (tela de início e retomada por clique), `/experiencia` (criação cinematográfica fullscreen com a mesma tela de início), `/criar/I` a `/criar/VII` (editores compatíveis), `/revisao` (revisão/exportação), `/mestre` (arquivo local do Mestre).
 
 ```sh
 npm run lint
@@ -25,7 +25,7 @@ Neste ambiente, o Chromium já está instalado. Em outra máquina, use `npx play
 
 ## Funcionalidades
 
-- Carta com lacre, abertura automática silenciosa, opção de pular pelo teclado e movimento reduzido.
+- Tela de início explícito: o cenário 3D se prepara enquanto aguarda “Iniciar experiência” ou “Continuar minha história”, sem tocar a animação. Carta com lacre, abertura silenciosa somente após o clique e a preparação, opção de pular pelo teclado e movimento reduzido.
 - Experiência fullscreen com sete composições cinematográficas, campos HTML acessíveis, carta, pergaminho, tinteiro, corredor vitoriano, espelho, esfera armilar e mesa com fotografias; retomada da pergunta salva e navegação entre capítulos. Veja [experiência cinematográfica](docs/EXPERIENCIA.md).
 - 61 perguntas principais, seleção de família, extensões contextuais e cenas 3D procedurais com alternativa interativa 2.5D.
 - Perguntas opcionais, estados explícitos de resposta, relações e objetos reutilizáveis.

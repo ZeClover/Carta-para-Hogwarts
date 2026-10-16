@@ -63,7 +63,8 @@ test("recarregar durante a preparação não consome a abertura da primeira cart
         exact: true,
       }),
     ).toHaveCount(0);
-    await expect(page.locator("canvas, .cinema-fields")).toHaveCount(0);
+    await expect(page.locator("canvas")).toHaveCount(0);
+    await expect(page.locator(".cinema-fields")).not.toBeVisible();
     release();
     await page
       .getByRole("button", { name: "Entrar no cenário leve", exact: true })

@@ -24,7 +24,7 @@ test("cenário sem WebGL mantém carta, álbum, formulário e salvamento", async
   });
   await goTo(page, "/criar/I");
   await page.getByLabel("Nome completo").fill("Livia da Cena Leve");
-  await expect(page.getByRole("status")).toHaveText("Salvo neste navegador.");
+  await expect(page.locator(".save-status")).toHaveText("Salvo neste navegador.");
   await reloadPage(page);
   await expect(page.getByLabel("Nome completo")).toHaveValue(
     "Livia da Cena Leve",
@@ -41,7 +41,7 @@ test("cenário sem WebGL mantém carta, álbum, formulário e salvamento", async
     "reduced",
   );
   await page.locator("#II02").fill("Uma sala cheia de livros.");
-  await expect(page.getByRole("status")).toHaveText("Salvo neste navegador.");
+  await expect(page.locator(".save-status")).toHaveText("Salvo neste navegador.");
   await reloadPage(page);
   await expect(page.locator("#II02")).toHaveValue("Uma sala cheia de livros.");
 });
@@ -139,7 +139,7 @@ test("3D real: travelling, carta, álbum, espelho e perda de contexto", async ({
     await page.getByRole("button", { name: "Pular animações" }).click();
     await album.screenshot({ path: testInfo.outputPath("album.png") });
     await page.locator("#II02").fill("A mesma casa, sob a luz das velas.");
-    await expect(page.getByRole("status")).toHaveText("Salvo neste navegador.");
+    await expect(page.locator(".save-status")).toHaveText("Salvo neste navegador.");
     await reloadPage(page);
     await expect(page.locator("#II02")).toHaveValue(
       "A mesma casa, sob a luz das velas.",

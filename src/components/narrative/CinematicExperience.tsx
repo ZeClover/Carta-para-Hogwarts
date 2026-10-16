@@ -31,10 +31,6 @@ export const experienceSteps = chapterIds.flatMap((chapter) => [
 
 export function CinematicExperience({ chapter }: { chapter?: ChapterId }) {
   const { player, origin, status } = usePlayer();
-  const [entry, setEntry] = useState<{
-    draftId: string;
-    light: boolean;
-  } | null>(null);
   if (origin === "recovery-error")
     return (
       <main id="conteudo" className="recovery-screen">
@@ -74,81 +70,31 @@ export function CinematicExperience({ chapter }: { chapter?: ChapterId }) {
           chapterIds.find((id) => !player.story.chaptersReviewed.includes(id)),
       )?.id ??
       "VII-review");
-  const entryChapter =
-    experienceSteps.find((s) => s.id === initial)?.chapter ?? "I";
-  if (entry?.draftId !== player.draft.id)
-    return (
-      <main
-        className="cinema experience-entry"
-        id="conteudo"
-        data-entry="waiting"
-      >
-        <ChapterFallback chapter={entryChapter} still />
-        <div className="experience-invitation">
-          <p className="eyebrow">Hogwarts · 1890</p>
-          <h1>
-            {hasProgress
-              ? "Seu registro está à sua espera"
-              : "Toda história tem um começo"}
-          </h1>
-          <p>
-            {hasProgress
-              ? "Seu progresso foi recuperado. Continue de onde parou."
-              : "Entre quando estiver pronto para escrever sua história."}
-          </p>
-          <p className="experience-entry-help">
-            O cenário será preparado após o clique. A abertura só começa quando
-            estiver pronto.
-          </p>
-          <div className="experience-entry-actions">
-            <button
-              className="button"
-              onClick={() =>
-                setEntry({ draftId: player.draft.id, light: false })
-              }
-            >
-              {hasProgress ? "Continuar minha história" : "Iniciar experiência"}
-            </button>
-            <button
-              className="text-button"
-              onClick={() => {
-                try {
-                  localStorage.setItem("hogwarts-scene", "light");
-                } catch {}
-                setEntry({ draftId: player.draft.id, light: true });
-              }}
-            >
-              Entrar no cenário leve
-            </button>
-          </div>
-          <p className="experience-entry-chapter">
-            Capítulo {entryChapter} — {chapters[entryChapter].title}
-          </p>
-        </div>
-      </main>
-    );
   return (
     <Experience
       key={player.draft.id}
       introduce={
-        !entry.light &&
-        origin === "new" &&
-        (!chapter || chapter === "I") &&
-        !hasProgress
+        origin === "new" && (!chapter || chapter === "I") && !hasProgress
       }
       initial={initial}
+      returning={hasProgress}
     />
   );
 }
+
 function Experience({
   initial,
   introduce,
+  returning,
 }: {
   initial?: string;
   introduce: boolean;
+  returning: boolean;
 }) {
   const { player, change, saveNow, storageError, status } = usePlayer();
   const router = useRouter();
+  const [waiting, setWaiting] = useState(true);
+  const [lightEntry, setLightEntry] = useState(false);
   const [index, setIndex] = useState(() =>
     Math.max(
       0,
@@ -197,7 +143,7 @@ function Experience({
   const skipRequested = useRef(false);
   const pending = useRef<(() => void) | null>(null);
   useEffect(() => {
-    if (!intro || !presentationReady) return;
+    if (waiting || !intro || !presentationReady) return;
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
       const frame = requestAnimationFrame(() => {
         setLetterOpen(true);
@@ -255,12 +201,10 @@ function Experience({
       document.removeEventListener("visibilitychange", pause);
       motion.removeEventListener("change", reduce);
     };
-  }, [intro, presentationReady]);
+  }, [waiting, intro, presentationReady]);
   useEffect(() => {
     gsap.ticker.lagSmoothing(0);
-    // A chapter link selects the entry point once; reload must use the saved cursor.
-    if (new URL(window.location.href).searchParams.has("capitulo"))
-      window.history.replaceState(window.history.state, "", "/experiencia");
+
     const viewport = window.visualViewport;
     const update = () => {
       root.current?.style.setProperty(
@@ -291,13 +235,17 @@ function Experience({
     };
   }, []);
   useEffect(() => {
+    if (!waiting && new URL(window.location.href).searchParams.has("capitulo"))
+      window.history.replaceState(window.history.state, "", "/experiencia");
+  }, [waiting]);
+  useEffect(() => {
     if (menu) dialog.current?.showModal();
     else dialog.current?.close();
   }, [menu]);
   useEffect(() => {
     // Preparing a brand-new letter must not mark its opening as already seen.
     // A reload before it finishes should still offer the initial experience.
-    if (intro) return;
+    if (waiting || intro) return;
     change((p) => ({
       ...p,
       story: { ...p.story, experienceStep: experienceSteps[index].id },
@@ -305,7 +253,7 @@ function Experience({
     heading.current?.focus({ preventScroll: true });
     heading.current?.scrollTo(0, 0);
     root.current?.scrollTo(0, 0);
-  }, [index, change, intro]);
+  }, [index, change, intro, waiting]);
   useEffect(() => {
     if (!documentAction) return;
     heading.current
@@ -591,16 +539,17 @@ function Experience({
     <main
       ref={root}
       id="conteudo"
-      className={`cinema ${skip ? "cinema-still" : ""}`}
+      className={`cinema ${waiting ? "experience-entry" : ""} ${skip ? "cinema-still" : ""}`}
       data-phase={phase}
-      data-entry={intro ? "opening" : "reading"}
+      data-entry={waiting ? "waiting" : intro ? "opening" : "reading"}
+      data-preload-ready={presentationReady ? "true" : "false"}
       data-replay-version={replayVersion}
       data-storage-ready="true"
       data-object-loading={objectLoading ? "true" : "false"}
       data-ink-loading={inkLoading ? "true" : "false"}
       data-archive-loading={archiveLoading ? "true" : "false"}
       data-interaction-ready={
-        !intro && !travelling && !objectLoading && phase === "idle"
+        !waiting && !intro && !travelling && !objectLoading && phase === "idle"
           ? "true"
           : "false"
       }
@@ -609,7 +558,8 @@ function Experience({
       aria-busy={objectLoading || travelling || phase !== "idle"}
     >
       <SceneStage
-        key={replayVersion}
+        key={`${replayVersion}-${lightEntry}`}
+        paused={waiting}
         replay={replayVersion > 0}
         presentationKey={draft.id}
         hallwaySeenOnResume={hallwaySeenOnResume}
@@ -651,18 +601,62 @@ function Experience({
         onSkip={skipAnimations}
         onJourney={setTravelling}
       />
-      {intro && (
+      {waiting && (
+        <div className="experience-invitation">
+          <p className="eyebrow">Hogwarts · 1890</p>
+          <h1>
+            {returning
+              ? "Seu registro está à sua espera"
+              : "Toda história tem um começo"}
+          </h1>
+          <p>
+            {returning
+              ? "Seu progresso foi recuperado. Continue de onde parou."
+              : "Entre quando estiver pronto para escrever sua história."}
+          </p>
+          <p className="experience-entry-help" role="status">
+            {presentationReady
+              ? "Cenário pronto. Inicie quando quiser."
+              : "Preparando o cenário… Você já pode clicar para iniciar."}
+          </p>
+          <p className="experience-entry-help">
+            A animação espera o seu clique e o cenário ficar pronto.
+          </p>
+          <div className="experience-entry-actions">
+            <button className="button" onClick={() => setWaiting(false)}>
+              {returning ? "Continuar minha história" : "Iniciar experiência"}
+            </button>
+            <button
+              className="text-button"
+              onClick={() => {
+                try {
+                  localStorage.setItem("hogwarts-scene", "light");
+                } catch {}
+                completeIntro();
+                setLightEntry(true);
+                setWaiting(false);
+              }}
+            >
+              Entrar no cenário leve
+            </button>
+          </div>
+          <p className="experience-entry-chapter">
+            Capítulo {chapter} — {c.title}
+          </p>
+        </div>
+      )}
+      {!waiting && intro && (
         <button className="intro-skip text-button" onClick={completeIntro}>
           Pular abertura
         </button>
       )}
       <div className="cinema-scrim" aria-hidden="true" />
-      {intro && !presentationReady && (
+      {!waiting && intro && !presentationReady && (
         <p className="entry-readiness" role="status">
           Preparando a carta e o cenário…
         </p>
       )}
-      {objectLoading && (
+      {!waiting && objectLoading && (
         <p className="entry-readiness" role="status">
           {chapter === "VII"
             ? "Preparando a mesa de documentos…"
@@ -677,11 +671,13 @@ function Experience({
                     : "Preparando a esfera armilar…"}
         </p>
       )}
-      {chapter === "VII" && (
+      {!waiting && chapter === "VII" && (
         <PhotoNavigation
           overlay
           selected={step.id}
-          disabled={objectLoading || intro || travelling || phase !== "idle"}
+          disabled={
+            waiting || objectLoading || intro || travelling || phase !== "idle"
+          }
           onSelect={selectPhoto}
         />
       )}
@@ -706,7 +702,9 @@ function Experience({
         </button>
       </header>
       <DocumentSurface
-        inactive={objectLoading || intro || travelling || phase !== "idle"}
+        inactive={
+          waiting || objectLoading || intro || travelling || phase !== "idle"
+        }
       >
         <div
           ref={heading}
@@ -716,7 +714,13 @@ function Experience({
           aria-label={`Página ${step.id}`}
         >
           <fieldset
-            disabled={objectLoading || intro || travelling || phase !== "idle"}
+            disabled={
+              waiting ||
+              objectLoading ||
+              intro ||
+              travelling ||
+              phase !== "idle"
+            }
             className="cinema-fields"
           >
             {chapter === "VII" && (

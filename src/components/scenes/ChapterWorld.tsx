@@ -27,6 +27,7 @@ import { PhotoBox } from "./PhotoBox";
 import { PhotoBoxPlayback } from "./photoBoxMotion";
 
 type Props = {
+  paused?: boolean;
   replay?: boolean;
   onFailure?: () => void;
   onReady?: (phase?: "assets" | "prepared") => void;
@@ -631,13 +632,14 @@ export function ChapterWorld(props: Props) {
             turnSerial: c === chapter ? props.turnSerial : 0,
             active: c === chapter && props.active,
             writtenText: c === chapter ? props.writtenText : undefined,
-            still: props.still || c !== chapter,
+            still: props.still || props.paused || c !== chapter,
           }}
         />
       ))}
       <DocumentHandoff opening={props.opening} turning={props.turning} />
       <SceneDiagnostics chapter={chapter} />
       <CameraDirector
+        paused={props.paused}
         replay={props.replay}
         presentation={presentation}
         onPrepared={scenePrepared}

@@ -26,6 +26,11 @@ const page = await context.newPage(),
 page.on("pageerror", (e) => errors.push(e.message));
 try {
   await page.goto(base + "/experiencia?capitulo=VII");
+  await page
+    .getByRole("button", {
+      name: /^(Iniciar experiência|Continuar minha história)$/,
+    })
+    .click();
   await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
   await expect(page.locator(".study-scene")).toHaveAttribute(
     "data-renderer",
@@ -53,15 +58,56 @@ try {
       "arrived",
     );
     await page.waitForTimeout(800);
-    const data = await page
+    const beforeRefresh = await page
       .locator("canvas")
       .evaluate((el) => ({ ...el.dataset }));
+    // R3F intentionally disposes declarative resources at scheduler IdlePriority.
+    // Reading stops the demand loop, so await idle and refresh its last-frame
+    // counters. A genuine retained resource must still fail within eight seconds.
+    const settling = [];
+    const refresh = async () => {
+      await page.evaluate(
+        () => new Promise((resolve) => requestIdleCallback(resolve, { timeout: 1000 })),
+      );
+      await page.setViewportSize({ width: 1439, height: 900 });
+      await page.waitForTimeout(100);
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.waitForTimeout(300);
+      const measured = await page
+        .locator("canvas")
+        .evaluate((el) => ({ ...el.dataset }));
+      settling.push({
+        geometries: Number(measured.geometries),
+        textures: Number(measured.textures),
+      });
+      return measured;
+    };
+    let data = await refresh();
+    const baseline = samples.find((row) => row.chapter === chapter);
+    const released = () =>
+      !baseline ||
+      (Number(data.geometries) <= baseline.geometries + 2 &&
+        Number(data.textures) <= baseline.textures + 2);
+    if (!released())
+      await expect
+        .poll(async () => {
+          data = await refresh();
+          return released();
+        }, { timeout: 8000 })
+        .toBe(true);
     samples.push({
       chapter,
       geometries: Number(data.geometries),
       textures: Number(data.textures),
       sameCanvas: data.sameCanvas,
+      settling,
+      beforeRefresh: {
+        geometries: Number(beforeRefresh.geometries),
+        textures: Number(beforeRefresh.textures),
+      },
     });
+    // Preserve every measurement even if an assertion later fails.
+    await writeFile(report, JSON.stringify({ samples, errors }, null, 2));
   };
   // 20 complete round trips after warming the two chapters; a single live renderer.
   await visit("III");
@@ -92,22 +138,26 @@ try {
       2,
     ),
   );
-  // Real mesh picking opens the existing relation editor; native action remains available.
-  const bounds = JSON.parse(
-    await page.locator("canvas").getAttribute("data-hero-bounds"),
+  // The current desk drawer selects VII10; photography selects existing pages.
+  // Click the actual mesh, then use the native index and existing editor.
+  const drawer = JSON.parse(
+    await page.locator("canvas").getAttribute("data-desk-drawer-anchor"),
   );
-  for (const [fx, fy] of [
-    [0.5, 0.5],
-    [0.3, 0.65],
-    [0.6, 0.7],
-    [0.4, 0.4],
-  ]) {
-    if (await page.locator(".entity-editor").count()) break;
-    await page.mouse.click(
-      bounds.x + bounds.width * fx,
-      bounds.y + bounds.height * fy,
-    );
-  }
+  expect(
+    await page.evaluate(
+      ({ x, y }) => document.elementFromPoint(x, y)?.tagName,
+      drawer,
+    ),
+  ).toBe("CANVAS");
+  await page.mouse.click(drawer.x, drawer.y);
+  await expect(page.locator("#VII10-title")).toBeVisible();
+  await page
+    .getByRole("navigation", { name: "Fotografias do capítulo", exact: true })
+    .locator('[data-photo-question="VII01"]')
+    .click();
+  await page
+    .getByRole("button", { name: "Adicionar pessoa", exact: true })
+    .click();
   await expect(page.locator(".entity-editor")).toBeVisible();
   await expect(
     page.getByLabel("Nome da pessoa *", { exact: true }),

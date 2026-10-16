@@ -29,7 +29,7 @@ export function Review() {
   const [sheet, setSheet] = useState(0);
   const [editing, setEditing] = useState<Hook | null>(null);
   const [error, setError] = useState("");
-  const [complete, setComplete] = useState(false);
+  const [exported, setComplete] = useState(false);
   const [noOpen, setNoOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   if (origin === "recovery-error")
@@ -47,6 +47,9 @@ export function Review() {
       </p>
     );
   const { draft, story } = player;
+  const complete =
+    exported ||
+    (story.revision > 0 && completionErrors(draft, story).length === 0);
   const tabs = [
     "Minha história",
     "O que permanece aberto",

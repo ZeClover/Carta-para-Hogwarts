@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 for (const path of ["/", "/experiencia?capitulo=IV"]) {
-  test(`entrada ${path} aguarda clique sem iniciar WebGL, modelos ou perguntas`, async ({
+  test(`entrada ${path} em modo leve aguarda clique sem baixar modelos ou liberar perguntas`, async ({
     page,
   }, info) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
@@ -36,15 +36,13 @@ for (const path of ["/", "/experiencia?capitulo=IV"]) {
       "data-entry",
       "waiting",
     );
-    await expect(
-      page.locator("canvas, .cinema-fields, .study-scene"),
-    ).toHaveCount(0);
+    await expect(page.locator("canvas")).toHaveCount(0);
+    await expect(page.locator(".cinema-fields")).not.toBeVisible();
+    await expect(page.locator(".study-scene")).toHaveAttribute(
+      "data-playback",
+      "waiting",
+    );
     expect(models).toEqual([]);
-    expect(
-      await page.evaluate(
-        () => (window as unknown as { webglProbes: number }).webglProbes,
-      ),
-    ).toBe(0);
     await page.screenshot({
       path: info.outputPath("waiting-for-click.png"),
       scale: "css",
@@ -81,7 +79,8 @@ test("cenário leve inicia por escolha e retomada espera clique preservando a re
     exact: true,
   });
   await expect(resume).toBeVisible();
-  await expect(page.locator("#I02, canvas")).toHaveCount(0);
+  await expect(page.locator("#I02")).not.toBeVisible();
+  await expect(page.locator("canvas")).toHaveCount(0);
   await page.setViewportSize({ width: 320, height: 350 });
   await resume.scrollIntoViewIfNeeded();
   await expect(resume).toBeInViewport();

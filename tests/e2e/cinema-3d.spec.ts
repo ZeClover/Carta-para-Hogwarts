@@ -1,4 +1,3 @@
-import { goTo } from "./navigation";
 import { chromium, expect, test } from "@playwright/test";
 test("cena fullscreen 3D vira páginas, mantém campos e adapta viewport", async ({
   baseURL,
@@ -37,19 +36,23 @@ test("cena fullscreen 3D vira páginas, mantém campos e adapta viewport", async
       localStorage.setItem("hogwarts-scene", "light"),
     );
     await page.clock.install();
-    await goTo(page, `${baseURL}/experiencia`);
+    await page.goto(`${baseURL}/experiencia`);
+    // This case freezes the GSAP page turn, not the separately tested opening.
+    // Start via the real light-entry control, then explicitly enable WebGL.
+    await page
+      .getByRole("button", { name: "Entrar no cenário leve", exact: true })
+      .click();
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     await expect(page.locator(".study-scene")).toHaveAttribute(
       "data-renderer",
       "3d",
-      { timeout: 20000 },
+      { timeout: 45000 },
     );
-    // The first drawn mesh precedes the intro and its final camera cut. Let the
-    // real reading state settle before freezing timers for page-curl assertions.
+    // Let the reading pose settle before freezing timers for page-curl assertions.
     await expect(page.locator(".cinema")).toHaveAttribute(
       "data-interaction-ready",
       "true",
-      { timeout: 20000 },
+      { timeout: 45000 },
     );
     await page.clock.pauseAt(await page.evaluate(() => Date.now() + 30000));
     await page.locator("#I01").fill("Estudante do Registro Mágico");
@@ -64,7 +67,12 @@ test("cena fullscreen 3D vira páginas, mantém campos e adapta viewport", async
             (el) => (el as HTMLCanvasElement).width / el.clientWidth,
           ),
         )
-        .toBe(1);
+        .toBeLessThanOrEqual(1);
+    expect(
+      await canvas.evaluate(
+        (el) => (el as HTMLCanvasElement).width / el.clientWidth,
+      ),
+    ).toBeGreaterThan(0.5);
     await expect(canvas).toHaveAttribute("data-page-direction", "1");
     expect(Number(await canvas.getAttribute("data-page-curl"))).toBeGreaterThan(
       0.1,

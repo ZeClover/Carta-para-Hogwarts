@@ -16,6 +16,7 @@ import {
 
 /** Sole camera writer. Reading and keyboard resizes never start a camera tween. */
 export function CameraDirector({
+  paused = false,
   chapter,
   still,
   opening = false,
@@ -30,6 +31,7 @@ export function CameraDirector({
   onPrepared,
   replay = false,
 }: {
+  paused?: boolean;
   replay?: boolean;
   presentation?: SceneEntrancePlayback;
   onPrepared?: () => void;
@@ -56,7 +58,7 @@ export function CameraDirector({
   const portrait = size.width <= 700;
   useEffect(() => {
     const prior = previous.current;
-    previous.current = { chapter, opening };
+    if (!paused) previous.current = { chapter, opening };
     const changing =
       !!prior && (prior.chapter !== chapter || prior.opening !== opening);
     const archiveEntrance =
@@ -87,7 +89,7 @@ export function CameraDirector({
     const moving = (changing || entrance || opening) && !still;
     const report = changing || !prior || still || animating.current;
     animating.current = moving;
-    if (report) onJourney?.(moving);
+    if (report) onJourney?.(paused ? false : moving);
     const pose = chapterPose(chapter, portrait);
     const end = new THREE.Vector3(...pose.camera);
     const endTarget = new THREE.Vector3(...pose.target);
@@ -268,6 +270,20 @@ export function CameraDirector({
       "data-camera-state",
       moving ? "travelling" : "arrived",
     );
+    if (paused) {
+      update();
+      gl.domElement.setAttribute("data-entrance-phase", "waiting");
+      gl.domElement.setAttribute("data-camera-state", "waiting");
+      const prepared = () => {
+        onPrepared?.();
+        gl.domElement.setAttribute("data-entrance-phase", "ready");
+      };
+      // Compile/draw the initial pose, but do not consume the entrance or its
+      // seen marker while the invitation is waiting for the player's click.
+      const disconnect = presentation?.whenDrawn(prepared);
+      if (!presentation) prepared();
+      return () => disconnect?.();
+    }
     if (still || (!changing && !opening && !entrance)) {
       state.p = 1;
       update();
@@ -390,6 +406,7 @@ export function CameraDirector({
       document.removeEventListener("visibilitychange", pause);
     };
   }, [
+    paused,
     chapter,
     opening,
     still,

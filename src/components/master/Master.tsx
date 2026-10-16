@@ -40,6 +40,8 @@ export function Master() {
   const [area, setArea] = useState(0);
   const [status, setStatus] = useState("Carregando o arquivo local…");
   const [storageError, setStorageError] = useState(false);
+  const [recoveryError, setRecoveryError] = useState(false);
+  const recoveryBlocked = useRef(false);
   const [messages, setMessages] = useState<ImportMessage[]>([]);
   const [pending, setPending] = useState<ImportedCharacter[]>([]);
   const [search, setSearch] = useState("");
@@ -77,6 +79,8 @@ export function Master() {
       })
       .catch(() => {
         if (!active) return;
+        recoveryBlocked.current = true;
+        setRecoveryError(true);
         const s = emptyMaster();
         latest.current = s;
         setState(s);
@@ -92,7 +96,7 @@ export function Master() {
   const persist = useCallback(async () => {
     const s = latest.current;
     const version = recoveryVersion;
-    if (!s) return false;
+    if (!s || recoveryBlocked.current) return false;
     try {
       await masterStore.write("archive", masterSchema.parse(s));
       if (latest.current === s) {
@@ -115,7 +119,7 @@ export function Master() {
     }
   }, []);
   function update(edit: (s: MasterState) => MasterState) {
-    if (!latest.current) return;
+    if (!latest.current || recoveryBlocked.current) return;
     const next = edit(latest.current);
     recoveryVersion += 1;
     latest.current = next;
@@ -149,7 +153,7 @@ export function Master() {
     return () => window.removeEventListener("beforeunload", unload);
   }, []);
   async function importFiles(files: File[]) {
-    if (!latest.current || working) return;
+    if (!latest.current || working || recoveryBlocked.current) return;
     if (files.length > 200) {
       setMessages([
         {
@@ -233,6 +237,10 @@ export function Master() {
         )
       )
         return;
+      // A normal save/retry must never overwrite an archive we could not read.
+      // Only this explicitly confirmed, validated backup can replace it.
+      recoveryBlocked.current = false;
+      setRecoveryError(false);
       update(() => restored);
       setPending([]);
       setSelected("");
@@ -256,6 +264,40 @@ export function Master() {
       ]);
     }
   }
+  if (recoveryError)
+    return (
+      <main id="conteudo" className="master-layout">
+        <section className="paper master-paper">
+          <h1>Recuperar Arquivo do Mestre</h1>
+          <p role="alert">{status}</p>
+          <p>
+            Feche outras abas e tente recarregar. Importações e gravações ficam
+            bloqueadas para preservar o arquivo que não conseguimos ler.
+          </p>
+          <button className="button" onClick={() => window.location.reload()}>
+            Tentar recuperar arquivo
+          </button>
+          <div className="backup-tools">
+            <label className="file-button">
+              Restaurar backup do Mestre
+              <input
+                type="file"
+                accept=".json,application/json"
+                onChange={(e) => {
+                  void restoreBackup(e.target.files?.[0]);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+            {messages.map((message, i) => (
+              <p role="status" key={i}>
+                {message.message}
+              </p>
+            ))}
+          </div>
+        </section>
+      </main>
+    );
   if (!state)
     return (
       <p className="paper" role="status">

@@ -22,6 +22,14 @@ export function SceneDiagnostics({ chapter }: { chapter: ChapterId }) {
     ]) {
       const hero = scene.getObjectByName(name);
       if (!hero) continue;
+      if (name === "hallway-letter")
+        canvas.setAttribute(
+          "data-delivery-actual-position",
+          hero.position
+            .toArray()
+            .map((n) => n.toFixed(4))
+            .join(","),
+        );
       const bounds = new THREE.Box3().setFromObject(hero);
       if (name === "deskpolySurface13") {
         const center = bounds.getCenter(new THREE.Vector3());

@@ -16,9 +16,11 @@ import {
 import { ChapterWorld } from "./ChapterWorld";
 import { LibraryModel } from "./LibraryModel";
 import { EnchantedBook } from "./EnchantedBook";
+import { prepareChapterAssetAttempt } from "./AssetRegistry";
 import { AtmosphericDetails, ChapterProps } from "./StudyDetails";
 
 type Props = {
+  paused?: boolean;
   replay?: boolean;
   presentationKey?: string;
   hallwaySeenOnResume?: boolean;
@@ -300,6 +302,18 @@ function Study(props: Props & { label?: string }) {
 const MemoStudy = memo(Study);
 export default function StudyCanvas(props: Props & { label?: string }) {
   const [replay] = useState(props.replay);
+  const [cacheReady, setCacheReady] = useState(false);
+  useEffect(() => {
+    let mounted = true;
+    prepareChapterAssetAttempt();
+    queueMicrotask(() => {
+      if (mounted) setCacheReady(true);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+  if (!cacheReady) return null;
   return (
     <Canvas
       frameloop="demand"

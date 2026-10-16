@@ -13,7 +13,9 @@ test("abre a carta, salva três folhas e recupera o registro após reload", asyn
   await page.getByRole("button", { name: "Próxima folha" }).click();
   await page.getByLabel("Lugar de nascimento").fill("Edimburgo");
   await page.getByLabel("Residência antes de Hogwarts").fill("Yorkshire");
-  await expect(page.getByRole("status")).toHaveText("Salvo neste navegador.");
+  await expect(page.locator(".save-status")).toHaveText(
+    "Salvo neste navegador.",
+  );
   await reloadPage(page);
   await expect(page.getByLabel("Residência antes de Hogwarts")).toHaveValue(
     "Yorkshire",
@@ -69,7 +71,9 @@ test("restaura um backup legado e rejeita arquivo inválido sem apagar respostas
 }) => {
   await goTo(page, "/criar/I");
   await page.getByLabel("Nome completo").fill("Registro preservado");
-  await expect(page.getByRole("status")).toHaveText("Salvo neste navegador.");
+  await expect(page.locator(".save-status")).toHaveText(
+    "Salvo neste navegador.",
+  );
   await page.getByText("Backup do registro da primeira versão").click();
   await page.getByLabel("Restaurar backup", { exact: true }).setInputFiles({
     name: "invalid.json",
@@ -130,11 +134,15 @@ test("falha de armazenamento é explícita e oferece recuperação sem criar out
 test("abre pelo teclado, transfere foco e não depende de animações", async ({
   page,
 }) => {
-  await goTo(page, "/");
+  await page.goto("/");
   await page.keyboard.press("Tab");
   await expect(
     page.getByRole("link", { name: "Pular para o conteúdo" }),
   ).toBeFocused();
+  await page
+    .getByRole("button", { name: "Iniciar experiência", exact: true })
+    .focus();
+  await page.keyboard.press("Enter");
   await page.getByRole("button", { name: "Pular abertura" }).focus();
   await page.keyboard.press("Enter");
   await expect(page.getByLabel("Nome completo", { exact: true })).toBeVisible();

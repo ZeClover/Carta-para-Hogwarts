@@ -6,7 +6,7 @@ Carta: envelope com aba articulada, selo e papel que sai. Registro: folhas sobre
 
 Cada interação possui botão HTML acessível. Nenhum campo é renderizado como textura 3D. O nome fictício e a resposta confirmada aparecem também na textura local do livro, produzida no próprio navegador; não há transmissão de respostas ou assets buscados em APIs externas durante o uso.
 
-A raiz e o modo fullscreen usam entrada automática, sete novos protagonistas GLB, documentos nativos e pôsteres das próprias cenas; veja [direção dos capítulos 3.0](DIRECAO-CAPITULOS.md). O relato 1.2 abaixo preserva o histórico do escritório compacto, não descreve o enquadramento atual da experiência. A coruja procedural foi removida.
+A raiz e o modo fullscreen preparam os protagonistas GLB antes do clique, respeitando a qualidade escolhida. A câmera e os objetos aguardam o clique para iniciar ou continuar; o carregamento não consome a animação. Usam documentos nativos e pôsteres das próprias cenas; veja [direção dos capítulos 3.0](DIRECAO-CAPITULOS.md). Os orçamentos do escritório compacto e o relato 1.2 abaixo são históricos: o acervo atual soma 24 GLBs, carregados conforme a cena, e não em conjunto. O modo limitado atual usa DPR 0,75; o normal mantém o teto 1,5. A coruja procedural foi removida.
 
 ## Funcionamento e orçamento
 

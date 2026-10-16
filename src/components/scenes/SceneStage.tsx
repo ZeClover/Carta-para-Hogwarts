@@ -33,6 +33,7 @@ class SceneBoundary extends Component<
   }
 }
 export const SceneStage = memo(function SceneStage({
+  paused = false,
   kind,
   open,
   onOpen,
@@ -53,6 +54,7 @@ export const SceneStage = memo(function SceneStage({
   hallwaySeenOnResume,
   replay = false,
 }: {
+  paused?: boolean;
   replay?: boolean;
   presentationKey?: string;
   hallwaySeenOnResume?: boolean;
@@ -386,11 +388,13 @@ export const SceneStage = memo(function SceneStage({
   return (
     <section
       className={`study-scene study-${kind} ${immersive ? "study-immersive" : ""} ${reduced ? "reduce-scene" : ""}`}
+      inert={paused || undefined}
       aria-label={`Cena: ${config.title}`}
       data-essential-assets-ready={ready || !render3d ? "true" : "false"}
       data-first-frame-ready={ready || (!render3d && probed) ? "true" : "false"}
       data-scene={kind}
       data-renderer={render3d && ready ? "3d" : "2.5d"}
+      data-playback={paused ? "waiting" : "running"}
       data-motion={reduced ? "reduced" : "cinematic"}
       data-fallback-reason={fallbackReason ?? "none"}
       data-active={value ? "true" : "false"}
@@ -422,6 +426,7 @@ export const SceneStage = memo(function SceneStage({
           >
             <SceneBoundary onFailure={failure}>
               <StudyCanvas
+                paused={paused}
                 replay={replayPending}
                 kind={kind}
                 active={value}
