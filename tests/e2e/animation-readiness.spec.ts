@@ -1,3 +1,4 @@
+import { goTo, reloadPage } from "./navigation";
 import { chromium, expect, test } from "@playwright/test";
 import sharp from "sharp";
 
@@ -65,7 +66,7 @@ test("abertura aguarda download lento, exibe a aba abrindo e retoma a resposta s
     if (m.type() === "error") errors.push(m.text());
   });
   try {
-    await page.goto(baseURL!);
+    await goTo(page, baseURL!);
     await request;
     // This exceeded the old four-second fallback and consumed the opening.
     await page.waitForTimeout(5500);
@@ -115,7 +116,9 @@ test("abertura aguarda download lento, exibe a aba abrindo e retoma a resposta s
       "A abertura precisa mostrar a cena, sem tela lisa",
     ).toBeGreaterThan(50);
     try {
-      await expect(page.locator("#I01")).toBeVisible({ timeout: 30000 });
+      // Software GPU frames can take seconds; keep checking natural completion
+      // rather than skipping the letter to fit a wall-clock test budget.
+      await expect(page.locator("#I01")).toBeVisible({ timeout: 45000 });
     } catch (error) {
       await info.attach("opening-state", {
         body: JSON.stringify(
@@ -151,7 +154,7 @@ test("abertura aguarda download lento, exibe a aba abrindo e retoma a resposta s
       path: info.outputPath("letter-reading.png"),
       timeout: 60000,
     });
-    await page.reload();
+    await reloadPage(page);
     await expect(page.locator("#I01")).toHaveValue(
       "Nome fictício após a animação",
       { timeout: 30000 },
@@ -189,7 +192,7 @@ test("entrada de capítulo aguarda a cena visível e um travamento não consome 
     errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   try {
-    await page.goto(`${baseURL}/experiencia?capitulo=II`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=II`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     await expect(page.locator(".study-scene")).toHaveAttribute(
       "data-renderer",

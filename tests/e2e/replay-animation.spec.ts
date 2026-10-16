@@ -1,3 +1,4 @@
+import { goTo, reloadPage } from "./navigation";
 import { chromium, expect, test } from "@playwright/test";
 
 const gpu = [
@@ -31,7 +32,7 @@ for (const chapter of ["I", "IV", "VII"] as const) {
       if (m.type() === "error") errors.push(m.text());
     });
     try {
-      await page.goto(`${baseURL}/experiencia?capitulo=${chapter}`);
+      await goTo(page, `${baseURL}/experiencia?capitulo=${chapter}`);
       if (chapter === "I") {
         await page.locator("#I01").fill("Nome fictício preservado");
         await page
@@ -55,7 +56,7 @@ for (const chapter of ["I", "IV", "VII"] as const) {
       await expect(page.locator(".cinema-save")).toHaveText(
         "Salvo neste navegador.",
       );
-      await page.reload();
+      await reloadPage(page);
       const field = page.locator(
         chapter === "I" ? "#I02" : chapter === "IV" ? "#IV01" : "#VII06",
       );
@@ -144,7 +145,7 @@ for (const chapter of ["I", "IV", "VII"] as const) {
         { timeout: 30000 },
       );
       await expect(field).toHaveValue(value);
-      await page.reload();
+      await reloadPage(page);
       await expect(field).toHaveValue(value);
       await expect(page.locator(".cinema")).toHaveAttribute(
         "data-entry",

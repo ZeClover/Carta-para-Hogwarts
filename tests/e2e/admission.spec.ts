@@ -1,19 +1,20 @@
+import { goTo, reloadPage } from "./navigation";
 import { expect, test } from "@playwright/test";
 test("abre a carta, salva três folhas e recupera o registro após reload", async ({
   page,
 }) => {
-  await page.goto("/");
+  await goTo(page, "/");
   await expect(page.getByLabel("Nome completo", { exact: true })).toBeVisible({
     timeout: 10000,
   });
-  await page.goto("/criar/I");
+  await goTo(page, "/criar/I");
   await page.getByLabel("Nome completo").fill("Eleanor Whitmore");
   await page.getByLabel("Data de nascimento").fill("1879-03-15");
   await page.getByRole("button", { name: "Próxima folha" }).click();
   await page.getByLabel("Lugar de nascimento").fill("Edimburgo");
   await page.getByLabel("Residência antes de Hogwarts").fill("Yorkshire");
   await expect(page.getByRole("status")).toHaveText("Salvo neste navegador.");
-  await page.reload();
+  await reloadPage(page);
   await expect(page.getByLabel("Residência antes de Hogwarts")).toHaveValue(
     "Yorkshire",
   );
@@ -25,7 +26,7 @@ test("abre a carta, salva três folhas e recupera o registro após reload", asyn
     .getByRole("button", { name: "Concluir Registro de Admissão" })
     .click();
   await expect(page).toHaveURL(/criar\/II/);
-  await page.goto("/criar/I");
+  await goTo(page, "/criar/I");
   await expect(page.getByLabel("Aparência")).toHaveValue(
     "Casaco largo e mãos manchadas de tinta.",
   );
@@ -42,10 +43,10 @@ test("abre a carta, salva três folhas e recupera o registro após reload", asyn
 });
 test("validação, data excepcional e animação reduzida", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
+  await goTo(page, "/");
   await page.getByRole("button", { name: "Pular animações" }).click();
   await expect(page.getByLabel("Nome completo", { exact: true })).toBeVisible();
-  await page.goto("/criar/I");
+  await goTo(page, "/criar/I");
   await page.getByRole("button", { name: "Folha 3: Seu retrato" }).click();
   await page
     .getByRole("button", { name: "Concluir Registro de Admissão" })
@@ -66,7 +67,7 @@ test("validação, data excepcional e animação reduzida", async ({ page }) => 
 test("restaura um backup legado e rejeita arquivo inválido sem apagar respostas", async ({
   page,
 }) => {
-  await page.goto("/criar/I");
+  await goTo(page, "/criar/I");
   await page.getByLabel("Nome completo").fill("Registro preservado");
   await expect(page.getByRole("status")).toHaveText("Salvo neste navegador.");
   await page.getByText("Backup do registro da primeira versão").click();
@@ -104,7 +105,7 @@ test("restaura um backup legado e rejeita arquivo inválido sem apagar respostas
     buffer: Buffer.from(JSON.stringify(backup)),
   });
   await expect(page.getByText("Cópia restaurada.")).toBeVisible();
-  await page.reload();
+  await reloadPage(page);
   await expect(page.getByLabel("Nome completo")).toHaveValue(
     "Registro restaurado",
   );
@@ -119,7 +120,7 @@ test("falha de armazenamento é explícita e oferece recuperação sem criar out
       },
     });
   });
-  await page.goto("/criar/I");
+  await goTo(page, "/criar/I");
   await expect(
     page.getByText(/Nenhum dado existente foi substituído/),
   ).toBeVisible();
@@ -129,7 +130,7 @@ test("falha de armazenamento é explícita e oferece recuperação sem criar out
 test("abre pelo teclado, transfere foco e não depende de animações", async ({
   page,
 }) => {
-  await page.goto("/");
+  await goTo(page, "/");
   await page.keyboard.press("Tab");
   await expect(
     page.getByRole("link", { name: "Pular para o conteúdo" }),

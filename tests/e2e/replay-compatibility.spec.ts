@@ -1,3 +1,4 @@
+import { goTo, reloadPage } from "./navigation";
 import { chromium, expect, test } from "@playwright/test";
 
 const gpu = [
@@ -58,7 +59,7 @@ test("replay IV anima mesmo se o driver nunca confirmar a compilação assíncro
     errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   try {
-    await page.goto(`${baseURL}/experiencia?capitulo=IV`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=IV`);
     await page.locator("#IV01").selectOption({ label: "Coruja" });
     await page
       .getByRole("button", { name: "Ver animação", exact: true })
@@ -97,7 +98,7 @@ test("replay IV anima mesmo se o driver nunca confirmar a compilação assíncro
     const pose = await page.locator("canvas").getAttribute("data-camera");
     await page.waitForTimeout(300);
     expect(await page.locator("canvas").getAttribute("data-camera")).toBe(pose);
-    await page.reload();
+    await reloadPage(page);
     await expect(page.locator("#IV01")).toHaveValue("Coruja");
     expect(errors).toEqual([]);
   } finally {
@@ -140,7 +141,7 @@ test("download travado libera perguntas, explica a falha e permite tentar a anim
   });
   const page = await context.newPage();
   try {
-    await page.goto(`${baseURL}/experiencia?capitulo=IV`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=IV`);
     await page.locator("#IV01").selectOption({ label: "Coruja" });
     await page
       .getByRole("button", { name: "Ver animação", exact: true })
@@ -230,7 +231,7 @@ for (const mode of ["unavailable", "throws"] as const) {
       errors: string[] = [];
     page.on("pageerror", (e) => errors.push(e.message));
     try {
-      await page.goto(`${baseURL}/experiencia?capitulo=IV`);
+      await goTo(page, `${baseURL}/experiencia?capitulo=IV`);
       await page.locator("#IV01").selectOption({ label: "Coruja" });
       await page
         .getByRole("button", { name: "Ver animação", exact: true })
@@ -261,7 +262,7 @@ for (const mode of ["unavailable", "throws"] as const) {
           () => document.documentElement.scrollWidth <= innerWidth,
         ),
       ).toBe(true);
-      await page.reload();
+      await reloadPage(page);
       await expect(page.locator("#IV01")).toHaveValue("Coruja");
       expect(errors).toEqual([]);
     } finally {

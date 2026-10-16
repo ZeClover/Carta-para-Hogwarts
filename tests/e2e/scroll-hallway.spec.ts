@@ -1,3 +1,4 @@
+import { goTo, reloadPage } from "./navigation";
 import { chromium, expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import scroll from "../../src/content/scroll.json" with { type: "json" };
@@ -35,7 +36,7 @@ test("IV: entrada vinda de III aguarda o modelo antes de voar e liberar a pergun
   });
   try {
     const page = await context.newPage();
-    await page.goto(`${baseURL}/experiencia?capitulo=III`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=III`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     await expect(page.locator(".study-scene")).toHaveAttribute(
       "data-renderer",
@@ -109,7 +110,7 @@ test("II: pergaminho original, família e respostas preservadas com câmera est�
     if (m.type() === "error") errors.push(m.text());
   });
   try {
-    await page.goto(`${baseURL}/experiencia?capitulo=II`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=II`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     await expect(page.locator(".study-scene")).toHaveAttribute(
       "data-renderer",
@@ -148,7 +149,7 @@ test("II: pergaminho original, família e respostas preservadas com câmera est�
     });
     await expect(page.locator("#II02")).toBeFocused();
     expect(await canvas.getAttribute("data-camera")).toBe(pose);
-    await page.reload();
+    await reloadPage(page);
     await expect(page.locator("#II02")).toHaveValue(
       "Este lugar fictício é uma escolha minha, não uma memória imposta.",
     );
@@ -217,7 +218,7 @@ test("IV: carta voa de verdade, câmera para e chegada não se repete na retomad
     if (m.type() === "error") errors.push(m.text());
   });
   try {
-    await page.goto(`${baseURL}/experiencia?capitulo=IV`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=IV`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     await expect(page.locator(".study-scene")).toHaveAttribute(
       "data-renderer",
@@ -281,7 +282,7 @@ test("IV: carta voa de verdade, câmera para e chegada não se repete na retomad
         .filter((k) => k.startsWith("hogwarts-hallway-entry:"))
         .forEach((k) => localStorage.removeItem(k)),
     );
-    await page.reload();
+    await reloadPage(page);
     await expect(page.locator(".study-scene")).toHaveAttribute(
       "data-renderer",
       "3d",
@@ -353,7 +354,7 @@ test("IV: pular assenta a carta; movimento reduzido e ausência de WebGL mantêm
       localStorage.setItem("hogwarts-scene", "3d"),
     );
     const page = await context.newPage();
-    await page.goto(`${baseURL}/experiencia?capitulo=IV`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=IV`);
     const canvas = page.locator("canvas");
     await expect(canvas).toHaveAttribute("data-hallway-state", "delivering", {
       timeout: 30000,
@@ -385,7 +386,7 @@ test("IV: pular assenta a carta; movimento reduzido e ausência de WebGL mantêm
       reducedMotion: "reduce",
     });
     const page = await context.newPage();
-    await page.goto(`${baseURL}/experiencia?capitulo=IV`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=IV`);
     await expect(page.locator(".study-scene")).toHaveAttribute(
       "data-renderer",
       "2.5d",
@@ -395,7 +396,7 @@ test("IV: pular assenta a carta; movimento reduzido e ausência de WebGL mantêm
     await expect(page.locator(".cinema-save")).toHaveText(
       "Salvo neste navegador.",
     );
-    await page.reload();
+    await reloadPage(page);
     await expect(page.locator("#IV01")).toHaveValue("Familiar");
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   } finally {

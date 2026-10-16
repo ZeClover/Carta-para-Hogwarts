@@ -31,6 +31,10 @@ export const experienceSteps = chapterIds.flatMap((chapter) => [
 
 export function CinematicExperience({ chapter }: { chapter?: ChapterId }) {
   const { player, origin, status } = usePlayer();
+  const [entry, setEntry] = useState<{
+    draftId: string;
+    light: boolean;
+  } | null>(null);
   if (origin === "recovery-error")
     return (
       <main id="conteudo" className="recovery-screen">
@@ -55,29 +59,84 @@ export function CinematicExperience({ chapter }: { chapter?: ChapterId }) {
         </p>
       </main>
     );
+  const hasProgress = Boolean(
+    player.story.experienceStep ||
+    player.story.chaptersReviewed.length ||
+    Object.values(player.draft.admission).some(Boolean) ||
+    Object.keys(player.story.answers).length,
+  );
+  const initial = chapter
+    ? experienceSteps.find((s) => s.chapter === chapter)?.id
+    : (player.story.experienceStep ??
+      experienceSteps.find(
+        (s) =>
+          s.chapter ===
+          chapterIds.find((id) => !player.story.chaptersReviewed.includes(id)),
+      )?.id ??
+      "VII-review");
+  const entryChapter =
+    experienceSteps.find((s) => s.id === initial)?.chapter ?? "I";
+  if (entry?.draftId !== player.draft.id)
+    return (
+      <main
+        className="cinema experience-entry"
+        id="conteudo"
+        data-entry="waiting"
+      >
+        <ChapterFallback chapter={entryChapter} still />
+        <div className="experience-invitation">
+          <p className="eyebrow">Hogwarts · 1890</p>
+          <h1>
+            {hasProgress
+              ? "Seu registro está à sua espera"
+              : "Toda história tem um começo"}
+          </h1>
+          <p>
+            {hasProgress
+              ? "Seu progresso foi recuperado. Continue de onde parou."
+              : "Entre quando estiver pronto para escrever sua história."}
+          </p>
+          <p className="experience-entry-help">
+            O cenário será preparado após o clique. A abertura só começa quando
+            estiver pronto.
+          </p>
+          <div className="experience-entry-actions">
+            <button
+              className="button"
+              onClick={() =>
+                setEntry({ draftId: player.draft.id, light: false })
+              }
+            >
+              {hasProgress ? "Continuar minha história" : "Iniciar experiência"}
+            </button>
+            <button
+              className="text-button"
+              onClick={() => {
+                try {
+                  localStorage.setItem("hogwarts-scene", "light");
+                } catch {}
+                setEntry({ draftId: player.draft.id, light: true });
+              }}
+            >
+              Entrar no cenário leve
+            </button>
+          </div>
+          <p className="experience-entry-chapter">
+            Capítulo {entryChapter} — {chapters[entryChapter].title}
+          </p>
+        </div>
+      </main>
+    );
   return (
     <Experience
       key={player.draft.id}
       introduce={
+        !entry.light &&
         origin === "new" &&
-        !chapter &&
-        !player.story.experienceStep &&
-        Object.values(player.draft.admission).every((value) => !value) &&
-        Object.keys(player.story.answers).length === 0
+        (!chapter || chapter === "I") &&
+        !hasProgress
       }
-      initial={
-        chapter
-          ? experienceSteps.find((s) => s.chapter === chapter)?.id
-          : (player.story.experienceStep ??
-            experienceSteps.find(
-              (s) =>
-                s.chapter ===
-                chapterIds.find(
-                  (id) => !player.story.chaptersReviewed.includes(id),
-                ),
-            )?.id ??
-            "VII-review")
-      }
+      initial={initial}
     />
   );
 }
@@ -236,6 +295,9 @@ function Experience({
     else dialog.current?.close();
   }, [menu]);
   useEffect(() => {
+    // Preparing a brand-new letter must not mark its opening as already seen.
+    // A reload before it finishes should still offer the initial experience.
+    if (intro) return;
     change((p) => ({
       ...p,
       story: { ...p.story, experienceStep: experienceSteps[index].id },
@@ -243,7 +305,7 @@ function Experience({
     heading.current?.focus({ preventScroll: true });
     heading.current?.scrollTo(0, 0);
     root.current?.scrollTo(0, 0);
-  }, [index, change]);
+  }, [index, change, intro]);
   useEffect(() => {
     if (!documentAction) return;
     heading.current

@@ -1,3 +1,4 @@
+import { goTo, reloadPage } from "./navigation";
 import { chromium, expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
@@ -33,7 +34,7 @@ test("entrada aguarda o cenário e mantém câmera parada ao liberar a escrita",
   });
   const page = await context.newPage();
   try {
-    await page.goto(`${baseURL}/experiencia?capitulo=VII`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=VII`);
     await expect(page.locator(".cinema")).toHaveAttribute(
       "data-archive-loading",
       "true",
@@ -132,7 +133,7 @@ test("caixa original abre, aproxima câmera, revela perguntas e preserva respost
     if (m.type() === "error") errors.push(m.text());
   });
   try {
-    await page.goto(`${baseURL}/experiencia?capitulo=VII`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=VII`);
     await expect(page.locator("#VII01-title")).toBeVisible();
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     const canvas = page.locator("canvas");
@@ -277,7 +278,7 @@ test("caixa original abre, aproxima câmera, revela perguntas e preserva respost
         ),
       ).toBe(true);
     }
-    await page.reload();
+    await reloadPage(page);
     await expect(page.locator("#VII06")).toHaveValue(
       "Eu escolho esta memória fictícia, sem fatos impostos.",
     );
@@ -309,7 +310,7 @@ test("caixa original abre, aproxima câmera, revela perguntas e preserva respost
       "Eu escolho esta memória fictícia, sem fatos impostos.",
     );
     await page.getByRole("button", { name: "Sair e continuar depois" }).click();
-    await page.goto(`${baseURL}/experiencia`);
+    await goTo(page, `${baseURL}/experiencia`);
     await expect(page.locator("#VII06")).toHaveValue(
       "Eu escolho esta memória fictícia, sem fatos impostos.",
     );
@@ -349,7 +350,7 @@ test("entrada de VII mantém o Canvas e pular assenta tampa e câmera", async ({
   );
   const page = await context.newPage();
   try {
-    await page.goto(`${baseURL}/experiencia?capitulo=VI`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=VI`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     await expect(page.locator(".study-scene")).toHaveAttribute(
       "data-renderer",
@@ -433,7 +434,7 @@ test("fotografias funcionam sem WebGL e com movimento reduzido", async ({
       return Reflect.apply(original, this, [type, ...args]);
     } as typeof original;
   });
-  await page.goto("/experiencia?capitulo=VII");
+  await goTo(page, "/experiencia?capitulo=VII");
   const photos = page.getByRole("navigation", {
     name: "Fotografias do capítulo",
     exact: true,
@@ -443,7 +444,7 @@ test("fotografias funcionam sem WebGL e com movimento reduzido", async ({
   await page.locator("#VII07").fill("Nenhum arrependimento inventado.");
   await page.getByRole("button", { name: "Continuar", exact: true }).click();
   await expect(page.locator("#VII08-title")).toBeVisible();
-  await page.reload();
+  await reloadPage(page);
   await expect(page.locator("#VII08-title")).toBeVisible();
   await page.getByRole("button", { name: "Voltar", exact: true }).click();
   await expect(page.locator("#VII07")).toHaveValue(

@@ -1,3 +1,4 @@
+import { goTo } from "./navigation";
 import { expect, test, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 import AxeBuilder from "@axe-core/playwright";
@@ -6,7 +7,7 @@ import { chapterIds, chapters } from "../../src/content/chapters";
 import { buildExport } from "../../src/lib/story";
 import { fixture, hook } from "../fixtures";
 async function startCharacter(page: Page) {
-  await page.goto("/criar/I");
+  await goTo(page, "/criar/I");
   await page.getByLabel("Nome completo").fill("Eleanor Whitmore");
   await page.getByLabel("Data de nascimento").fill("1879-03-15");
   await page.getByRole("button", { name: "Próxima folha" }).click();
@@ -153,7 +154,7 @@ test("jogador percorre os sete capítulos, reutiliza pessoas e exporta revisões
 test("famílias não determinam criação e todos os capítulos têm as perguntas previstas", async ({
   page,
 }) => {
-  await page.goto("/criar/II");
+  await goTo(page, "/criar/II");
   await page
     .getByLabel("Família / linhagem", { exact: true })
     .selectOption("desconhecida");
@@ -174,14 +175,14 @@ test("famílias não determinam criação e todos os capítulos têm as pergunta
     page.getByText(/nome e contexto não serão exportados/),
   ).toBeVisible();
   for (const id of chapterIds.slice(1)) {
-    await page.goto(`/criar/${id}`);
+    await goTo(page, `/criar/${id}`);
     for (const question of chapters[id].questions)
       await expect(page.locator(`#${question.id}-title`)).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Pular animações" }),
     ).toBeVisible();
   }
-  await page.goto("/criar/INVALID");
+  await goTo(page, "/criar/INVALID");
   await expect(page.getByText("This page could not be found.")).toBeVisible();
 });
 test("backup completo preserva respostas entre contextos e a conclusão permite zero oportunidades", async ({
@@ -268,7 +269,7 @@ test("Arquivo do Mestre importa, resolve revisões, planeja e restaura backups s
       return buildExport(p.draft, p.story);
     },
   );
-  await page.goto("/mestre");
+  await goTo(page, "/mestre");
   await expect(
     page.getByText("Nenhum personagem importado.", { exact: false }),
   ).toBeVisible();
@@ -406,7 +407,7 @@ test("Arquivo do Mestre importa, resolve revisões, planeja e restaura backups s
     restored.getByRole("heading", { name: "Hipótese privada do teste" }),
   ).toBeVisible();
   await context.close();
-  await page.goto("/");
+  await goTo(page, "/");
   await expect(page.getByText("Hipótese privada do teste")).toHaveCount(0);
   const response = await page.request.get("/");
   expect(await response.text()).not.toContain("Hipótese privada do teste");
@@ -414,7 +415,7 @@ test("Arquivo do Mestre importa, resolve revisões, planeja e restaura backups s
 test("acessibilidade da carta, capítulo narrativo, revisão e arquivo vazio", async ({
   page,
 }) => {
-  await page.goto("/");
+  await goTo(page, "/");
   await page.getByRole("button", { name: "Pular animações" }).click();
   let result = await new AxeBuilder({ page }).analyze();
   expect(result.violations).toEqual([]);
@@ -425,7 +426,7 @@ test("acessibilidade da carta, capítulo narrativo, revisão e arquivo vazio", a
     "/revisao",
     "/mestre",
   ]) {
-    await page.goto(path);
+    await goTo(page, path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     result = await new AxeBuilder({ page }).analyze();
     expect(result.violations).toEqual([]);

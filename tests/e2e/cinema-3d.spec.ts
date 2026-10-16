@@ -1,3 +1,4 @@
+import { goTo } from "./navigation";
 import { chromium, expect, test } from "@playwright/test";
 test("cena fullscreen 3D vira páginas, mantém campos e adapta viewport", async ({
   baseURL,
@@ -36,7 +37,7 @@ test("cena fullscreen 3D vira páginas, mantém campos e adapta viewport", async
       localStorage.setItem("hogwarts-scene", "light"),
     );
     await page.clock.install();
-    await page.goto(`${baseURL}/experiencia`);
+    await goTo(page, `${baseURL}/experiencia`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     await expect(page.locator(".study-scene")).toHaveAttribute(
       "data-renderer",

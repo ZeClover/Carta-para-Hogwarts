@@ -1,3 +1,4 @@
+import { goTo, reloadPage } from "./navigation";
 import { chromium, expect, test } from "@playwright/test";
 
 test("cenário sem WebGL mantém carta, álbum, formulário e salvamento", async ({
@@ -13,7 +14,7 @@ test("cenário sem WebGL mantém carta, álbum, formulário e salvamento", async
       return original.apply(this, args);
     } as typeof original;
   });
-  await page.goto("/");
+  await goTo(page, "/");
   await expect(page.locator('[data-scene="I"]')).toHaveAttribute(
     "data-renderer",
     "2.5d",
@@ -21,14 +22,14 @@ test("cenário sem WebGL mantém carta, álbum, formulário e salvamento", async
   await expect(page.getByLabel("Nome completo", { exact: true })).toBeVisible({
     timeout: 10000,
   });
-  await page.goto("/criar/I");
+  await goTo(page, "/criar/I");
   await page.getByLabel("Nome completo").fill("Livia da Cena Leve");
   await expect(page.getByRole("status")).toHaveText("Salvo neste navegador.");
-  await page.reload();
+  await reloadPage(page);
   await expect(page.getByLabel("Nome completo")).toHaveValue(
     "Livia da Cena Leve",
   );
-  await page.goto("/criar/II");
+  await goTo(page, "/criar/II");
   await page.getByRole("button", { name: "Virar página do álbum" }).click();
   await expect(page.locator('[data-scene="II"]')).toHaveAttribute(
     "data-active",
@@ -41,7 +42,7 @@ test("cenário sem WebGL mantém carta, álbum, formulário e salvamento", async
   );
   await page.locator("#II02").fill("Uma sala cheia de livros.");
   await expect(page.getByRole("status")).toHaveText("Salvo neste navegador.");
-  await page.reload();
+  await reloadPage(page);
   await expect(page.locator("#II02")).toHaveValue("Uma sala cheia de livros.");
 });
 
@@ -58,7 +59,7 @@ test("objetos dos capítulos e movimento reduzido funcionam pelo teclado", async
     ["final", "Selar o livro"],
   ];
   for (const [kind, action] of scenes) {
-    await page.goto(kind === "final" ? "/revisao" : `/criar/${kind}`);
+    await goTo(page, kind === "final" ? "/revisao" : `/criar/${kind}`);
     const scene = page.locator(`[data-scene="${kind}"]`);
     await expect(scene).toHaveAttribute("data-motion", "reduced");
     await page.getByRole("button", { name: action }).focus();
@@ -111,7 +112,7 @@ test("3D real: travelling, carta, álbum, espelho e perda de contexto", async ({
       )
         external.push(request.url());
     });
-    await page.goto(baseURL!);
+    await goTo(page, baseURL!);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     const scene = page.locator('[data-scene="I"]');
     await expect(scene).toHaveAttribute("data-renderer", "3d", {
@@ -127,7 +128,7 @@ test("3D real: travelling, carta, álbum, espelho e perda de contexto", async ({
       path: testInfo.outputPath("letter-open.png"),
       fullPage: true,
     });
-    await page.goto(`${baseURL}/criar/II`);
+    await goTo(page, `${baseURL}/criar/II`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     const album = page.locator('[data-scene="II"]');
     await expect(album).toHaveAttribute("data-renderer", "3d", {
@@ -139,11 +140,11 @@ test("3D real: travelling, carta, álbum, espelho e perda de contexto", async ({
     await album.screenshot({ path: testInfo.outputPath("album.png") });
     await page.locator("#II02").fill("A mesma casa, sob a luz das velas.");
     await expect(page.getByRole("status")).toHaveText("Salvo neste navegador.");
-    await page.reload();
+    await reloadPage(page);
     await expect(page.locator("#II02")).toHaveValue(
       "A mesma casa, sob a luz das velas.",
     );
-    await page.goto(`${baseURL}/criar/V`);
+    await goTo(page, `${baseURL}/criar/V`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     const mirror = page.locator('[data-scene="V"]');
     await expect(mirror).toHaveAttribute("data-renderer", "3d", {

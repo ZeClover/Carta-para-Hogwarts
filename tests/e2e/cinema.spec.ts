@@ -1,3 +1,4 @@
+import { goTo, reloadPage } from "./navigation";
 import { readFile } from "node:fs/promises";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
@@ -6,7 +7,7 @@ test("fullscreen, confirma, retoma, edita e preserva todas as perguntas", async 
 }) => {
   test.setTimeout(90000);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/experiencia");
+  await goTo(page, "/experiencia");
   await expect(page.getByLabel("Nome completo", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Continuar", exact: true }).click();
   await expect(page.locator(".cinema [role=alert]")).toContainText("Preencha");
@@ -15,7 +16,7 @@ test("fullscreen, confirma, retoma, edita e preserva todas as perguntas", async 
     .fill("Eleanor Whitmore");
   await page.getByRole("button", { name: "Continuar", exact: true }).click();
   await expect(page.locator("#I02")).toBeVisible();
-  await page.reload();
+  await reloadPage(page);
   await expect(page.locator("#I02")).toBeVisible();
   await page.getByRole("button", { name: "Voltar", exact: true }).click();
   await expect(page.locator("#I01")).toHaveValue("Eleanor Whitmore");
@@ -76,7 +77,7 @@ test("fullscreen, confirma, retoma, edita e preserva todas as perguntas", async 
       .not.toBe(current);
   }
   await expect(page).toHaveURL(/revisao/);
-  await page.goto("/experiencia");
+  await goTo(page, "/experiencia");
   await expect(page.locator(".cinema-writing")).toHaveAttribute(
     "aria-label",
     "Página VII-review",
@@ -102,22 +103,22 @@ test("fullscreen, confirma, retoma, edita e preserva todas as perguntas", async 
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
-  await page.goto("/experiencia?capitulo=II");
+  await goTo(page, "/experiencia?capitulo=II");
   await expect(page.locator("#family")).toBeVisible();
   await page.getByRole("button", { name: "Continuar", exact: true }).click();
   await expect(page.locator("#II01-title")).toBeVisible();
-  await page.reload();
+  await reloadPage(page);
   await expect(page.locator("#II01-title")).toBeVisible();
 });
 test("salva antes da animação, permite pular e sair", async ({ page }) => {
-  await page.goto("/experiencia");
+  await goTo(page, "/experiencia");
   await page.locator("#I01").fill("Nome persistente");
   await page.getByRole("button", { name: "Continuar", exact: true }).click();
   await expect(page.locator(".cinema")).toHaveAttribute("data-phase", "turn");
   await page.getByRole("button", { name: "Pular animações" }).click();
   await expect(page.locator("#I02")).toBeVisible();
   await page.getByRole("button", { name: "Sair e continuar depois" }).click();
-  await page.goto("/experiencia");
+  await goTo(page, "/experiencia");
   await expect(page.locator("#I02")).toBeVisible();
   await page.getByRole("button", { name: "Voltar", exact: true }).click();
   await expect(page.locator("#I01")).toHaveValue("Nome persistente");
@@ -129,7 +130,7 @@ test("salva antes da animação, permite pular e sair", async ({ page }) => {
 test("texto oculto fica guardado e não aparece na tinta ou nas páginas", async ({
   page,
 }) => {
-  await page.goto("/experiencia?capitulo=II");
+  await goTo(page, "/experiencia?capitulo=II");
   await expect(page.locator("#family")).toBeVisible();
   await page.getByRole("button", { name: "Continuar", exact: true }).click();
   await expect(page.locator("#II01-title")).toBeVisible();
@@ -150,7 +151,7 @@ test("texto oculto fica guardado e não aparece na tinta ou nas páginas", async
 test("restaurar o mesmo personagem cancela uma transição pendente", async ({
   page,
 }) => {
-  await page.goto("/experiencia");
+  await goTo(page, "/experiencia");
   await page.locator("#I01").fill("Personagem fictício preservado");
   await page.getByRole("button", { name: "Capítulos e opções" }).click();
   const downloading = page.waitForEvent("download");
@@ -177,7 +178,7 @@ test("restaurar o mesmo personagem cancela uma transição pendente", async ({
   await expect(page.locator("#I01")).toHaveValue(
     "Personagem fictício preservado",
   );
-  await page.reload();
+  await reloadPage(page);
   await expect(page.locator("#I01")).toHaveValue(
     "Personagem fictício preservado",
   );
@@ -186,7 +187,7 @@ test("restaurar o mesmo personagem cancela uma transição pendente", async ({
 test("virada reversa protege cliques, retoma cursor e orienta a idade excepcional", async ({
   page,
 }) => {
-  await page.goto("/experiencia");
+  await goTo(page, "/experiencia");
   await page.locator("#I01").fill("Personagem das páginas curvas");
   await page.clock.install();
   await page.clock.pauseAt(new Date());
@@ -214,6 +215,6 @@ test("virada reversa protege cliques, retoma cursor e orienta a idade excepciona
   await next.click();
   await expect(page.locator("#I04")).toBeVisible();
   await page.clock.resume();
-  await page.reload();
+  await reloadPage(page);
   await expect(page.locator("#I04")).toBeVisible();
 });

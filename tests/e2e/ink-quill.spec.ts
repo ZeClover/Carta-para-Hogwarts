@@ -1,3 +1,4 @@
+import { goTo, reloadPage } from "./navigation";
 import { chromium, expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import ink from "../../src/content/ink-quill.json" with { type: "json" };
@@ -50,7 +51,7 @@ test("pena se manifesta uma vez; leitura, edição e retomada preservam resposta
     if (m.type() === "error") errors.push(m.text());
   });
   try {
-    await page.goto(`${baseURL}/experiencia?capitulo=III`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=III`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     const canvas = page.locator("canvas");
     await expect(page.locator(".study-scene")).toHaveAttribute(
@@ -111,7 +112,7 @@ test("pena se manifesta uma vez; leitura, edição e retomada preservam resposta
     await expect(page.locator(".cinema-save")).toHaveText(
       "Salvo neste navegador.",
     );
-    await page.reload();
+    await reloadPage(page);
     await expect(page.locator(".cinema")).toHaveAttribute(
       "data-interaction-ready",
       "true",
@@ -181,7 +182,7 @@ test("pular manifestação assenta a pena e mantém o Canvas ao sair e voltar", 
   );
   const page = await context.newPage();
   try {
-    await page.goto(`${baseURL}/experiencia?capitulo=II`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=II`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     await expect(page.locator(".study-scene")).toHaveAttribute(
       "data-renderer",
@@ -229,7 +230,7 @@ test("pular manifestação assenta a pena e mantém o Canvas ao sair e voltar", 
       "Texto preservado no cenário leve.",
     );
     await page.getByRole("button", { name: "Sair e continuar depois" }).click();
-    await page.goto(`${baseURL}/experiencia`);
+    await goTo(page, `${baseURL}/experiencia`);
     await expect(page.locator("#III02")).toHaveValue(
       "Texto preservado no cenário leve.",
     );
@@ -254,7 +255,7 @@ test("III mantém perguntas sem WebGL; movimento reduzido e campos reais", async
       return Reflect.apply(original, this, [type, ...args]);
     } as typeof original;
   });
-  await page.goto("/experiencia?capitulo=III");
+  await goTo(page, "/experiencia?capitulo=III");
   await expect(page.locator(".cinema")).toHaveAttribute(
     "data-interaction-ready",
     "true",
@@ -266,7 +267,7 @@ test("III mantém perguntas sem WebGL; movimento reduzido e campos reais", async
   await expect(page.locator(".cinema-save")).toHaveText(
     "Salvo neste navegador.",
   );
-  await page.reload();
+  await reloadPage(page);
   await expect(page.locator("#III02")).toHaveValue(
     "Memória livre, sem história automática.",
   );

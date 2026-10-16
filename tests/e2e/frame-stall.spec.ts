@@ -1,3 +1,4 @@
+import { goTo, reloadPage } from "./navigation";
 import { chromium, expect, test } from "@playwright/test";
 
 test("modelo carregado sem primeiro frame não prende o replay nem as respostas", async ({
@@ -39,7 +40,7 @@ test("modelo carregado sem primeiro frame não prende o replay nem as respostas"
   const page = await context.newPage();
   try {
     await page.clock.install();
-    await page.goto(`${baseURL}/experiencia?capitulo=IV`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=IV`);
     await page.locator("#IV01").selectOption({ label: "Coruja" });
     await page
       .getByRole("button", { name: "Ver animação", exact: true })
@@ -85,7 +86,7 @@ test("modelo carregado sem primeiro frame não prende o replay nem as respostas"
       path: info.outputPath("frame-stall-recovered.png"),
       scale: "css",
     });
-    await page.reload();
+    await reloadPage(page);
     await expect(page.locator("#IV01")).toHaveValue("Coruja");
   } finally {
     release();

@@ -1,3 +1,4 @@
+import { goTo, reloadPage } from "./navigation";
 import { chromium, expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import sharp from "sharp";
@@ -48,7 +49,7 @@ test("V: moldura original, reflexo arquitetônico legível e câmera parada dura
     if (m.type() === "error") errors.push(m.text());
   });
   try {
-    await page.goto(`${baseURL}/experiencia?capitulo=V`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=V`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     const canvas = page.locator("canvas");
     await expect(page.locator(".study-scene")).toHaveAttribute(
@@ -126,7 +127,7 @@ test("V: moldura original, reflexo arquitetônico legível e câmera parada dura
     });
     await expect(page.locator("#V02")).toBeFocused();
     expect(await canvas.getAttribute("data-camera")).toBe(pose);
-    await page.reload();
+    await reloadPage(page);
     await expect(page.locator(".cinema")).toHaveAttribute(
       "data-interaction-ready",
       "true",
@@ -191,7 +192,7 @@ test("VI: anel separado, base fixa, ampulheta clara e respostas preservadas", as
     if (m.type() === "error") errors.push(m.text());
   });
   try {
-    await page.goto(`${baseURL}/experiencia?capitulo=VI`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=VI`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     const canvas = page.locator("canvas");
     await expect(page.locator(".study-scene")).toHaveAttribute(
@@ -276,7 +277,7 @@ test("VI: anel separado, base fixa, ampulheta clara e respostas preservadas", as
       "2.5d",
     );
     await page.getByRole("button", { name: "Sair e continuar depois" }).click();
-    await page.goto(`${baseURL}/experiencia`);
+    await goTo(page, `${baseURL}/experiencia`);
     await expect(page.locator("#VI01")).toHaveValue(
       "Este sonho fictício é meu, não um símbolo imposto.",
     );

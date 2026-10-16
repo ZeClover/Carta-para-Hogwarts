@@ -1,10 +1,11 @@
+import { goTo, reloadPage } from "./navigation";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
-test("a raiz inicia silenciosamente, pular é idempotente e a raiz retoma o cursor salvo", async ({
+test("após iniciar, pular é idempotente e a raiz retoma o cursor salvo", async ({
   page,
 }) => {
-  await page.goto("/");
+  await goTo(page, "/");
   await expect(page.locator(".cinema")).toHaveAttribute(
     "data-entry",
     "opening",
@@ -24,7 +25,7 @@ test("a raiz inicia silenciosamente, pular é idempotente e a raiz retoma o curs
   await page.locator("#I01").fill("Registro de teste — sem história inventada");
   await page.getByRole("button", { name: "Continuar", exact: true }).click();
   await expect(page.locator("#I02")).toBeVisible();
-  await page.goto("/");
+  await goTo(page, "/");
   await expect(page.locator("#I02")).toBeVisible();
   await expect(page.locator(".cinema")).toHaveAttribute(
     "data-entry",
@@ -39,17 +40,17 @@ test("a raiz inicia silenciosamente, pular é idempotente e a raiz retoma o curs
   );
 });
 
-test("a primeira pergunta aparece automaticamente e movimento reduzido não repete abertura", async ({
+test("após iniciar, movimento reduzido mostra a pergunta e retomada não repete abertura", async ({
   page,
 }) => {
-  await page.goto("/");
+  await goTo(page, "/");
   await expect(page.locator("#I01")).toBeVisible({ timeout: 10000 });
   await expect(page.locator(".cinema")).toHaveAttribute(
     "data-entry",
     "reading",
   );
   await expect(page.locator("#I01")).not.toBeFocused();
-  await page.reload();
+  await reloadPage(page);
   await expect(page.locator("#I01")).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Pular abertura" }),
@@ -60,7 +61,7 @@ test("falha na leitura bloqueia gravação e preserva o registro existente", asy
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
+  await goTo(page, "/");
   await page.locator("#I01").fill("Registro anterior protegido");
   await expect(page.locator(".cinema-save")).toHaveText(
     "Salvo neste navegador.",
@@ -79,7 +80,7 @@ test("falha na leitura bloqueia gravação e preserva o registro existente", asy
       return original.apply(this, args);
     } as typeof original;
   });
-  await page.reload();
+  await reloadPage(page);
   await expect(page.locator("main [role=alert]")).toContainText(
     "Nenhum dado existente foi substituído",
   );
@@ -96,7 +97,7 @@ test("reflow 320px, redução persistente, navegação por teclado e texto longo
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 320, height: 680 });
-  await page.goto("/experiencia?capitulo=VI");
+  await goTo(page, "/experiencia?capitulo=VI");
   await page
     .locator("#VI01")
     .fill("Uma resposta inteiramente editável. ".repeat(70));
@@ -125,7 +126,7 @@ test("reflow 320px, redução persistente, navegação por teclado e texto longo
   await page
     .getByRole("button", { name: "Reduzir movimento", exact: true })
     .click();
-  await page.reload();
+  await reloadPage(page);
   await expect(
     page.getByRole("button", { name: "Reduzir movimento", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
@@ -144,7 +145,7 @@ test("áudio negado continua silencioso e não bloqueia a resposta", async ({
       Promise.reject(new DOMException("Denied", "NotAllowedError"));
   });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
+  await goTo(page, "/");
   await page.getByRole("button", { name: "Capítulos e opções" }).click();
   await page.getByRole("button", { name: "Ativar som de papel" }).click();
   await expect(
@@ -188,7 +189,7 @@ test("modelo crítico 404 mantém cenário leve, edição e salvamento", async (
     await page.route("**/assets/redesign/chapter-i-*.glb", (route) =>
       route.fulfill({ status: 404, body: "Missing asset" }),
     );
-    await page.goto(baseURL!);
+    await goTo(page, baseURL!);
     await page.locator("#I01").fill("Registro preservado sem modelo");
     const missing = page.waitForResponse(
       (response) =>
@@ -212,7 +213,7 @@ test("modelo crítico 404 mantém cenário leve, edição e salvamento", async (
     );
     await page.getByRole("button", { name: "Continuar", exact: true }).click();
     await expect(page.locator("#I02")).toBeVisible();
-    await page.reload();
+    await reloadPage(page);
     await expect(page.locator("#I02")).toBeVisible();
     await page.getByRole("button", { name: "Voltar", exact: true }).click();
     await expect(page.locator("#I01")).toHaveValue(

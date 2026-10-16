@@ -1,3 +1,4 @@
+import { goTo } from "./navigation";
 import { chromium, expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import architecture from "../../src/content/hallway-backdrop.json" with { type: "json" };
@@ -56,7 +57,7 @@ test("sete composições reconhecíveis, leitura acessível e viagem real de câ
       "VII",
     ].entries()) {
       const requestStart = modelRequests.length;
-      await page.goto(`${baseURL}/experiencia?capitulo=${chapter}`);
+      await goTo(page, `${baseURL}/experiencia?capitulo=${chapter}`);
       await expect(page.locator(".cinema")).toHaveAttribute(
         "data-chapter",
         chapter,
@@ -127,7 +128,7 @@ test("sete composições reconhecíveis, leitura acessível e viagem real de câ
     page.on("console", (m) => {
       if (m.type() === "error") errors.push(m.text());
     });
-    await page.goto(`${baseURL}/experiencia?capitulo=II`);
+    await goTo(page, `${baseURL}/experiencia?capitulo=II`);
     await page.getByRole("button", { name: "Ativar cenário 3D" }).click();
     await expect(page.locator(".study-scene")).toHaveAttribute(
       "data-renderer",
